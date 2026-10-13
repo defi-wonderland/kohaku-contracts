@@ -1,0 +1,83 @@
+PasskeyMethodVerifyTest
+├── when the assertion is well formed
+│   └── it should return the verify selector
+├── when the digest renders with the url safe characters
+│   └── it should return the verify selector
+├── when the client data carries an extra trailing field
+│   └── it should return the verify selector
+├── when the client data is exactly the prefix
+│   └── it should return the verify selector
+├── when the flags carry backup eligibility beside user present and user verified
+│   └── it should return the verify selector
+├── when the flags carry backup eligibility and backup state
+│   └── it should return the verify selector
+├── when the signature counter is nonzero
+│   └── it should return the verify selector
+├── when extension output of any length follows the signature counter
+│   └── it should return the verify selector
+├── when called through a static call
+│   └── it should return exactly one word holding the verify selector
+├── when the signature is checked
+│   └── it should call the P256VERIFY precompile with the signed hash the signature and the committed key
+├── when verify is asked about another digest
+│   └── it should refuse the proof
+├── when the challenge carries base64 padding
+│   └── it should refuse the proof
+├── when the challenge uses the standard base64 alphabet
+│   └── it should refuse the proof
+├── when the challenge is truncated
+│   └── it should refuse the proof
+├── when an extra field sits between the type and the challenge
+│   └── it should refuse the proof
+├── when an extra field sits before the type
+│   └── it should refuse the proof
+├── when a duplicate challenge member precedes the canonical prefix
+│   └── it should refuse the proof
+├── when the prefix carries whitespace
+│   └── it should refuse the proof
+├── when the client data is shorter than the prefix
+│   └── it should refuse the proof
+├── when the type is webauthn create
+│   └── it should refuse the proof
+├── when the type value extends webauthn get
+│   └── it should refuse the proof
+├── when the type field is missing
+│   └── it should refuse the proof
+├── when the relying party hash differs from the committed one
+│   └── it should refuse the proof
+├── when the user present flag is missing
+│   └── it should refuse the proof
+├── when the user verified flag is missing
+│   └── it should refuse the proof
+├── when the authenticator data ends before the flags byte
+│   └── it should refuse the proof
+├── when the authenticator data ends inside the signature counter
+│   └── it should answer with one word that is not the verify selector
+├── when the flags carry backup state without backup eligibility
+│   └── it should answer with one word that is not the verify selector
+├── when extension output follows flags without user verification
+│   └── it should refuse the proof
+├── when the signature is under another key
+│   └── it should refuse the proof
+├── when the config commits another key
+│   └── it should refuse the proof
+├── when the signature covers other client data bytes
+│   └── it should refuse the proof
+├── when the signature covers the client data without its extra field
+│   └── it should refuse the proof
+├── when the signature covers other authenticator data
+│   └── it should refuse the proof
+├── when the signature covers the digest directly
+│   └── it should refuse the proof
+├── when a signature scalar is zero
+│   └── it should refuse the proof
+├── when a signature scalar is not below the group order
+│   └── it should refuse the proof
+├── when the proof is not the abi encoded layout
+│   └── it should refuse the proof
+├── when the config is empty
+│   └── it should answer with one word that is not the verify selector
+├── when the config is one byte short
+│   └── it should answer with one word that is not the verify selector
+└── when the config carries extra bytes
+    └── it should answer with one word that is not the verify selector

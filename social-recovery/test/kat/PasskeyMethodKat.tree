@@ -1,0 +1,17 @@
+PasskeyMethodKatTest
+├── when replaying the config vectors
+│   ├── it should encode x, y and the relying-party hash as three ABI words.
+│   └── it should hash the relying-party id with SHA-256.
+├── when replaying the config vector through the method
+│   └── it should verify under the frozen config and under no reordered or rebound one.
+├── when replaying the proof encoding vectors
+│   ├── it should encode the four proof fields in the frozen order.
+│   └── it should carry the required flags in the flags byte at offset 32.
+├── when replaying the proof challenge vectors
+│   └── it should render the digest as the frozen challenge.
+├── when replaying the proof signed hash vectors
+│   └── it should hash the authenticator data and the client data hash with SHA-256.
+├── when replaying the proof signature vectors
+│   └── it should answer one exactly as the row expects.
+└── when replaying the proof verdict vectors
+    └── it should answer the magic value exactly for the accepted rows.

@@ -1,0 +1,7 @@
+PasskeyMethodBase64UrlTest
+├── when rendering the RFC examples
+│   └── it should match the unpadded RFC outputs
+├── when rendering bytes that reach the last two alphabet entries
+│   └── it should use dash and underscore in the url alphabet and plus and slash in the standard one
+└── when rendering the digest of the frozen passkey vector
+    └── it should equal the challenge the vector freezes
