@@ -1,0 +1,33 @@
+PasskeyMethodRealAssertionsTest
+├── when the apple ios assertion is replayed
+│   └── it should return the verify selector
+├── when the apple macos assertion is replayed
+│   └── it should return the verify selector
+├── when the yubikey bio assertion is replayed
+│   └── it should return the verify selector
+├── when the chrome assertion of the webauthn sol credential is replayed
+│   └── it should return the verify selector
+├── when the safari assertion of the webauthn sol credential is replayed
+│   └── it should return the verify selector
+├── when each accepted assertion carries s in the other half
+│   └── it should return the verify selector
+├── when each accepted assertion is asked about another digest
+│   └── it should refuse the proof
+├── when the config commits another relying party
+│   └── it should refuse the proof
+├── when the config commits another key
+│   └── it should refuse the proof
+├── when one byte of the signature counter changes
+│   └── it should refuse the proof
+├── when the last byte of the client data changes
+│   └── it should refuse the proof
+├── when r changes
+│   └── it should refuse the proof
+├── when s changes
+│   └── it should refuse the proof
+├── when the yubikey 5 nfc assertion lacks user verification
+│   └── it should refuse the proof
+├── when the chrome touch id assertion writes the challenge before the type
+│   └── it should refuse the proof
+└── when the yubikey 5c nfc assertion writes the challenge before the type without user verification
+    └── it should refuse the proof

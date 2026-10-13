@@ -1,0 +1,208 @@
+{
+  "assertions": [
+    {
+      "name": "appleIos",
+      "source": {
+        "repository": "https://github.com/Yubico/java-webauthn-server",
+        "commit": "e63ea7d98a4974c29ad42084d2704a4e400b7c3a",
+        "license": "BSD-2-Clause",
+        "path": "webauthn-server-core/src/test/scala/com/yubico/webauthn/test/RealExamples.scala",
+        "entry": "AppleAttestationIos"
+      },
+      "authenticator": "Apple platform authenticator on iOS (apple attestation format)",
+      "expected": "accepted",
+      "note": "flags 0x05, signature counter 0, low s",
+      "rpId": "demo.yubico.com",
+      "publicKey": {
+        "format": "cose",
+        "value": "pQECAyYgASFYIGHPO7-6tfSGI6kt74sywHrfzXFtDVaWEb872RXwk9NJIlggwUdK8yEyOIrrgbqVbUkRYWXx2txoWFLv8NzKNod7P_o"
+      },
+      "authenticatorData": "xGzvgq0bVGR3WR0Aiwh1nsPm0uy085R0v-ppaZJdA7cFAAAAAA",
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoid2V5TG9keXVzUl96SWtPWUg3bTVUYjBreGViQnEtV2QzYVJreUhMeHl0SSIsIm9yaWdpbiI6Imh0dHBzOi8vZGVtby55dWJpY28uY29tIn0",
+      "signature": {
+        "format": "der",
+        "value": "MEUCIQDv9Sye6lyu6nonnsI9bSjkBXyhPRmei4LGRhfuOGc0AwIgPEQFsGHZDMIeSVDmgB85otg1Ba0XNl7S_Bgj6diIIoo"
+      }
+    },
+    {
+      "name": "appleMacos",
+      "source": {
+        "repository": "https://github.com/Yubico/java-webauthn-server",
+        "commit": "e63ea7d98a4974c29ad42084d2704a4e400b7c3a",
+        "license": "BSD-2-Clause",
+        "path": "webauthn-server-core/src/test/scala/com/yubico/webauthn/test/RealExamples.scala",
+        "entry": "AppleAttestationMacos"
+      },
+      "authenticator": "Apple platform authenticator on macOS (apple attestation format)",
+      "expected": "accepted",
+      "note": "flags 0x05, signature counter 0, low s",
+      "rpId": "demo.yubico.com",
+      "publicKey": {
+        "format": "cose",
+        "value": "pQECAyYgASFYIHa72A2_lGwI3G26JprUasPti5tX7xxupZdXToHhDNuRIlgg_E4UNMo-Ed4VW3P3mp9SOXqnP0VwxZv4ySPy5qdbhBY"
+      },
+      "authenticatorData": "xGzvgq0bVGR3WR0Aiwh1nsPm0uy085R0v-ppaZJdA7cFAAAAAA",
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiVVdobmx5VTdlVzZBTEw1M1VPcENnU1N3ckEzNm92R3VpQUV6ZE91OFdTYyIsIm9yaWdpbiI6Imh0dHBzOi8vZGVtby55dWJpY28uY29tIn0",
+      "signature": {
+        "format": "der",
+        "value": "MEUCIQDkspL__pE98spvRtyTAZqPjmpd6_G-KmNsjMUfX7pKkAIgcld-Y3j0yt95CMqKmR99SKuoiitIL8SBElZw_qFEX5s"
+      }
+    },
+    {
+      "name": "yubikeyBio",
+      "source": {
+        "repository": "https://github.com/Yubico/java-webauthn-server",
+        "commit": "e63ea7d98a4974c29ad42084d2704a4e400b7c3a",
+        "license": "BSD-2-Clause",
+        "path": "webauthn-server-core/src/test/scala/com/yubico/webauthn/test/RealExamples.scala",
+        "entry": "YubikeyBio_5_5_4"
+      },
+      "authenticator": "YubiKey Bio, firmware 5.5.4 (packed attestation)",
+      "expected": "accepted",
+      "note": "flags 0x05, signature counter 4, high s, a crossOrigin member after the prefix",
+      "rpId": "demo.yubico.com",
+      "publicKey": {
+        "format": "cose",
+        "value": "pQECAyYgASFYIOqv5rdC6hCThWqymA58eWRLZGT42mwcvlGzitvETYNCIlggKNrDkFG5krPkI9lGOIMkU6rnXBs6tSCAgIaYLzz5leo"
+      },
+      "authenticatorData": "xGzvgq0bVGR3WR0Aiwh1nsPm0uy085R0v-ppaZJdA7cFAAAABA",
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiOVVHcG1JOXdkM004dF9yUGFZMVRyWXd1LVVranRUdHV1N2RGcHlyNGtDOCIsIm9yaWdpbiI6Imh0dHBzOi8vZGVtby55dWJpY28uY29tIiwiY3Jvc3NPcmlnaW4iOmZhbHNlfQ",
+      "signature": {
+        "format": "der",
+        "value": "MEUCIGM9xK-AHlLTv3mJLagZuNlLijI86T2SzkyAy3NidembAiEA6Y3I5GPYnRoHKil4R8yCSHUFZdgc59GO1KfsoHYhA3o"
+      }
+    },
+    {
+      "name": "webauthnSolChrome",
+      "source": {
+        "repository": "https://github.com/base-org/webauthn-sol",
+        "commit": "619f20ab0f074fef41066ee4ab24849a913263b2",
+        "license": "MIT",
+        "path": "test/WebAuthn.t.sol",
+        "entry": "test_chrome"
+      },
+      "authenticator": "not stated by the source; one credential used from Chrome",
+      "expected": "accepted",
+      "note": "flags 0x05, signature counter 266, low s, origin and crossOrigin members after the prefix",
+      "rpId": "localhost",
+      "publicKey": {
+        "format": "xy",
+        "value": [
+          "28573233055232466711029625910063034642429572463461595413086259353299906450061",
+          "39367742072897599771788408398752356480431855827262528811857788332151452825281"
+        ]
+      },
+      "authenticatorData": "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MFAAABCg",
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiOWpFRmlqdWhFV3JNNFNPVy10Q2hKYlVFSEVQNDRWY2pjSi1CcW8xZlRNOCIsIm9yaWdpbiI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwNSIsImNyb3NzT3JpZ2luIjpmYWxzZX0",
+      "signature": {
+        "format": "rs",
+        "value": [
+          "29739767516584490820047863506833955097567272713519339793744591468032609909569",
+          "45947455641742997809691064512762075989493430661170736817032030660832793108102"
+        ]
+      }
+    },
+    {
+      "name": "webauthnSolSafari",
+      "source": {
+        "repository": "https://github.com/base-org/webauthn-sol",
+        "commit": "619f20ab0f074fef41066ee4ab24849a913263b2",
+        "license": "MIT",
+        "path": "test/WebAuthn.t.sol",
+        "entry": "test_safari"
+      },
+      "authenticator": "not stated by the source; the same credential used from Safari",
+      "expected": "accepted",
+      "note": "flags 0x05, signature counter 257, low s",
+      "rpId": "localhost",
+      "publicKey": {
+        "format": "xy",
+        "value": [
+          "28573233055232466711029625910063034642429572463461595413086259353299906450061",
+          "39367742072897599771788408398752356480431855827262528811857788332151452825281"
+        ]
+      },
+      "authenticatorData": "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MFAAABAQ",
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiOWpFRmlqdWhFV3JNNFNPVy10Q2hKYlVFSEVQNDRWY2pjSi1CcW8xZlRNOCIsIm9yaWdpbiI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwNSJ9",
+      "signature": {
+        "format": "rs",
+        "value": [
+          "43684192885701841787131392247364253107519555363555461570655060745499568693242",
+          "22655632649588629308599201066602670461698485748654492451178007896016452673579"
+        ]
+      }
+    },
+    {
+      "name": "yubikey5Nfc",
+      "source": {
+        "repository": "https://github.com/Yubico/java-webauthn-server",
+        "commit": "e63ea7d98a4974c29ad42084d2704a4e400b7c3a",
+        "license": "BSD-2-Clause",
+        "path": "webauthn-server-core/src/test/scala/com/yubico/webauthn/test/RealExamples.scala",
+        "entry": "YubiKey5Nfc"
+      },
+      "authenticator": "YubiKey 5 NFC (packed attestation)",
+      "expected": "refused",
+      "note": "flags 0x01: user present without user verified",
+      "rpId": "demo.yubico.com",
+      "publicKey": {
+        "format": "cose",
+        "value": "pQECAyYgASFYIJbLqy9JV7ETZUEdPtNzlfl6fBTDZNgioYpDIxIVhRGOIlggS8YE-ZzHh63D4jN3vShnN3F7heKxyJuAApMeRvTJuc8"
+      },
+      "authenticatorData": "xGzvgq0bVGR3WR0Aiwh1nsPm0uy085R0v-ppaZJdA7cBAAAAOg",
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiQUs2RVZHQmVUX0R2UVFrM2hvVUNvY084azNXVnZuUW53TDVLZDJvRld6TSIsIm9yaWdpbiI6Imh0dHBzOi8vZGVtby55dWJpY28uY29tIiwiY3Jvc3NPcmlnaW4iOmZhbHNlLCJleHRyYV9rZXlzX21heV9iZV9hZGRlZF9oZXJlIjoiZG8gbm90IGNvbXBhcmUgY2xpZW50RGF0YUpTT04gYWdhaW5zdCBhIHRlbXBsYXRlLiBTZWUgaHR0cHM6Ly9nb28uZ2wveWFiUGV4In0",
+      "signature": {
+        "format": "der",
+        "value": "MEUCIDkZa6d7HwRxGCZdAldFuTo4qUZvaV8j7IYGjO74liKcAiEAj_PLArWm-VylAUsKgWoj50NQSpnn_qhZEgasgfWmG1Y"
+      }
+    },
+    {
+      "name": "yubikey5cNfcLegacy",
+      "source": {
+        "repository": "https://github.com/Yubico/java-webauthn-server",
+        "commit": "e63ea7d98a4974c29ad42084d2704a4e400b7c3a",
+        "license": "BSD-2-Clause",
+        "path": "webauthn-server-core/src/test/scala/com/yubico/webauthn/test/RealExamples.scala",
+        "entry": "YubiKey5cNfc"
+      },
+      "authenticator": "YubiKey 5C NFC (fido-u2f attestation) through a browser of the time",
+      "expected": "refused",
+      "note": "client data in the pre-standard order, challenge first and type last; flags 0x01: user present without user verified",
+      "rpId": "demo.yubico.com",
+      "publicKey": {
+        "format": "cose",
+        "value": "pQECAyYgASFYIEmvetvx2jCjyYuVyrq-oie24kbwo7sLiJ1MTU3O9SSDIlggTt8CseBAi5lC3_8f7m6MfpkfnXk6qBApJNkP09_Nemk"
+      },
+      "authenticatorData": "xGzvgq0bVGR3WR0Aiwh1nsPm0uy085R0v-ppaZJdA7cBAAAAAQ",
+      "clientDataJSON": "eyJjaGFsbGVuZ2UiOiJ1RjB1MFhKZzdOeUZ1dkJWSHJ0QlBLWUJDNWgtMV9QOURuOWxtZXJRQ0JRIiwiY2xpZW50RXh0ZW5zaW9ucyI6e30sImhhc2hBbGdvcml0aG0iOiJTSEEtMjU2Iiwib3JpZ2luIjoiaHR0cHM6Ly9kZW1vLnl1Ymljby5jb20iLCJ0eXBlIjoid2ViYXV0aG4uZ2V0In0",
+      "signature": {
+        "format": "der",
+        "value": "MEYCIQCVio9swx3DxzBUr4eexfpKP2wmoeEQR0nYp_QxB_rFowIhAOIRFy-7-CP41Q65l5eJIZH49wnj-rrdPklWlBkHcoHG"
+      }
+    },
+    {
+      "name": "chromeTouchIdLegacy",
+      "source": {
+        "repository": "https://github.com/go-webauthn/webauthn",
+        "commit": "7ae82c9ad5f84c997a1f9acd72460dbbdfbfce3c",
+        "license": "BSD-3-Clause",
+        "path": "protocol/assertion_test.go",
+        "entry": "testAssertionResponses[\"success\"] (\"None Attestation - MacOS TouchID\")"
+      },
+      "authenticator": "Chrome Touch ID platform authenticator on macOS (AAGUID adce0002-35bc-c60a-648b-0b25f1f05503), 2019",
+      "expected": "refused",
+      "note": "client data in the order Chrome wrote before the standard fixed it, challenge first and type last; flags 0x45 carry user verified, so only the member order refuses it",
+      "rpId": "webauthn.io",
+      "publicKey": {
+        "format": "cose",
+        "value": "pQMmIAEhWCAoCF-x0dwEhzQo-ABxHIAgr_5WL6cJceREc81oIwFn7iJYIHEHx8ZhBIE42L26-rSC_3l0ZaWEmsHAKyP9rgslApUdAQI"
+      },
+      "authenticatorData": "dKbqkhPJnC90siSSsyDPQCYqlMGpUKA5fyklC2CEHvBFXJJiGa3OAAI1vMYKZIsLJfHwVQMANwCOw-atj9C0vhWpfWU-whzNjeQS21Lpxfdk_G-omAtffWztpGoErlNOfuXWRqm9Uj9ANJck1p6lAQIDJiABIVggKAhfsdHcBIc0KPgAcRyAIK_-Vi-nCXHkRHPNaCMBZ-4iWCBxB8fGYQSBONi9uvq0gv95dGWlhJrBwCsj_a4LJQKVHQ",
+      "clientDataJSON": "eyJjaGFsbGVuZ2UiOiJFNFBUY0lIX0hmWDFwQzZTaWdrMVNDOU5BbGdlenROMDQzOXZpOHpfYzlrIiwibmV3X2tleXNfbWF5X2JlX2FkZGVkX2hlcmUiOiJkbyBub3QgY29tcGFyZSBjbGllbnREYXRhSlNPTiBhZ2FpbnN0IGEgdGVtcGxhdGUuIFNlZSBodHRwczovL2dvby5nbC95YWJQZXgiLCJvcmlnaW4iOiJodHRwczovL3dlYmF1dGhuLmlvIiwidHlwZSI6IndlYmF1dGhuLmdldCJ9",
+      "signature": {
+        "format": "der",
+        "value": "MEUCIBtIVOQxzFYdyWQyxaLR0tik1TnuPhGVhXVSNgFwLmN5AiEAnxXdCq0UeAVGWxOaFcjBZ_mEZoXqNboY5IkQDdlWZYc"
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+EcdsaMethodVerifyKeyTest
+├── when the guardian key signs the digest
+│   └── it should return the verify selector
+├── when the guardian key signs a personal message of the digest
+│   └── it should not return the verify selector
+├── when the guardian key signs another digest
+│   └── it should not return the verify selector
+├── when another key signs the digest
+│   └── it should not return the verify selector
+├── when the signature carries the high s half
+│   └── it should not return the verify selector
+├── when the recovery byte is outside its two legal values
+│   └── it should not return the verify selector
+├── when the signature halves are zero
+│   └── it should not return the verify selector
+├── when the proof is the abi encoded signature
+│   └── it should not return the verify selector
+├── when the proof is the compact signature
+│   └── it should not return the verify selector
+├── when the proof carries a trailing byte
+│   └── it should not return the verify selector
+├── when the proof is empty
+│   └── it should not return the verify selector
+├── when the config is the zero address
+│   └── it should not return the verify selector
+├── when the config carries a trailing word
+│   └── it should answer one word that is not the verify selector
+├── when the config is shorter than one word
+│   └── it should answer one word that is not the verify selector
+└── when the config word carries nonzero upper bytes
+    └── it should not return the verify selector

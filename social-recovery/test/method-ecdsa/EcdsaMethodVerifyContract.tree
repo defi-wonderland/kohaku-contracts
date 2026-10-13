@@ -1,0 +1,33 @@
+EcdsaMethodVerifyContractTest
+├── when the guardian answers the magic value
+│   └── it should return the verify selector
+├── when the guardian answers the magic value followed by trailing bytes
+│   └── it should return the verify selector
+├── when the guardian answers another value
+│   └── it should not return the verify selector
+├── when the guardian answers true
+│   └── it should not return the verify selector
+├── when the guardian answers the magic value with dirty low bytes
+│   └── it should not return the verify selector
+├── when the guardian answers less than one word
+│   └── it should not return the verify selector
+├── when the guardian answers one byte short of a word
+│   └── it should not return the verify selector
+├── when the guardian answers nothing
+│   └── it should not return the verify selector
+├── when the guardian reverts
+│   └── it should not return the verify selector
+├── when the guardian is asked about the digest
+│   └── it should forward the digest and the proof unchanged
+├── when the guardian owner signs the digest
+│   └── it should return the verify selector
+├── when the guardian owner signs a personal message of the digest
+│   └── it should not return the verify selector
+├── when the key of an address with code signs the digest directly
+│   └── it should not return the verify selector
+├── when the key of a delegated address signs the digest directly
+│   └── it should not return the verify selector
+├── when a delegated address answers the magic value
+│   └── it should return the verify selector
+└── when code appears or disappears at the guardian address
+    └── it should choose the path from the code at verification time
