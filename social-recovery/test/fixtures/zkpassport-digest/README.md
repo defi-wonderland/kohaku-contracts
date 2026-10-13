@@ -1,6 +1,6 @@
 # zkPassport digest bind fixture
 
-Draft to verify. Generated on 2026-10-05. This page is for whoever reviews or regenerates the proof behind the positive zkPassport verdict in `test/deploy-identity/fork/DeployIdentityZkPassportVerdictFork.t.sol`. The three data files hold one zkPassport 0.21.0 bind proof whose custom data is `0xb6566bf299a764e0c0a1f4ca4805b7b977ea3a018675b1596e7363854202ec53`, the zkPassport method's rendering of that digest. The digest is `keccak256("zkpassport deployment digest")`, a fixed test value. On a Sepolia fork at block 11,850,300 the identity script deploys the method with Sepolia's table, and the method answers this proof and digest with the magic value, with only the root registry's check of the certificate root mocked.
+Generated on 2026-10-05. This page is for whoever reviews or regenerates the proof behind the positive zkPassport verdict in `test/deploy-identity/fork/DeployIdentityZkPassportVerdictFork.t.sol`. The three data files hold one zkPassport 0.21.0 bind proof whose custom data is `0xb6566bf299a764e0c0a1f4ca4805b7b977ea3a018675b1596e7363854202ec53`, the zkPassport method's rendering of that digest. The digest is `keccak256("zkpassport deployment digest")`, a fixed test value. On a Sepolia fork at block 11,850,300 the identity script deploys the method with Sepolia's table, and the method answers this proof and digest with the magic value, with only the root registry's check of the certificate root mocked.
 
 ## Files
 

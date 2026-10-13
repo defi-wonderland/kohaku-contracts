@@ -190,8 +190,8 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
     assertEq(_reason, abi.encodeWithSelector(IDeployIdentity.DeployIdentity_NotDeployed.selector, _missing));
   }
 
-  /// confirmLabel reverts, and publishes nothing, when the candidate records an Aadhaar verifier other than the
-  /// table's. The script's interface fixes no error for this comparison, so the test requires only the revert.
+  /// confirmLabel reverts naming the pinned and the recorded verifier, and publishes nothing, when the candidate
+  /// records an Aadhaar verifier other than the table's.
   function test_RevertWhen_TheRecordedTableDiffersFromTheTable() external {
     if (!_forkSepolia()) return;
     string memory _label = 'test-identity-confirm-other-table';
@@ -200,10 +200,15 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
       IDeployIdentity.Pins memory _table,
       IDeployIdentity.Inputs memory _operator
     ) = _deployFor(_label);
+    address _pinned = _table.aadhaarVerifier;
     _table.aadhaarVerifier = _ROOT_VERIFIER;
     // it should revert
     // it should publish no record
-    _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
+    bytes memory _reason = _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
+    assertEq(
+      _reason,
+      abi.encodeWithSelector(IDeployIdentity.DeployIdentity_AadhaarVerifierMismatch.selector, _pinned, _ROOT_VERIFIER)
+    );
   }
 
   /// confirmLabel reverts with the role mismatch, carrying the recorded word and the live root admin, and
