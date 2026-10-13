@@ -1,0 +1,39 @@
+DeployCheckInterfacesTest
+├── when every contract answers its interfaces
+│   └── it should pass
+├── when the manager denies IPolicyManager
+│   ├── it should revert
+│   └── it should name the manager and the id
+├── when the wallet method denies IPolicyMethod
+│   ├── it should revert
+│   └── it should name the wallet method and the id
+├── when the passkey method denies IPolicyMethod
+│   ├── it should revert
+│   └── it should name the passkey method and the id
+├── when the action denies IPolicyAction
+│   ├── it should revert
+│   └── it should name the action and the id
+├── when the action denies IRecoveryAction
+│   ├── it should revert
+│   └── it should name the action and the id
+├── when the action denies IAmbireRecoveryAction
+│   ├── it should revert
+│   └── it should name the action and the id
+├── when the manager's answer reverts
+│   ├── it should revert
+│   └── it should name the manager and the id
+├── when the manager answers nothing
+│   ├── it should revert
+│   └── it should name the manager and the id
+├── when the manager answers a word that is no bool
+│   ├── it should revert
+│   └── it should name the manager and the id
+├── when a method has no code
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the manager reverts with the word one
+│   ├── it should revert
+│   └── it should name the manager and the id
+└── when the manager answers true with extra bytes
+    ├── it should revert
+    └── it should name the manager and the id

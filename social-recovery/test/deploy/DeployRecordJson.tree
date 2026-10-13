@@ -1,0 +1,8 @@
+DeployRecordJsonTest
+├── when a deployment is recorded
+│   ├── it should hold the chain id
+│   ├── it should hold the four deployed addresses
+│   ├── it should hold the pinned implementation and its codehash
+│   └── it should hold no other key
+└── when any chain id is recorded
+    └── it should hold that chain id

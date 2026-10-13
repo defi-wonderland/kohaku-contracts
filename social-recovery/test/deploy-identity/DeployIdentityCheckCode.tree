@@ -1,0 +1,26 @@
+DeployIdentityCheckCodeTest
+├── when every address holds code
+│   └── it should pass
+├── when the chain ships no Aadhaar method
+│   └── it should pass
+├── when the root verifier has no code
+│   ├── it should revert
+│   └── it should name the address in the no code error
+├── when the sub verifier has no code
+│   ├── it should revert
+│   └── it should name the address in the no code error
+├── when the verifier helper has no code
+│   ├── it should revert
+│   └── it should name the address in the no code error
+├── when the root registry has no code
+│   ├── it should revert
+│   └── it should name the address in the no code error
+├── when the Aadhaar verifier has no code
+│   ├── it should revert
+│   └── it should name the address in the no code error
+├── when the Aadhaar verifier is zero
+│   ├── it should revert
+│   └── it should name the address in the no code error
+└── when the Aadhaar verifier holds other code
+    ├── it should revert
+    └── it should name the verifier and both code hashes

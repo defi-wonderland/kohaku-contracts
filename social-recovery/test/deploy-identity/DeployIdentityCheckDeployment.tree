@@ -1,0 +1,74 @@
+DeployIdentityCheckDeploymentTest
+├── when both methods match the table and the safe
+│   └── it should pass
+├── when the chain ships no Aadhaar method
+│   └── it should pass
+├── when the zkPassport method declares another admin
+│   ├── it should revert
+│   └── it should name the zkPassport method
+├── when the zkPassport method declares another pause holder
+│   ├── it should revert
+│   └── it should name the zkPassport method
+├── when the zkPassport method declares a pending admin
+│   ├── it should revert
+│   └── it should name the zkPassport method
+├── when the zkPassport method declares a pending pause holder
+│   ├── it should revert
+│   └── it should name the zkPassport method
+├── when the zkPassport method declares other keys
+│   ├── it should revert
+│   └── it should name the zkPassport method
+├── when the zkPassport method declares a longer key list
+│   ├── it should revert
+│   └── it should name the zkPassport method
+├── when the Aadhaar method declares another admin
+│   ├── it should revert
+│   └── it should name the Aadhaar method
+├── when the Aadhaar method declares another pause holder
+│   ├── it should revert
+│   └── it should name the Aadhaar method
+├── when the Aadhaar method declares a pending admin
+│   ├── it should revert
+│   └── it should name the Aadhaar method
+├── when the Aadhaar method declares a pending pause holder
+│   ├── it should revert
+│   └── it should name the Aadhaar method
+├── when the Aadhaar method declares another key
+│   ├── it should revert
+│   └── it should name the Aadhaar method
+├── when the Aadhaar method declares a longer key list
+│   ├── it should revert
+│   └── it should name the Aadhaar method
+├── when the zkPassport method denies IPolicyMethod
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the zkPassport method denies IPolicyMethodPause
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the zkPassport method denies IPolicyMethodAdmin
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the Aadhaar method denies IPolicyMethod
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the Aadhaar method denies IPolicyMethodPause
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the Aadhaar method denies IPolicyMethodAdmin
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the interface answer reverts
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the interface answer is empty
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the interface answer is the word two
+│   ├── it should revert
+│   └── it should name the method and the id
+├── when the interface answer carries extra bytes
+│   ├── it should revert
+│   └── it should name the method and the id
+└── when the Aadhaar method calls another verifier
+    ├── it should revert
+    └── it should name the pin and the method's verifier

@@ -1,0 +1,33 @@
+DeployCheckActionTest
+├── when the action names the manager and the pin
+│   └── it should pass
+├── when the action was deployed with another manager
+│   ├── it should revert
+│   └── it should name the expected and the actual manager
+├── when the action names another deployed manager
+│   ├── it should revert
+│   └── it should name the expected and the actual manager
+├── when the action names the zero manager
+│   ├── it should revert
+│   └── it should name the expected and the actual manager
+├── when the action was deployed with another implementation
+│   ├── it should revert
+│   └── it should name the expected and the actual implementation
+├── when the action names the zero implementation
+│   ├── it should revert
+│   └── it should name the expected and the actual implementation
+├── when the pin differs from the action's implementation
+│   ├── it should revert
+│   └── it should name the pin as expected and the action's implementation as actual
+├── when the action address holds a contract without the actions views
+│   ├── it should revert
+│   └── it should name recoveryAction and the address in the read failure
+├── when the action answers no bytes
+│   ├── it should revert
+│   └── it should name recoveryAction and the address in the read failure
+├── when the action answers a word with bits above an address
+│   ├── it should revert
+│   └── it should name recoveryAction and the address in the read failure
+└── when the implementation read fails
+    ├── it should revert
+    └── it should name recoveryAction and the address in the read failure

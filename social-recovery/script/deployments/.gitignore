@@ -1,0 +1,6 @@
+# Candidate records name addresses that may never have landed; only confirm publishes a record.
+*.pending.json
+# Rehearsal records from Tenderly Virtual TestNets name throwaway addresses.
+tenderly-*
+# Records a fork test writes name throwaway addresses, and a failing test may leave one behind.
+test-*
