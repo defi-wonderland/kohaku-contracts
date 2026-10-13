@@ -1,0 +1,8 @@
+DeployIdentityZkPassportKeysTest
+├── when any table and inputs are rendered
+│   ├── it should answer eight words
+│   └── it should place each value at its position, each address left-padded
+├── when sepolias table is rendered
+│   └── it should answer the published route and the operator's role words
+└── when the root guardian is zero
+    └── it should answer the zero word as the root guardian

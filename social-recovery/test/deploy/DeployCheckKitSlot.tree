@@ -1,0 +1,20 @@
+DeployCheckKitSlotTest
+├── when the kit slot differs from the Ambire helper slot
+│   └── it should pass
+├── when the action sits at any address
+│   └── it should pass
+├── when the kit slot equals the Ambire helper slot
+│   ├── it should revert
+│   └── it should name the action and its kit slot
+├── when a colliding action sits at any address
+│   ├── it should revert
+│   └── it should name the action and its kit slot
+├── when the action address holds a contract without kit slot
+│   ├── it should revert
+│   └── it should name recoveryAction and the address in the read failure
+├── when the kit slot answer is empty
+│   ├── it should revert
+│   └── it should name recoveryAction and the address in the read failure
+└── when the kit slot answer has bits above an address
+    ├── it should revert
+    └── it should name recoveryAction and the address in the read failure

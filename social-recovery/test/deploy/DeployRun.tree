@@ -1,0 +1,9 @@
+DeployRunTest
+├── when the chain is the local test chain
+│   ├── it should revert
+│   ├── it should name the chain in the unsupported chain error
+│   ├── it should create no contract
+│   └── it should write no addresses file
+└── when the chain is not supported
+    ├── it should revert
+    └── it should name the chain in the unsupported chain error

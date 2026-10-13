@@ -1,0 +1,6 @@
+DeployIdentityInputsFromEnvTest
+└── when the inputs arrive one by one
+    ├── it should name the variable while it is absent
+    ├── it should name the variable when it is empty
+    ├── it should raise the zero safe error when the safe is the zero address
+    └── it should answer the four addresses once all four are set

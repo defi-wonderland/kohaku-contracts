@@ -1,0 +1,57 @@
+DeployCheckDeploymentTest
+├── when every assertion holds
+│   └── it should pass
+├── when the action names another manager
+│   ├── it should revert
+│   └── it should raise the manager mismatch
+├── when the pins name another implementation
+│   ├── it should revert
+│   └── it should raise the implementation mismatch
+├── when the kit slot collides
+│   ├── it should revert
+│   └── it should raise the kit slot collision
+├── when the wallet place holds the passkey method
+│   ├── it should revert
+│   └── it should name the method, the expected name and the answered name
+├── when the passkey place holds the wallet method
+│   ├── it should revert
+│   └── it should name the method, the expected name and the answered name
+├── when the two methods are swapped
+│   ├── it should revert
+│   └── it should name the wallet place first
+├── when a method name call reverts
+│   ├── it should revert
+│   └── it should name ecdsaMethod and the address in the read failure
+├── when the passkey method name call reverts
+│   ├── it should revert
+│   └── it should name passkeyMethod and the address in the read failure
+├── when a method name answer is empty
+│   ├── it should revert
+│   └── it should name ecdsaMethod and the address in the read failure
+├── when a method name answer is not a string
+│   ├── it should revert
+│   └── it should name ecdsaMethod and the address in the read failure
+├── when the action place holds the manager
+│   ├── it should revert
+│   └── it should name recoveryAction and the address in the read failure
+├── when the wallet method declares a role
+│   ├── it should revert
+│   └── it should name the wallet method
+├── when the passkey method declares a role
+│   ├── it should revert
+│   └── it should name the passkey method
+├── when a contract denies its interface
+│   ├── it should revert
+│   └── it should raise the missing interface
+├── when the manager is wrong and the kit slot collides
+│   ├── it should revert
+│   └── it should raise the manager mismatch first
+├── when the kit slot collides and a method declares a role
+│   ├── it should revert
+│   └── it should raise the kit slot collision first
+├── when a method declares a role and denies its interface
+│   ├── it should revert
+│   └── it should raise the method role error first
+└── when a method denies its interface and answers another name
+    ├── it should revert
+    └── it should raise the missing interface first

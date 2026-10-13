@@ -1,0 +1,36 @@
+DeployIdentityLabelForTest
+├── when the label is unset
+│   └── it should answer the decimal chain id
+├── when the label is unset on any chain
+│   └── it should answer the decimal chain id
+├── when the label is set
+│   └── it should answer the variable's value
+├── when the label is one character
+│   └── it should answer the variable's value
+├── when the label is sixty four characters
+│   └── it should answer the variable's value
+├── when the label holds digits and one letter
+│   └── it should answer the variable's value
+├── when the label holds digits and a hyphen
+│   └── it should answer the variable's value
+├── when the label is empty
+│   ├── it should revert
+│   └── it should name the label in the error
+├── when the label is longer than sixty four characters
+│   ├── it should revert
+│   └── it should name the label in the error
+├── when the label holds a slash
+│   ├── it should revert
+│   └── it should name the label in the error
+├── when the label holds a dot
+│   ├── it should revert
+│   └── it should name the label in the error
+├── when the label holds an upper case letter
+│   ├── it should revert
+│   └── it should name the label in the error
+├── when the label is a chain id
+│   ├── it should revert
+│   └── it should name the label in the error
+└── when the label holds only digits
+    ├── it should revert
+    └── it should name the label in the error

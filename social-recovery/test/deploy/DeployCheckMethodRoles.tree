@@ -1,0 +1,41 @@
+DeployCheckMethodRolesTest
+├── when the wallet method is checked
+│   └── it should pass
+├── when the passkey method is checked
+│   └── it should pass
+├── when the method declares an admin
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method declares a pending admin
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method declares a trusted key
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method declares a zero key
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method declares a pause holder
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method declares a pending pause holder
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method has no code
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method's answer reverts
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method answers nothing
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method answers too short
+│   ├── it should revert
+│   └── it should name the method in the error
+├── when the method reverts with the word one
+│   ├── it should revert
+│   └── it should name the method in the error
+└── when the method reverts with an empty declaration
+    ├── it should revert
+    └── it should name the method in the error

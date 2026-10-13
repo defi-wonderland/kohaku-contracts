@@ -1,0 +1,5 @@
+DeployIdentityZkPassportVerdictForkTest
+├── when the proof binds the digest
+│   └── it should answer the magic value
+└── when the digest differs in one character
+    └── it should answer a word other than the magic value
