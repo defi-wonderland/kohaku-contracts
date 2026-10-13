@@ -1,0 +1,17 @@
+IPolicyMethodTest
+├── when the selectors are derived
+│   └── it should match each function's canonical signature
+├── when the verify selector is computed
+│   └── it should equal the magic value 0x024ad318
+├── when the compiled abi is read
+│   └── it should list exactly the specified functions events and errors
+├── when verify is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when trustedParties is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when supportsInterface is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when name is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+└── when version is read from the abi
+    └── it should declare the specified parameters returns and mutability

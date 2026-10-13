@@ -15,3 +15,9 @@
 	path = privacy-paymaster/lib/v3-periphery
 	url = https://github.com/uniswap/v3-periphery
 	branch = 0.8
+[submodule "social-recovery/lib/forge-std"]
+	path = social-recovery/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "social-recovery/lib/openzeppelin-contracts"]
+	path = social-recovery/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

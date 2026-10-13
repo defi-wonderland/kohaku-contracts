@@ -1,0 +1,23 @@
+PolicyManagerTypesTest
+├── when the PaymentOrder struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the ProofPlace struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the AttemptRequest struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the CancelRequest struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the Attempt struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the ActionState struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the Setup struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the Clause struct is encoded
+│   └── it should hold the specified fields types and order
+├── when the Setup members are read from the artifact
+│   └── it should declare the specified names and types in order
+├── when the Clause members are read from the artifact
+│   └── it should declare the specified names and types in order
+└── when the attempt states are cast to integers
+    └── it should number them None Waiting Cancelled Consumed

@@ -1,0 +1,48 @@
+SetupBodyRuleSatisfiedTest
+├── when the body has no clauses
+│   └── it should return false naming clause zero
+├── when every clause has a threshold of zero
+│   ├── when no place is filled
+│   │   └── it should return false naming clause zero
+│   └── when places are filled
+│       └── it should return false naming clause zero
+├── when a zero clause sits beside a positive clause
+│   ├── when the positive clause meets its threshold
+│   │   └── it should return true
+│   ├── when the positive clause misses its threshold
+│   │   └── it should return false naming the positive clause
+│   └── when only the zero clause's places are filled
+│       └── it should return false naming the positive clause
+├── when the filled count equals the threshold
+│   └── it should return true
+├── when the filled count is one below the threshold
+│   └── it should return false naming that clause
+├── when the filled count exceeds the threshold
+│   └── it should return true
+├── when a clause's threshold exceeds its credential count
+│   └── it should return false naming that clause even with every place filled
+├── when the rule is met and places past the end are filled
+│   └── it should return true ignoring the places past the end
+├── when a single clause at the widest threshold lists one credential more
+│   ├── when as many places as the widest threshold are filled
+│   │   └── it should return true
+│   └── when one place fewer than the widest threshold is filled
+│       └── it should return false naming that clause
+├── when several clauses miss their thresholds
+│   └── it should name the first failing clause in body order
+├── when an earlier clause is met and a later clause misses
+│   └── it should name the later clause
+├── when every clause meets its threshold
+│   └── it should return true
+├── when one credential repeats at two places
+│   └── it should count both places
+├── when the filled places sit in another clause
+│   └── it should not count them toward this clause
+├── when a place repeats the previous place
+│   └── it should revert with PolicyManager_PlacesNotStrictlyIncreasing naming the repeated place
+├── when a place repeats in a set that misses its threshold
+│   └── it should revert with PolicyManager_PlacesNotStrictlyIncreasing rather than report the missed clause
+├── when a place is below the previous place
+│   └── it should revert with PolicyManager_PlacesNotStrictlyIncreasing naming the lower place
+└── when each place is exactly one above the previous place
+    └── it should count every place

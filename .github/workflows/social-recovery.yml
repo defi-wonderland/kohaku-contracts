@@ -1,0 +1,169 @@
+name: social-recovery
+
+# Checks for the social-recovery/ Foundry project. Tool versions are pinned here; bump them deliberately.
+
+on:
+  pull_request:
+    paths:
+      - 'social-recovery/**'
+      - '.gitmodules'
+      - '.github/workflows/social-recovery.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'social-recovery/**'
+      - '.gitmodules'
+      - '.github/workflows/social-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: social-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FOUNDRY_VERSION: v1.7.1
+  NODE_VERSION: '24.18.0'
+
+defaults:
+  run:
+    working-directory: social-recovery
+
+jobs:
+  build-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: submodules
+        working-directory: .
+        run: git submodule update --init social-recovery/lib/forge-std social-recovery/lib/openzeppelin-contracts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm ci --ignore-scripts
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+      - name: forge build
+        run: forge build --deny-warnings
+      - name: forge test
+        # forge build writes every artifact first, so a missing one is a real drift: fail, never skip.
+        env:
+          ARTIFACTS_REQUIRED: 'true'
+        # The invariant campaigns run in the fuzz-invariants job, so this job does not run them a second time.
+        run: forge test --no-match-test 'invariant_'
+      - name: vectors match their reference
+        run: node test/fixtures/kats/reference-contract-kats.mjs --check
+
+  coverage:
+    runs-on: ubuntu-24.04
+    env:
+      COVERAGE_MIN: '100'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: submodules
+        working-directory: .
+        run: git submodule update --init social-recovery/lib/forge-std social-recovery/lib/openzeppelin-contracts
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+      - name: forge coverage gate (lines and branches under contracts/)
+        run: |
+          # The invariant campaigns run in the fuzz-invariants job; coverage reaches the gate without them.
+          forge coverage --report lcov --report summary --no-match-test 'invariant_'
+          awk -v min="$COVERAGE_MIN" '
+            /^SF:/ { insrc = ($0 ~ /^SF:contracts\//) }
+            insrc && /^LF:/ { lf += substr($0, 4) }  insrc && /^LH:/ { lh += substr($0, 4) }
+            insrc && /^BRF:/ { brf += substr($0, 5) } insrc && /^BRH:/ { brh += substr($0, 5) }
+            END {
+              # No record under contracts/ means the report or its paths changed: fail rather than pass on no data.
+              if (!lf || !brf) { print "coverage: no line or branch data under contracts/"; exit 1 }
+              lp = 100 * lh / lf; bp = 100 * brh / brf
+              printf "coverage: lines %.1f%%, branches %.1f%%, gate %s%%\n", lp, bp, min
+              if (lp < min || bp < min) exit 1
+            }' lcov.info
+
+  fuzz-invariants:
+    # The standard budget runs on every pull request. No step caches cache/, so the invariant corpus starts empty on
+    # every run and the job's time does not grow with history.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: submodules
+        working-directory: .
+        run: git submodule update --init social-recovery/lib/forge-std social-recovery/lib/openzeppelin-contracts
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+      - name: invariants, standard budget
+        run: |
+          if [ -z "$(grep -rl 'function invariant_' test | head -1)" ]; then
+            echo "fuzz-invariants: no invariant tests"; exit 0
+          fi
+          FOUNDRY_PROFILE=standard forge test --match-test 'invariant_'
+
+  symbolic:
+    # Halmos proves the stateless check_ properties for every input. --function check_ is explicit because Halmos
+    # also picks up invariant_ functions by default, and those belong to fuzz-invariants.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: submodules
+        working-directory: .
+        run: git submodule update --init social-recovery/lib/forge-std social-recovery/lib/openzeppelin-contracts
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+      - name: halmos
+        run: |
+          pip install --quiet halmos==0.3.3
+          halmos --function check_
+
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: submodules
+        working-directory: .
+        run: git submodule update --init social-recovery/lib/forge-std social-recovery/lib/openzeppelin-contracts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+      - name: solhint and forge fmt
+        run: |
+          # No --config: solhint then merges test/.solhint.json over the root .solhint.json for files under test/.
+          npx --yes solhint@6.2.3 --max-warnings 0 'contracts/**/*.sol' 'test/**/*.sol'
+          forge fmt --check
+      - name: natspec (lintspec)
+        run: |
+          curl -sSfL https://github.com/beeb/lintspec/releases/download/v0.18.0/lintspec-x86_64-unknown-linux-gnu.tar.xz -o lintspec.tar.xz
+          echo "cafb63991ceebfb58582bc87563be785fef4e89454b99476a5110211373fe8f3  lintspec.tar.xz" | sha256sum -c -
+          tar -xJf lintspec.tar.xz && find . -maxdepth 3 -name lintspec -type f -exec install {} /usr/local/bin/lintspec \;
+          lintspec contracts
+      - name: slither
+        # The filter names whole directories: a bare `lib` would also match contracts/libraries/.
+        run: |
+          pip install --quiet slither-analyzer==0.11.6
+          slither . --fail-medium --filter-paths '(^|/)(lib|node_modules|test)/'
+          slither . --fail-low --detect events-access,events-maths --filter-paths '(^|/)(lib|node_modules|test)/'
+      - name: bulloak
+        run: |
+          curl -sSfL https://github.com/alexfertel/bulloak/releases/download/v0.8.1/bulloak-x86_64-unknown-linux-gnu.tar.gz -o bulloak.tar.gz
+          echo "1db5c21847d22c243956de05069951a53de2561861f950b65f3be20617dd6c74  bulloak.tar.gz" | sha256sum -c -
+          tar -xzf bulloak.tar.gz && find . -maxdepth 3 -name bulloak -type f -exec install {} /usr/local/bin/bulloak \;
+          find test -name '*.tree' -print0 | xargs -0 bulloak check

@@ -1,0 +1,64 @@
+PolicyManagerCancelByVetoTest
+├── When no attempt was ever recorded
+│   └── It should revert with PolicyManager_NoActiveAttempt and ask no method.
+├── When the attempt was cancelled
+│   └── It should revert with PolicyManager_NoActiveAttempt and ask no method.
+├── When the attempt was consumed
+│   └── It should revert with PolicyManager_NoActiveAttempt and ask no method.
+├── When the attempt id is not the live one
+│   └── It should revert with PolicyManager_WrongAttemptId carrying both ids and ask no method.
+├── When the attempt was judged under another nonce
+│   └── It should revert with PolicyManager_StaleAttempt carrying both nonces and ask no method.
+├── When the attempt ignores stops
+│   └── It should revert with PolicyManager_AttemptIgnoresPause carrying the id and ask no method.
+├── When the method is not one the attempt used
+│   └── It should revert with PolicyManager_MethodNotUsed carrying the id and the method and never call it.
+├── When the method is in the rule but the attempt did not use it
+│   └── It should revert with PolicyManager_MethodNotUsed and never call it.
+├── When the method is the zero address
+│   └── It should revert with PolicyManager_MethodNotUsed.
+├── When the pause read returns nothing
+│   └── It should revert with PolicyManager_MethodNotStopped naming the method.
+├── When the pause read returns false
+│   └── It should revert with PolicyManager_MethodNotStopped.
+├── When the pause read reverts
+│   └── It should revert with PolicyManager_MethodNotStopped.
+├── When the pause read reverts with true
+│   └── It should revert with PolicyManager_MethodNotStopped.
+├── When the pause read returns less than a word
+│   └── It should revert with PolicyManager_MethodNotStopped.
+├── When the pause read returns a word other than true
+│   └── It should revert with PolicyManager_MethodNotStopped.
+├── When the pause read returns true and more
+│   └── It should revert with PolicyManager_MethodNotStopped.
+├── When the pause read returns a huge answer
+│   └── It should revert with PolicyManager_MethodNotStopped on a gas budget that copying the answer would exhaust.
+├── When the pause read writes state
+│   └── It should revert with PolicyManager_MethodNotStopped and leave the method's storage untouched.
+├── When the used method has no code
+│   └── It should revert with PolicyManager_MethodNotStopped.
+├── When no attempt waits and every other check fails
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+├── When the id the nonce the pause choice and the method all fail
+│   └── It should revert with PolicyManager_WrongAttemptId.
+├── When the nonce the pause choice and the method all fail
+│   └── It should revert with PolicyManager_StaleAttempt.
+├── When the pause choice and the method both fail
+│   └── It should revert with PolicyManager_AttemptIgnoresPause.
+├── When the method is unused and not stopped
+│   └── It should revert with PolicyManager_MethodNotUsed.
+├── When a used method reports a stop
+│   ├── It should set the attempt to Cancelled and keep the rest of its record.
+│   ├── It should emit AttemptCancelled alone, naming the caller and the method, with no places.
+│   ├── It should read no proof and make only static calls.
+│   └── It should leave the setup and the attempt counter unchanged.
+├── When another used method reports a stop
+│   └── It should revert with PolicyManager_MethodNotStopped naming the method named.
+├── When the wait is over
+│   └── It should cancel the attempt.
+├── When the same veto is sent twice
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+├── When the account spends after the veto
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+└── When an attempt opens after the veto
+    └── It should open the next id under the same setup nonce.

@@ -1,0 +1,4 @@
+BindingDigestSetupCommitmentTest
+└── when computing the setup commitment
+    ├── it should change with any one member.
+    └── it should tell the account from the action.

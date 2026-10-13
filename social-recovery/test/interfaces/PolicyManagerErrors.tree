@@ -1,0 +1,21 @@
+PolicyManagerErrorsTest
+├── when the setup error selectors are derived
+│   └── it should match each error's canonical signature
+├── when the attempt error selectors are derived
+│   └── it should match each error's canonical signature
+├── when the proof and rule error selectors are derived
+│   └── it should match each error's canonical signature
+├── when the pause and veto error selectors are derived
+│   └── it should match each error's canonical signature
+├── when the spend error selectors are derived
+│   └── it should match each error's canonical signature
+├── when the setup errors are read from the abi
+│   └── it should declare the specified parameters
+├── when the attempt errors are read from the abi
+│   └── it should declare the specified parameters
+├── when the proof and rule errors are read from the abi
+│   └── it should declare the specified parameters
+├── when the pause and veto errors are read from the abi
+│   └── it should declare the specified parameters
+└── when the spend errors are read from the abi
+    └── it should declare the specified parameters

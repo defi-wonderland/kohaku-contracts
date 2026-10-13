@@ -1,0 +1,21 @@
+PolicyManagerEventsTest
+├── when SetupCommitted is emitted
+│   └── it should index the account and the action and put the rest in order as data
+├── when SetupCleared is emitted
+│   └── it should index the account and the action and put the rest in order as data
+├── when AttemptStarted is emitted
+│   └── it should index the account and the action and put the rest in order as data
+├── when AttemptCancelled is emitted
+│   └── it should index the account and the action and put the rest in order as data
+├── when AttemptConsumed is emitted
+│   └── it should index the account and the action and put the rest in order as data
+├── when the event SetupCommitted is read from the abi
+│   └── it should declare the specified parameters
+├── when the event SetupCleared is read from the abi
+│   └── it should declare the specified parameters
+├── when the event AttemptStarted is read from the abi
+│   └── it should declare the specified parameters
+├── when the event AttemptCancelled is read from the abi
+│   └── it should declare the specified parameters
+└── when the event AttemptConsumed is read from the abi
+    └── it should declare the specified parameters

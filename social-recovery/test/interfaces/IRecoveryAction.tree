@@ -1,0 +1,9 @@
+IRecoveryActionTest
+├── when the selectors are derived
+│   └── it should match each function's canonical signature
+├── when the compiled abi is read
+│   └── it should list exactly the specified functions events and errors
+├── when holdsAnyPrivilege is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+└── when executeHandover is read from the abi
+    └── it should declare the specified parameters returns and mutability
