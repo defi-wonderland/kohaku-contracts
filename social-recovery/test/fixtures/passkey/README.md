@@ -1,6 +1,6 @@
 # Real passkey assertions
 
-Draft to verify. Collected on 2026-10-12. `fixture.json` holds eight WebAuthn ES256 assertions that real authenticators produced, copied from the test data three WebAuthn libraries publish. `test/method-passkey/PasskeyMethodRealAssertions.t.sol` replays them through the passkey method's `verify`, so the suite shows what real devices emit passes the method, and not only the vectors the tests sign themselves.
+Collected on 2026-10-12. `fixture.json` holds eight WebAuthn ES256 assertions that real authenticators produced, copied from the test data three WebAuthn libraries publish. `test/method-passkey/PasskeyMethodRealAssertions.t.sol` replays them through the passkey method's `verify`, so the suite shows what real devices emit passes the method, and not only the vectors the tests sign themselves.
 
 ## The assertions
 
