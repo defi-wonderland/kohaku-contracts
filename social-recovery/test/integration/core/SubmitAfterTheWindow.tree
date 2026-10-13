@@ -1,0 +1,6 @@
+SubmitAfterTheWindowTest
+├── when the window passes before the last reply
+│   ├── it should revert
+│   └── it should open nothing and write nothing
+└── when the holder cannot withdraw a signed request
+    └── it should stay submittable by anyone until its window ends

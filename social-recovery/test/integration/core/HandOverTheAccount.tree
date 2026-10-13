@@ -1,0 +1,29 @@
+HandOverTheAccountTest
+├── when anyone executes the handover after the wait
+│   └── it should install the new key, remove the lost one, release the approval once and pay the order
+├── when a call in the batch reverts
+│   ├── it should revert
+│   └── it should leave the attempt waiting and executable once the cause is gone
+├── when the same batch is sent again
+│   ├── it should revert
+│   └── it should spend nothing a second time
+├── when the payee reenters with the same batch
+│   └── it should refuse the nested run and complete the outer one once
+├── when the payment pays nobody
+│   └── it should complete the handover with the payee unpaid
+├── when a batch carries an extra call
+│   └── it should revert
+├── when the handover removes the kit slot
+│   └── it should revert
+├── when the handover installs the zero address
+│   └── it should revert
+├── when the handover names one address on both sides
+│   └── it should revert
+├── when the new key gained a privilege during the wait
+│   └── it should revert
+├── when the order has no amount
+│   └── it should run the three calls and pay nothing
+├── when the named native payee reverts
+│   └── it should revert
+└── when the new key sends the spend again
+    └── it should revert

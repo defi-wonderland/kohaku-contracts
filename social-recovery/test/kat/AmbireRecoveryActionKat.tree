@@ -1,0 +1,5 @@
+AmbireRecoveryActionKatTest
+├── when replaying the kit slot vectors through the action
+│   └── it should report each vector's slot and be authorized only by its binding
+└── when replaying the kit slot vectors through the renderings
+    └── it should reproduce every expected slot and binding

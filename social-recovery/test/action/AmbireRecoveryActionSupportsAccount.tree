@@ -1,0 +1,39 @@
+AmbireRecoveryActionSupportsAccountTest
+├── when the code is the proxy the factory deploys for the pinned implementation
+│   └── it should return true
+├── when the code is the builder runtime for the pinned implementation
+│   └── it should return true
+├── when the pinned implementation has leading zero bytes and the factory deploys its proxy
+│   └── it should return false
+├── when a shortened proxy is in its exact form
+│   └── it should return false
+├── when a shortened proxy wraps a working implementation
+│   └── it should return false
+├── when the push opcode is push0
+│   └── it should return false
+├── when a push19 carries the low bytes of the full width pinned implementation
+│   └── it should return false
+├── when the proxy names another implementation
+│   └── it should return false
+├── when the account is delegated through eip7702 to the pinned implementation
+│   └── it should return false
+├── when the address has no code
+│   └── it should return false
+├── when the code is one byte longer than the proxy
+│   └── it should return false
+├── when the code is one byte shorter than the proxy
+│   └── it should return false
+├── when the code is the prefix and the address without the tail
+│   └── it should return false
+├── when the code is the prefix alone
+│   └── it should return false
+├── when one prefix byte differs
+│   └── it should return false
+├── when one suffix byte differs
+│   └── it should return false
+├── when a push21 carries a zero byte and the pinned implementation
+│   └── it should return false
+├── when the code is arbitrary bytes
+│   └── it should return false
+└── when the account is the pinned implementation itself
+    └── it should return false

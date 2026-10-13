@@ -1,0 +1,11 @@
+AmbireRecoveryActionInterfaceTest
+├── when the selectors are derived
+│   └── it should match each function's canonical signature
+├── when the compiled abi is read
+│   └── it should list exactly the shared functions and the six it adds
+├── when validateSig is read
+│   └── it should take two byte strings and a transaction array and return a bool and a uint256
+├── when the getters are read
+│   └── it should declare five views with the specified returns
+└── when a transaction is encoded
+    └── it should encode the target, the value and the calldata in that order

@@ -1,0 +1,7 @@
+AmbireHandoverKatTest
+├── when replaying the handover rows the action accepts
+│   └── it should encode and hash as the row says, and hand the account over to the new key.
+├── when opening the opaque handover rows through the manager
+│   └── it should store the row's payload hash and let the action hand the account over.
+└── when replaying the handover rows the action refuses
+    └── it should refuse the batch as not approved and leave the keys and the attempt as they were.

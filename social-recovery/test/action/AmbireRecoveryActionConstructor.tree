@@ -1,0 +1,13 @@
+AmbireRecoveryActionConstructorTest
+├── when the kit slot is read
+│   └── it should equal the low twenty bytes of the hash of the string kit and the action
+├── when the action is deployed at another address
+│   └── it should derive the kit slot from that address
+├── when the manager is read
+│   └── it should equal the manager the constructor received
+├── when the pinned implementation is read
+│   └── it should equal the implementation the constructor received
+├── when the key value is read
+│   └── it should equal one as a word
+└── when the kit slot is compared with the signer key slot of the action's own binding
+    └── it should differ

@@ -1,0 +1,15 @@
+TheRuleStaysPrivateUntilOpenedTest
+├── when the holder commits the rule
+│   └── it should publish the commitment and the metadata but no part of the rule
+├── when an attempt opens
+│   └── it should publish the rule and the payload in the clear
+├── when the holder writes no note
+│   └── it should publish an empty note
+├── when a guardian does not approve
+│   └── it should keep that guardian's address and every config out of the logs
+├── when a refused request carries the rule
+│   └── it should revert
+├── when the holder sends the backup in the clear
+│   └── it should show the rule from the commit on
+└── when a wallet guardian has a guessable salt
+    └── it should let a reader who guesses the guardian find their place
