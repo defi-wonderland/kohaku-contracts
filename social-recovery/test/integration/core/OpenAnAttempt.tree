@@ -1,0 +1,13 @@
+OpenAnAttemptTest
+├── when the guardians approve and anyone submits
+│   └── it should store one waiting attempt and publish everything the release will perform
+├── when one proof in the set fails
+│   ├── it should revert
+│   └── it should write nothing and leave the account untouched
+├── when the set falls short of a clause
+│   ├── it should revert
+│   └── it should write nothing and leave the account untouched
+├── when the request carries another rule
+│   └── it should revert
+└── when a place carries another credential
+    └── it should revert

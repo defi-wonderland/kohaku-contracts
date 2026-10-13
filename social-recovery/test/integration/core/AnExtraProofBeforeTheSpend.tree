@@ -1,0 +1,11 @@
+AnExtraProofBeforeTheSpendTest
+├── when the extra method is stopped at the spend
+│   └── it should revert
+├── when anyone cancels by veto while the stop is on
+│   └── it should end the attempt naming the paused method and leave the method working after the lift
+├── when the set leaves the extra place out
+│   └── it should run the handover while the third-party method is paused
+├── when the stop lifts before anyone cancels
+│   └── it should run the handover in the block after the lift with the clock unchanged
+└── when the setup ignores stops
+    └── it should open, refuse the veto and run the handover through the pause

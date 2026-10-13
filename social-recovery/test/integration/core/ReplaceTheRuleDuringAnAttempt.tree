@@ -1,0 +1,7 @@
+ReplaceTheRuleDuringAnAttemptTest
+├── when the holder commits a new setup during an attempt
+│   └── it should cancel the attempt first, move the nonce and leave no old approval counting
+├── when the edit takes effect at once
+│   └── it should judge a request under the new rule in the same block
+└── when the holder clears instead of editing
+    └── it should cancel the attempt, leave nothing to release and keep the authorization
