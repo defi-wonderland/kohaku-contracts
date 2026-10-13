@@ -1,0 +1,8 @@
+BindingDigestDomainSeparatorTest
+├── when reading the digest version
+│   └── it should be the string one.
+├── when building the domain separator
+│   ├── it should differ between two chains.
+│   └── it should differ between two managers.
+└── when the live chain changes
+    └── it should follow the live chain id.

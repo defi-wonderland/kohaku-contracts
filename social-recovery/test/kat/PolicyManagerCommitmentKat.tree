@@ -1,0 +1,7 @@
+PolicyManagerCommitmentKatTest
+├── when encoding the credential commitment preimages
+│   └── it should reproduce every expected preimage and its commitment.
+├── when encoding the setup commitment preimages
+│   └── it should reproduce every expected preimage and its commitment.
+└── when committing a row the manager refuses
+    └── it should revert with PolicyManager_InvalidCommitment carrying the row's commitment.

@@ -1,0 +1,35 @@
+IPolicyMethodAdminTest
+├── when the selectors are derived
+│   └── it should match each function's canonical signature
+├── when the error selectors are derived
+│   └── it should match each error's canonical signature
+├── when TrustedKeysUpdated is emitted
+│   └── it should index and order its fields as specified
+├── when AdminTransferOffered is emitted
+│   └── it should index and order its fields as specified
+├── when AdminTransferred is emitted
+│   └── it should index and order its fields as specified
+├── when AdminRenounced is emitted
+│   └── it should index and order its fields as specified
+├── when the compiled abi is read
+│   └── it should list exactly the specified functions events and errors
+├── when setTrustedKeys is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when transferAdmin is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when acceptAdmin is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when pendingAdmin is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when renounceAdmin is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when the event TrustedKeysUpdated is read from the abi
+│   └── it should declare the specified parameters
+├── when the event AdminTransferOffered is read from the abi
+│   └── it should declare the specified parameters
+├── when the event AdminTransferred is read from the abi
+│   └── it should declare the specified parameters
+├── when the event AdminRenounced is read from the abi
+│   └── it should declare the specified parameters
+└── when the errors are read from the abi
+    └── it should declare each with the specified parameters

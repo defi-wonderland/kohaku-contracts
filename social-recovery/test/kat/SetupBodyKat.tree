@@ -1,0 +1,15 @@
+SetupBodyKatTest
+├── when reading back every vector's encoding
+│   └── it should return the vector's wait, pause choice and every credential at its place, and revert one place past the end.
+├── when decoding every vector's encoding
+│   └── it should return the vector's wait, pause choice and clauses, and every credential at its place from the decoded clauses.
+├── when no place of any vector is filled
+│   └── it should fail naming clause zero.
+├── when every place of the two clause vector is filled
+│   └── it should return true naming no failing clause.
+├── when a place is filled past the end of the empty clauses vector
+│   └── it should fail naming clause zero.
+├── when the test encoder encodes every vector's input
+│   └── it should reproduce the expected encoding.
+└── when the library encoder encodes every vector's input
+    └── it should reproduce the expected encoding.

@@ -1,0 +1,11 @@
+SetupBodyScalarsTest
+├── when the wait is zero
+│   └── it should read a wait of zero
+├── when the wait is the widest uint48
+│   └── it should read the widest uint48
+├── when ignoresPause is true
+│   └── it should read true
+├── when ignoresPause is false
+│   └── it should read false
+└── when the body has no clauses
+    └── it should still read both scalars

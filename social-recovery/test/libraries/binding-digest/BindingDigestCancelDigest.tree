@@ -1,0 +1,5 @@
+BindingDigestCancelDigestTest
+├── when computing a cancellation digest
+│   └── it should ignore the proofs.
+└── when two cancellations differ in any one member
+    └── it should produce different digests.

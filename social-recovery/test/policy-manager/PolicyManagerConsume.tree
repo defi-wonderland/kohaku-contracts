@@ -1,0 +1,78 @@
+PolicyManagerConsumeTest
+├── When no attempt was ever recorded
+│   └── It should revert with PolicyManager_NoActiveAttempt and ask no method.
+├── When the attempt was cancelled
+│   └── It should revert with PolicyManager_NoActiveAttempt and ask no method.
+├── When a new setup ended the attempt
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+├── When a clear ended the attempt
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+├── When another address calls
+│   └── It should revert with PolicyManager_NoActiveAttempt naming the caller and leave the attempt waiting.
+├── When the call names another action
+│   └── It should revert with PolicyManager_NoActiveAttempt naming that action.
+├── When the attempt id is not the live one
+│   └── It should revert with PolicyManager_WrongAttemptId carrying both ids and ask no method.
+├── When the attempt was judged under another nonce
+│   └── It should revert with PolicyManager_StaleAttempt carrying both nonces and ask no method.
+├── When the wait is not over
+│   └── It should revert with PolicyManager_WaitNotOver carrying the time and the end of the wait and ask no method.
+├── When one second of the wait is left
+│   └── It should revert with PolicyManager_WaitNotOver.
+├── When the wait is zero
+│   └── It should consume the attempt in the block it opened.
+├── When the wait is any length
+│   └── It should refuse one second before its end and consume at its end.
+├── When the block timestamp is past the uint48 width
+│   └── It should revert with SafeCastOverflowedUintDowncast carrying the width and the timestamp.
+├── When the payload hash is not the committed one
+│   └── It should revert with PolicyManager_WrongPayload carrying both hashes and ask no method.
+├── When no attempt waits and every other check fails
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+├── When the id the nonce the wait and the payload all fail
+│   └── It should revert with PolicyManager_WrongAttemptId.
+├── When the nonce the wait and the payload all fail
+│   └── It should revert with PolicyManager_StaleAttempt.
+├── When the wait and the payload both fail
+│   └── It should revert with PolicyManager_WaitNotOver.
+├── When the payload fails and a used method reports a stop
+│   └── It should revert with PolicyManager_WrongPayload and ask no method.
+├── When the first used method reports a stop
+│   └── It should revert with PolicyManager_MethodVetoedSpend naming it and leave the attempt waiting.
+├── When only the second used method reports a stop
+│   └── It should revert with PolicyManager_MethodVetoedSpend naming it.
+├── When every used method reports a stop
+│   └── It should revert with PolicyManager_MethodVetoedSpend naming the first.
+├── When a method the attempt did not use reports a stop
+│   └── It should consume the attempt without calling that method.
+├── When the pause read reverts
+│   └── It should consume the attempt.
+├── When the pause read reverts with true
+│   └── It should consume the attempt.
+├── When the pause read returns nothing
+│   └── It should consume the attempt.
+├── When the pause read returns less than a word
+│   └── It should consume the attempt.
+├── When the pause read returns a word other than true
+│   └── It should consume the attempt.
+├── When the pause read returns true and more
+│   └── It should consume the attempt.
+├── When the pause read returns a huge answer
+│   └── It should consume the attempt on a gas budget that copying the answer would exhaust.
+├── When the pause read writes state
+│   └── It should consume the attempt and leave the method's storage untouched.
+├── When a used method has no code
+│   └── It should consume the attempt.
+├── When the attempt ignores stops
+│   └── It should consume the attempt without calling any method.
+├── When a stop lifts before the spend
+│   └── It should consume the attempt at the end of its wait.
+├── When the wait is over and no used method vetoes
+│   ├── It should set the attempt to Consumed and keep the rest of its record.
+│   ├── It should emit AttemptConsumed alone.
+│   ├── It should ask each used method once by a static call and call nothing else.
+│   └── It should leave the setup and the attempt counter unchanged.
+├── When the same spend is sent twice
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+└── When an attempt opens after the spend
+    └── It should open the next id.

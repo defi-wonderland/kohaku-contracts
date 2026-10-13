@@ -1,0 +1,13 @@
+PolicyManagerRequestKatTest
+├── when encoding the payment order vectors
+│   └── it should reproduce every expected encoding.
+├── when encoding the proof place vectors
+│   └── it should reproduce every expected encoding.
+├── when encoding the attempt request vectors
+│   └── it should reproduce every expected calldata.
+├── when encoding the cancel request vectors
+│   └── it should reproduce every expected calldata.
+├── when the manager reads the attempt request vectors
+│   └── it should refuse the first proof's method, after reading every field before it.
+└── when the manager reads the cancel request vectors
+    └── it should refuse the first proof's method, after reading every field before it.
