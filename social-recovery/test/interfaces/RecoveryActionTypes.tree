@@ -1,0 +1,3 @@
+RecoveryActionTypesTest
+└── when the Handover struct is encoded
+    └── it should hold the specified fields types and order

@@ -1,0 +1,5 @@
+RecoverTwiceTest
+├── when the recovered holder cancels the second attempt
+│   └── it should keep the rule live, refuse the first approvals and let the recovered key cancel and re-commit
+└── when the second attempt waits and runs
+    └── it should hand the account to the newer key after a second full wait

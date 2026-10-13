@@ -1,0 +1,33 @@
+PasskeyMethodFuzzTest
+├── when any key signs a well formed assertion over any digest
+│   └── it should return the verify selector
+├── when any key signs with the high half
+│   └── it should return the verify selector
+├── when extra members of any length follow the prefix
+│   └── it should return the verify selector
+├── when any consistent backup bits accompany user present and user verified
+│   └── it should return the verify selector
+├── when the assertion carries any signature counter
+│   └── it should return the verify selector
+├── when the challenge renders any other digest
+│   └── it should refuse the proof
+├── when the challenge value carries any extra characters
+│   └── it should refuse the proof
+├── when any digest is asserted as webauthn create
+│   └── it should refuse the proof
+├── when the assertion names any other relying party
+│   └── it should refuse the proof
+├── when any flags byte lacks user present
+│   └── it should refuse the proof
+├── when any flags byte lacks user verified
+│   └── it should refuse the proof
+├── when any flags byte carries backup state without backup eligibility
+│   └── it should answer with one word that is not the verify selector
+├── when any other key signs
+│   └── it should refuse the proof
+├── when any client data byte changes after signing
+│   └── it should refuse the proof
+├── when any authenticator data byte changes after signing
+│   └── it should refuse the proof
+└── when the config has any length other than ninety six bytes
+    └── it should answer with one word that is not the verify selector

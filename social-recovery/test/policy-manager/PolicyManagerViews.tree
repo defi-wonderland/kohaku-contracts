@@ -1,0 +1,26 @@
+PolicyManagerViewsTest
+├── when nothing was ever written for the pair
+│   └── it should return a zero state whose next attempt id is one
+├── when a setup and an attempt are stored
+│   └── it should return both from stateOf in one read
+├── when an approval request is hashed
+│   └── it should return the digest the binding digest library computes
+├── when proofs are attached to an approval request
+│   └── it should leave the approval digest unchanged
+├── when a cancel request is hashed
+│   └── it should return the digest the binding digest library computes
+├── when proofs are attached to a cancel request
+│   └── it should leave the cancellation digest unchanged
+├── when the chain id changes
+│   ├── it should compute both digests under the new chain id
+│   └── it should report the new chain id from eip712Domain
+├── when the domain is read
+│   └── it should return the ERC-5267 domain with the four fields in use
+├── when asked for the IPolicyManager or the ERC165 interface id
+│   └── it should answer true
+├── when asked for the id of another known interface
+│   └── it should answer false
+├── when asked for any other interface id
+│   └── it should answer false
+└── when the name and version are read
+    └── it should return a nonempty name and version

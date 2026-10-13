@@ -1,0 +1,21 @@
+PasskeyMethodDeclarationsTest
+├── when trusted parties are read
+│   └── it should answer the zero address for every role and an empty key list
+├── when asked for the IPolicyMethod interface id
+│   └── it should answer true
+├── when asked for the ERC165 interface id
+│   └── it should answer true
+├── when asked for the invalid interface id
+│   └── it should answer false
+├── when asked for the pause interface id
+│   └── it should answer false
+├── when asked for the admin interface id
+│   └── it should answer false
+├── when the pause read is made
+│   └── it should not answer the encoding of true
+├── when the name is read
+│   └── it should answer method-passkey
+├── when the version is read
+│   └── it should answer 1.0.0
+└── when a proof is verified
+    └── it should touch no storage slot

@@ -1,0 +1,21 @@
+AmbireRecoveryActionIsAuthorityTest
+├── when the privilege is one
+│   └── it should return true
+├── when the privilege is two
+│   └── it should return true
+├── when the privilege is zero
+│   └── it should return false
+├── when the privilege is three
+│   └── it should return false
+├── when the privilege is the entry point marker
+│   └── it should return false
+├── when the privilege is a validator binding
+│   └── it should return false
+├── when the privilege has a one in the high byte
+│   └── it should return false
+├── when the privilege is any other value
+│   └── it should return false
+├── when the account has no code
+│   └── it should revert
+└── when the account returns nothing
+    └── it should revert

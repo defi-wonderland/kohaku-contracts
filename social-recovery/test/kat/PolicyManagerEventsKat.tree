@@ -1,0 +1,13 @@
+PolicyManagerEventsKatTest
+├── when counting the manager event rows
+│   └── it should find five rows with distinct ids.
+├── when the account commits the SetupCommitted row
+│   └── it should emit the row's topics and data.
+├── when the account clears the SetupCleared row
+│   └── it should emit the row's topics and data.
+├── when the manager emits the AttemptStarted row
+│   └── it should emit the row's topics and data.
+├── when the canceller vetoes the AttemptCancelled row
+│   └── it should emit the row's topics and data.
+└── when the account consumes the AttemptConsumed row
+    └── it should emit the row's topics and data.

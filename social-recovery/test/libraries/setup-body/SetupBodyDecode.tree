@@ -1,0 +1,19 @@
+SetupBodyDecodeTest
+├── when the body has no clauses
+│   └── it should return the wait, the flag and no clauses
+├── when the body has one clause
+│   └── it should return that clause's threshold and credentials
+├── when the body has several clauses
+│   └── it should return every clause in body order
+├── when a clause lists no credentials
+│   └── it should return that clause with an empty credential list
+├── when a clause has a threshold of zero
+│   └── it should return that clause with a threshold of zero
+├── when a threshold exceeds its clause's credential count
+│   └── it should return the threshold unchanged
+├── when one credential repeats at two places
+│   └── it should return both copies
+├── when the scalars are at their widest
+│   └── it should return the widest uint48 wait and true
+└── when the scalars are at their smallest
+    └── it should return a zero wait and false

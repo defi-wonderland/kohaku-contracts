@@ -1,0 +1,33 @@
+IPolicyManagerTest
+├── when the selectors are derived
+│   └── it should match each function's canonical signature
+├── when the compiled abi is read
+│   └── it should list exactly the specified functions events and errors
+├── when commitSetup is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when clearSetup is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when cancelByOwner is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when startAttempt is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when cancelByProofs is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when cancelByVeto is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when consume is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when stateOf is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when hashApproval is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when hashCancel is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when eip712Domain is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when supportsInterface is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when name is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+└── when version is read from the abi
+    └── it should declare the specified parameters returns and mutability

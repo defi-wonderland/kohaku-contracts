@@ -1,0 +1,53 @@
+PolicyMethodRolesKeyAdminTest
+├── when the key admin sets keys the hook accepts
+│   ├── it should store the new keys in order.
+│   ├── it should emit TrustedKeysUpdated with the previous and the current keys.
+│   └── it should leave the pause holder and the stop unchanged.
+├── when the key admin sets keys containing the marker
+│   ├── it should revert.
+│   └── it should carry the hook error and keep the previous keys.
+├── when the stored keys probe is armed
+│   └── it should find the previous keys still stored while the hook runs.
+├── when anyone other than the key admin sets keys
+│   ├── it should revert.
+│   └── it should keep the previous keys.
+├── when the key admin offers the role
+│   ├── it should record the pending admin.
+│   ├── it should keep the current admin in the role.
+│   └── it should emit AdminTransferOffered with the admin and the nominee.
+├── when anyone other than the key admin offers the role
+│   └── it should revert.
+├── when a second offer replaces the first
+│   └── it should let only the second nominee accept.
+├── when the key admin offers the role to the zero address
+│   ├── it should emit AdminTransferOffered with the admin and the zero address.
+│   ├── it should close the open offer.
+│   └── it should let neither the earlier nominee nor the zero address accept.
+├── when the nominee accepts
+│   ├── it should make the nominee the admin.
+│   ├── it should clear the pending admin.
+│   ├── it should emit AdminTransferred with the previous admin and the nominee.
+│   └── it should strip the previous admin of the role.
+├── when anyone other than the nominee accepts
+│   └── it should revert.
+├── when the nominee sets keys before accepting
+│   └── it should revert.
+├── when the key admin renounces
+│   ├── it should report no admin.
+│   ├── it should keep the keys.
+│   ├── it should emit AdminRenounced with the previous admin.
+│   ├── it should let nobody set keys or offer the role afterwards.
+│   └── it should leave the pause holder standing.
+├── when the key admin renounces with a transfer open
+│   ├── it should clear the pending admin.
+│   └── it should let no earlier nominee accept.
+├── when anyone other than the key admin renounces
+│   └── it should revert.
+├── when the key admin role changes hands while paused
+│   ├── it should let the key admin offer the role.
+│   ├── it should let the nominee accept the role.
+│   ├── it should let the new admin renounce the role.
+│   └── it should leave the method paused.
+└── when the key admin calls a pause holder function
+    ├── it should revert.
+    └── it should carry OwnableUnauthorizedAccount of the key admin.

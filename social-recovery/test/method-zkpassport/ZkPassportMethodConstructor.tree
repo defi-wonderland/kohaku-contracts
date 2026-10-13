@@ -1,0 +1,22 @@
+ZkPassportMethodConstructorTest
+├── when every argument is valid
+│   ├── it should make the initial owner the pause holder
+│   ├── it should make the initial admin the key admin
+│   └── it should store the eight initial words in order
+├── when the initial keys are seven
+│   └── it should revert
+├── when the initial keys are nine
+│   └── it should revert
+├── when any initial word but the guardian is zero
+│   └── it should revert
+├── when the initial guardian word is zero
+│   └── it should deploy and store the zero word
+├── when the initial version word is not canonical
+│   └── it should revert
+├── when the initial version word has only padding set
+│   ├── it should revert
+│   └── it should carry the version error, not the zero error
+├── when every initial address word holds the largest address
+│   └── it should deploy and store every word
+└── when the initial version word is the highest release
+    └── it should deploy and store the version word

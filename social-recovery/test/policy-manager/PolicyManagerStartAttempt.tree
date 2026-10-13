@@ -1,0 +1,129 @@
+PolicyManagerStartAttemptTest
+├── When no setup exists
+│   ├── It should revert with PolicyManager_NoSetup carrying the account and the action.
+│   └── It should call no method.
+├── When the setup was cleared
+│   └── It should revert with PolicyManager_NoSetup and call no method.
+├── When an attempt is already waiting
+│   └── It should revert with PolicyManager_AttemptAlreadyActive naming the waiting attempt and call no method.
+├── When the request names a nonce other than the stored one
+│   └── It should revert with PolicyManager_WrongSetupNonce carrying both nonces and call no method.
+├── When the request was signed under a retired setup
+│   └── It should revert with PolicyManager_WrongSetupNonce even though the rule is identical.
+├── When the attempt id is not the next one
+│   └── It should revert with PolicyManager_WrongAttemptId carrying both ids and call no method.
+├── When the attempt id was already used
+│   └── It should revert with PolicyManager_WrongAttemptId naming the next id.
+├── When the window has passed
+│   └── It should revert with PolicyManager_RequestExpired carrying both times and call no method.
+├── When the window ends in this block
+│   └── It should open the attempt.
+├── When all five prechecks fail
+│   └── It should revert with PolicyManager_NoSetup.
+├── When the last four prechecks fail
+│   └── It should revert with PolicyManager_AttemptAlreadyActive.
+├── When the last three prechecks fail
+│   └── It should revert with PolicyManager_WrongSetupNonce.
+├── When the last two prechecks fail
+│   └── It should revert with PolicyManager_WrongAttemptId.
+├── When the window has passed and the body does not match
+│   └── It should revert with PolicyManager_RequestExpired.
+├── When the body does not hash to the commitment
+│   └── It should revert with PolicyManager_SetupCommitmentMismatch carrying both commitments and call no method.
+├── When the body was committed under another action
+│   └── It should revert with PolicyManager_SetupCommitmentMismatch.
+├── When a place repeats the previous one
+│   └── It should revert with PolicyManager_PlacesNotStrictlyIncreasing naming that place.
+├── When a place is below the previous one
+│   └── It should revert with PolicyManager_PlacesNotStrictlyIncreasing before recomputing its credential.
+├── When a place is past the end of the rule
+│   └── It should revert with PolicyManager_PlaceOutOfRange carrying the place and the count, and never ask its method.
+├── When the proof names another method of the rule
+│   └── It should revert with PolicyManager_CredentialMismatch and never ask that method about the place.
+├── When a proof names a method the rule never names
+│   └── It should revert with PolicyManager_CredentialMismatch and never call that method.
+├── When the proof carries another config
+│   └── It should revert with PolicyManager_CredentialMismatch and never call the method.
+├── When the proof carries another salt
+│   └── It should revert with PolicyManager_CredentialMismatch and never call the method.
+├── When a method reports itself stopped
+│   └── It should revert with PolicyManager_MethodStopped before its verify is called.
+├── When the stopped method fills the first place
+│   └── It should revert with PolicyManager_MethodStopped and call no verify.
+├── When the credential is wrong at a stopped method's place
+│   └── It should revert with PolicyManager_CredentialMismatch without reading the pause.
+├── When the body ignores stops
+│   ├── It should open the attempt without reading any pause.
+│   └── It should record the choice on the attempt.
+├── When one method fills several places
+│   ├── It should read each method's pause once and verify each proof once.
+│   └── It should open the attempt with a proof beyond what the rule needs.
+├── When the pause read reverts
+│   └── It should open the attempt.
+├── When the pause read reverts with true
+│   └── It should open the attempt.
+├── When the pause read returns a word other than true
+│   └── It should open the attempt.
+├── When the pause read returns true and more
+│   └── It should open the attempt.
+├── When the pause read returns less than a word
+│   └── It should open the attempt.
+├── When the pause read writes state
+│   └── It should read no stop and leave the method's storage untouched.
+├── When the pause read returns a huge answer
+│   └── It should open the attempt on a gas budget that copying the answer would exhaust.
+├── When the method reverts
+│   └── It should revert with PolicyManager_ProofRejected naming the place and the method.
+├── When the method reverts with the magic value
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns nothing
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method has no code
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns less than a word
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns more than a word
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns another word
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns the selector with a low byte set
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method is a precompile that echoes
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method writes state while verifying
+│   └── It should revert with PolicyManager_ProofRejected and leave the method's storage untouched.
+├── When the method returns a huge answer
+│   └── It should revert with PolicyManager_ProofRejected on a gas budget that copying the answer would exhaust.
+├── When the proof approves another payload
+│   └── It should revert with PolicyManager_ProofRejected though the method approves that payload's seal.
+├── When a rejected proof sits in a short set
+│   └── It should revert with PolicyManager_ProofRejected rather than PolicyManager_RuleUnsatisfied.
+├── When a clause misses its threshold
+│   └── It should revert with PolicyManager_RuleUnsatisfied naming that clause.
+├── When the first clause is not filled
+│   └── It should revert with PolicyManager_RuleUnsatisfied naming clause zero.
+├── When the request carries no proofs
+│   └── It should revert with PolicyManager_RuleUnsatisfied naming clause zero and call no method.
+├── When every threshold is zero
+│   └── It should revert with PolicyManager_RuleUnsatisfied naming clause zero.
+├── When the body has no clauses
+│   └── It should revert with PolicyManager_RuleUnsatisfied naming clause zero.
+├── When a complete set is accepted
+│   ├── It should write the attempt record.
+│   ├── It should move the attempt counter to this id and leave the setup.
+│   ├── It should emit AttemptStarted alone.
+│   └── It should call methods only through static calls and store no part of the rule.
+├── When methods repeat across the places
+│   └── It should record each method once in the order the proofs first name it.
+├── When the wait is zero
+│   └── It should set consumableAfter to the block timestamp.
+├── When the wait ends at the last uint48 second
+│   └── It should store the largest uint48 as consumableAfter.
+├── When the wait carries the end past the uint48 width
+│   └── It should revert with the arithmetic overflow panic and change nothing.
+├── When the block timestamp is past the uint48 width
+│   └── It should revert with SafeCastOverflowedUintDowncast carrying the width and the timestamp.
+├── When the window passes after acceptance
+│   └── It should leave the attempt record unchanged.
+└── When an earlier attempt ended
+    └── It should open the next id and move the counter to it.

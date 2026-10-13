@@ -1,0 +1,9 @@
+AmbireAccountLocalAbiTest
+├── when the local abi's functions are read
+│   └── it should carry the three calls of Ambire's source with their selectors
+├── when the privileges getter is read
+│   └── it should be a view returning one word
+├── when the write and execute calls are read
+│   └── it should be payable and return nothing as in Ambire's source
+└── when the privilege event is read
+    └── it should be Ambire's event with an indexed address and a data word

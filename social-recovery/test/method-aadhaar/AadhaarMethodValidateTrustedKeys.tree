@@ -1,0 +1,36 @@
+AadhaarMethodValidateTrustedKeysTest
+├── when the constructor gets one nonzero word
+│   └── it should store it as the one trusted word.
+├── when the constructor gets a zero word
+│   ├── it should revert.
+│   └── it should carry AadhaarMethod_ZeroTrustedKey of index zero.
+├── when the constructor gets an empty list
+│   ├── it should revert.
+│   └── it should carry AadhaarMethod_InvalidTrustedKeysLength of zero.
+├── when the constructor gets two words
+│   ├── it should revert.
+│   └── it should carry AadhaarMethod_InvalidTrustedKeysLength of two.
+├── when the constructor gets any length but one
+│   ├── it should revert.
+│   └── it should carry AadhaarMethod_InvalidTrustedKeysLength of that length.
+├── when the key admin sets one nonzero word
+│   ├── it should emit TrustedKeysUpdated from the previous key to the new one.
+│   └── it should store the new key as the one trusted word.
+├── when the key admin sets one nonzero word twice in a row
+│   └── it should store the second key as the one trusted word.
+├── when the key admin sets an empty list
+│   ├── it should revert.
+│   ├── it should carry AadhaarMethod_InvalidTrustedKeysLength of zero.
+│   └── it should keep the previous key.
+├── when the key admin sets two words
+│   ├── it should revert.
+│   ├── it should carry AadhaarMethod_InvalidTrustedKeysLength of two.
+│   └── it should keep the previous key.
+├── when the key admin sets any length but one
+│   ├── it should revert.
+│   ├── it should carry AadhaarMethod_InvalidTrustedKeysLength of that length.
+│   └── it should keep the previous key.
+└── when the key admin sets a zero word
+    ├── it should revert.
+    ├── it should carry AadhaarMethod_ZeroTrustedKey of index zero.
+    └── it should keep the previous key.

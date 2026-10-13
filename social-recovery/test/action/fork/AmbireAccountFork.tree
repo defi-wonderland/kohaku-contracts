@@ -1,0 +1,13 @@
+AmbireAccountForkTest
+├── when a mainnet account is built by the pinned factory
+│   └── it should be supported and privilege only its signer key
+├── when a sepolia account is built by the pinned factory
+│   └── it should be supported and privilege only its signer key
+├── when a mainnet batch call fails
+│   └── it should revert execute with the call's own revert data
+├── when a sepolia batch call fails
+│   └── it should revert execute with the call's own revert data
+├── when a mainnet privilege is written
+│   └── it should emit Ambire's event layout
+└── when a sepolia privilege is written
+    └── it should emit Ambire's event layout

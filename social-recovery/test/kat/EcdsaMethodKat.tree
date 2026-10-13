@@ -1,0 +1,10 @@
+EcdsaMethodKatTest
+├── when replaying the config vectors
+│   ├── it should encode the signer as one ABI word.
+│   └── it should verify a proof under the config exactly when the proof row is accepted and names its signer.
+├── when replaying the zero signer config vector
+│   └── it should refuse the signature whose ecrecover answers the zero address.
+├── when replaying the proof vectors
+│   └── it should answer the magic value exactly for the accepted rows.
+└── when replaying the accepted proof vectors wrapped
+    └── it should accept the raw 65 bytes and refuse their abi.encode wrapping.

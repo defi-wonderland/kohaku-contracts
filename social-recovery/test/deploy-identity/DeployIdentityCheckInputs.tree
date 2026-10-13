@@ -1,0 +1,6 @@
+DeployIdentityCheckInputsTest
+├── when the safe is nonzero
+│   └── it should pass
+└── when the safe is zero
+    ├── it should revert
+    └── it should raise the zero safe error

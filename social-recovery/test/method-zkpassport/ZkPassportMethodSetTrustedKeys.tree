@@ -1,0 +1,23 @@
+ZkPassportMethodSetTrustedKeysTest
+├── when the key admin sets eight valid words
+│   ├── it should store the eight new words in order
+│   └── it should emit TrustedKeysUpdated with the previous and the new words
+├── when the key admin sets a zero guardian word
+│   └── it should store the zero word
+├── when the key admin sets a guardian word with only upper bytes set
+│   ├── it should revert
+│   └── it should keep the previous words
+├── when the key admin sets seven words with a dirty address word
+│   ├── it should revert
+│   ├── it should carry the length error
+│   └── it should keep the previous words
+├── when the key admin sets a non canonical version word
+│   ├── it should revert
+│   └── it should keep the previous words
+├── when the key admin sets a version word with padding only in the first padding byte
+│   ├── it should revert
+│   └── it should keep the previous words
+└── when the key admin sets seven words with a non canonical version word
+    ├── it should revert
+    ├── it should carry the length error
+    └── it should keep the previous words

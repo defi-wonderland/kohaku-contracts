@@ -1,0 +1,10 @@
+AadhaarMethodConstructorTest
+└── when every argument is valid
+    ├── it should emit AdminTransferred from zero to the key admin, then TrustedKeysUpdated from no keys to the key.
+    ├── it should make the first address the pause holder.
+    ├── it should make the second address the key admin.
+    ├── it should store the issuer key as the one trusted word.
+    ├── it should leave both pending holders at zero.
+    ├── it should leave the method unpaused.
+    ├── it should record the verifier.
+    └── it should set the name and the version.

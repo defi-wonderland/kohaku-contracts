@@ -1,0 +1,87 @@
+PolicyManagerCancelByProofsTest
+├── When no attempt was ever recorded
+│   └── It should revert with PolicyManager_NoActiveAttempt, never PolicyManager_NoSetup, and call no method.
+├── When a setup exists but no attempt was ever opened
+│   └── It should revert with PolicyManager_NoActiveAttempt and call no method.
+├── When the attempt was already cancelled
+│   └── It should revert with PolicyManager_NoActiveAttempt and leave the record untouched.
+├── When the attempt was consumed
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+├── When the attempt id is not the live one
+│   └── It should revert with PolicyManager_WrongAttemptId carrying both ids and call no method.
+├── When the attempt id is the next one
+│   └── It should revert with PolicyManager_WrongAttemptId naming the live id.
+├── When the request names a nonce other than the stored one
+│   └── It should revert with PolicyManager_WrongSetupNonce carrying both nonces and call no method.
+├── When the window has passed
+│   └── It should revert with PolicyManager_RequestExpired carrying both times and call no method.
+├── When the window ends in this block
+│   └── It should cancel the attempt.
+├── When the attempt was judged under another nonce
+│   └── It should revert with PolicyManager_StaleAttempt carrying both nonces and call no method.
+├── When the setup is gone but a record still waits
+│   └── It should revert with PolicyManager_SetupCommitmentMismatch against the zero commitment, never PolicyManager_NoSetup.
+├── When no attempt waits and every other check fails
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+├── When the nonce the id and the window all fail
+│   └── It should revert with PolicyManager_WrongSetupNonce.
+├── When the nonce and the window both fail
+│   └── It should revert with PolicyManager_WrongSetupNonce.
+├── When the id and the window both fail
+│   └── It should revert with PolicyManager_WrongAttemptId.
+├── When the window has passed and the body does not match
+│   └── It should revert with PolicyManager_RequestExpired.
+├── When the attempt is stale and the body does not match
+│   └── It should revert with PolicyManager_StaleAttempt.
+├── When the body does not hash to the commitment
+│   └── It should revert with PolicyManager_SetupCommitmentMismatch carrying both commitments and call no method.
+├── When the proofs sign the approval digest
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the proofs were signed for another attempt
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When each method is asked
+│   └── It should hand each method the cancellation digest of its place, its config and its proof once, by a static call.
+├── When a place repeats the previous one
+│   └── It should revert with PolicyManager_PlacesNotStrictlyIncreasing.
+├── When a place is past the end of the rule
+│   └── It should revert with PolicyManager_PlaceOutOfRange.
+├── When the proof names another method of the rule
+│   └── It should revert with PolicyManager_CredentialMismatch and never ask that method about the place.
+├── When a proof names a method the rule never names
+│   └── It should revert with PolicyManager_CredentialMismatch and never call that method.
+├── When the proof carries another config
+│   └── It should revert with PolicyManager_CredentialMismatch and never call the method.
+├── When a method reports itself stopped
+│   └── It should revert with PolicyManager_MethodStopped before its verify is called.
+├── When the body ignores stops
+│   └── It should cancel without reading any pause.
+├── When the body ignores stops but the record does not
+│   └── It should cancel without reading any pause.
+├── When the record ignores stops but the body does not
+│   └── It should revert with PolicyManager_MethodStopped.
+├── When the pause read reverts
+│   └── It should cancel the attempt.
+├── When the method reverts
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns nothing
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns more than a word
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method returns another word
+│   └── It should revert with PolicyManager_ProofRejected.
+├── When the method writes state while verifying
+│   └── It should revert with PolicyManager_ProofRejected and leave the method's storage untouched.
+├── When the method returns a huge answer
+│   └── It should revert with PolicyManager_ProofRejected on a gas budget that copying the answer would exhaust.
+├── When the set is too weak to open
+│   └── It should revert with PolicyManager_RuleUnsatisfied naming the clause.
+├── When the request carries no proofs
+│   └── It should revert with PolicyManager_RuleUnsatisfied and call no method.
+├── When a satisfying set cancels
+│   ├── It should set the attempt to Cancelled and keep the rest of its record.
+│   ├── It should emit AttemptCancelled alone.
+│   └── It should leave the setup and the attempt counter unchanged.
+├── When the same cancellation is sent twice
+│   └── It should revert with PolicyManager_NoActiveAttempt.
+└── When an attempt opens after the cancel
+    └── It should open the next id.

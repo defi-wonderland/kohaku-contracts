@@ -1,0 +1,32 @@
+zkPassport digest bind fixture
+
+The files valid_proof.hex, valid_public_inputs.json and valid_committed_inputs.hex in this
+directory were produced by running src/ts/scripts/generate-fixtures.ts from:
+
+  repository: https://github.com/zkpassport/circuits
+  commit:     7b3614442419b5ee6fefe8b2bc077cb956284ad1
+
+Copyright 2025 ZKPassport
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use these files
+except in compliance with the License. A copy of the License is in the LICENSE file in this
+directory, copied unchanged from the same repository and commit, and is also available at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.
+
+Modification notice, as section 4(b) of the License asks: the generator was run with two
+changes to generate-fixtures.ts. The bind query's custom_data was changed from
+"email:test@test.com,customer_id:1234567890" to
+"0xb6566bf299a764e0c0a1f4ca4805b7b977ea3a018675b1596e7363854202ec53", and the run stopped after
+writing the three valid_* files, skipping the thirteen-subproof and salted fixtures. README.md
+in this directory gives the exact change. The upstream repository ships no NOTICE file.
+
+ZkPassportDigestBindFixture.sol is derived from the three files above by generate.py: it
+restates the same bytes as Solidity constants and adds no other data. generate.py and
+ZkPassportDigestBindFixture.sol are part of this repository and fall under its own licence,
+GPL-3.0-or-later.

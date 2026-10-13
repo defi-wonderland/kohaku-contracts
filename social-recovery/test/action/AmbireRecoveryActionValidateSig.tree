@@ -1,0 +1,203 @@
+AmbireRecoveryActionValidateSigTest
+├── when the batch is the approved one with no payment
+│   └── it should return true and zero
+├── when the wait ends this second
+│   └── it should return true and zero
+├── when the attempt is read
+│   └── it should read stateOf for the caller and this action
+├── when the batch carries the approved token payment
+│   └── it should return true and zero
+├── when the batch carries the approved native payment
+│   └── it should return true and zero
+├── when the order names a token but no amount
+│   └── it should return true and zero
+├── when no attempt was ever recorded
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash
+├── when the attempt was cancelled
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash
+├── when the attempt was consumed
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash
+├── when the wait is not over
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash
+├── when another address asks
+│   ├── it should revert
+│   └── it should name the caller as the account
+├── when a proxy over another implementation asks
+│   ├── it should revert
+│   └── it should name the caller
+├── when a key delegating to the served implementation asks
+│   ├── it should revert
+│   └── it should name the caller
+├── when an address with no code asks
+│   ├── it should revert
+│   └── it should name the caller
+├── when a contract that is no proxy asks
+│   ├── it should revert
+│   └── it should name the caller
+├── when the live account is a proxy over another implementation
+│   ├── it should revert
+│   └── it should leave every privilege and the attempt as they were
+├── when a three call order gets four calls
+│   ├── it should revert
+│   └── it should name index 3 before reading any call
+├── when a call is added behind the approved batch
+│   ├── it should revert
+│   └── it should name index 3
+├── when a three call order gets two calls
+│   ├── it should revert
+│   └── it should name index 2
+├── when the batch carries the consume alone
+│   ├── it should revert
+│   └── it should name index 1
+├── when the batch is empty
+│   ├── it should revert
+│   └── it should name index 0
+├── when a four call order gets three calls
+│   ├── it should revert
+│   └── it should name index 3
+├── when an order naming a token but no amount gets four calls
+│   ├── it should revert
+│   └── it should name index 3 before reading any call
+├── when a four call order gets five calls
+│   ├── it should revert
+│   └── it should name index 4 before reading any call
+├── when the consume targets another address
+│   ├── it should revert
+│   └── it should name index 0
+├── when the consume carries value
+│   ├── it should revert
+│   └── it should name index 0
+├── when the consume names another action
+│   ├── it should revert
+│   └── it should name index 0
+├── when the consume names another attempt id
+│   ├── it should revert
+│   └── it should name index 0
+├── when the consume names another payload hash
+│   ├── it should revert
+│   └── it should name index 0
+├── when the consume carries a trailing byte
+│   ├── it should revert
+│   └── it should name index 0
+├── when the consume is moved behind the writes
+│   ├── it should revert
+│   └── it should name index 0
+├── when the grant and the revoke are swapped
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant names another new key
+│   ├── it should revert
+│   └── it should name index 1
+├── when the revoke names another removed key
+│   ├── it should revert
+│   └── it should name index 1
+├── when the payload carries a trailing byte
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant writes another value
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant writes a validator binding
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant carries value
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant targets another address
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant uses another selector
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant carries a trailing byte
+│   ├── it should revert
+│   └── it should name index 1
+├── when the grant is too short to name an address
+│   ├── it should revert
+│   └── it should name index 1
+├── when the revoke writes a value
+│   ├── it should revert
+│   └── it should name index 2
+├── when the revoke carries value
+│   ├── it should revert
+│   └── it should name index 2
+├── when the revoke targets another address
+│   ├── it should revert
+│   └── it should name index 2
+├── when the revoke uses another selector
+│   ├── it should revert
+│   └── it should name index 2
+├── when the revoke carries a trailing byte
+│   ├── it should revert
+│   └── it should name index 2
+├── when the revoke is too short to name an address
+│   ├── it should revert
+│   └── it should raise BatchNotApproved
+├── when the committed new key is zero
+│   ├── it should revert
+│   └── it should carry the payload
+├── when the committed removed key is zero
+│   ├── it should revert
+│   └── it should carry the payload
+├── when the committed keys are the same address
+│   ├── it should revert
+│   └── it should carry the payload
+├── when the new key already holds a privilege
+│   ├── it should revert
+│   └── it should name the new key
+├── when the removed key holds no key value
+│   ├── it should revert
+│   └── it should name the removed key
+├── when the removed entry is the kit slot
+│   ├── it should revert
+│   └── it should name the slot
+├── when the payment names another token
+│   ├── it should revert
+│   └── it should name index 3
+├── when the payment pays another payee
+│   ├── it should revert
+│   └── it should name index 3
+├── when a native payment stands where a token is ordered
+│   ├── it should revert
+│   └── it should name index 3
+├── when a token payment stands where the native asset is ordered
+│   ├── it should revert
+│   └── it should name index 3
+├── when the token payment carries value
+│   ├── it should revert
+│   └── it should name index 3
+├── when the payment is a transfer from
+│   ├── it should revert
+│   └── it should name index 3
+├── when the native payment carries data
+│   ├── it should revert
+│   └── it should name index 3
+├── when the native payment sends another amount
+│   ├── it should revert
+│   └── it should name index 3
+├── when the native payment pays another payee
+│   ├── it should revert
+│   └── it should name index 3
+├── when an open order payment moves another amount
+│   ├── it should revert
+│   └── it should name index 3
+├── when an open order payment names another token
+│   ├── it should revert
+│   └── it should name index 3
+├── when an open native order payment sends another amount
+│   ├── it should revert
+│   └── it should name index 3
+├── when the live account is sent the approved batch directly
+│   └── it should run the batch
+├── when a live open native order is sent with the zero payee
+│   └── it should complete the handover and pay nobody
+├── when the same batch runs a second time through the live account
+│   ├── it should revert
+│   └── it should refuse it as a consumed attempt
+└── when the live account is sent the consume alone
+    ├── it should revert
+    └── it should leave the attempt waiting

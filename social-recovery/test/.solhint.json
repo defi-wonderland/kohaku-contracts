@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "ordering": "off",
+    "one-contract-per-file": "off",
+    "func-name-mixedcase": "off",
+    "var-name-mixedcase": "off"
+  }
+}

@@ -1,0 +1,5 @@
+PolicyManagerDigestKatTest
+├── when replaying the approval digest vectors through the manager
+│   └── it should reproduce every expected digest from the manager's view.
+└── when replaying the cancellation digest vectors through the manager
+    └── it should reproduce every expected digest from the manager's view.

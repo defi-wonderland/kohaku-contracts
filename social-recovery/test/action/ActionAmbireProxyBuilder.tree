@@ -1,0 +1,11 @@
+ActionAmbireProxyBuilderTest
+├── when one key is written over the pinned implementation
+│   └── it should equal the builder's own output
+├── when the implementation has a leading zero byte
+│   └── it should equal the builder's own output
+├── when three privileges are written
+│   └── it should equal the builder's own output
+├── when the builder's creation code runs
+│   └── it should leave the runtime and the privileges the transcription names
+└── when the builder's creation code runs for a shortened address
+    └── it should leave forty five bytes of runtime padded with zeros

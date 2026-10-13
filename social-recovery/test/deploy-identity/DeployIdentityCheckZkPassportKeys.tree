@@ -1,0 +1,142 @@
+DeployIdentityCheckZkPassportKeysTest
+├── when every live read agrees
+│   └── it should pass
+├── when the root guardian word is zero and the root has no root guardian
+│   └── it should pass
+├── when the set holds seven words
+│   ├── it should revert
+│   ├── it should carry the count
+│   └── it should read nothing
+├── when the set holds nine words
+│   ├── it should revert
+│   ├── it should carry the count
+│   └── it should read nothing
+├── when the root verifier word is not clean
+│   ├── it should revert
+│   ├── it should carry the index and the word
+│   └── it should read nothing
+├── when the sub verifier word is not clean
+│   ├── it should revert
+│   ├── it should carry the index and the word
+│   └── it should read nothing
+├── when the verifier helper word is not clean
+│   ├── it should revert
+│   ├── it should carry the index and the word
+│   └── it should read nothing
+├── when the registry word is not clean
+│   ├── it should revert
+│   ├── it should carry the index and the word
+│   └── it should read nothing
+├── when the root admin word is not clean
+│   ├── it should revert
+│   ├── it should carry the index and the word
+│   └── it should read nothing
+├── when the root guardian word is not clean
+│   ├── it should revert
+│   ├── it should carry the index and the word
+│   └── it should read nothing
+├── when the sub verifier admin word is not clean
+│   ├── it should revert
+│   ├── it should carry the index and the word
+│   └── it should read nothing
+├── when the version word is not the routed one
+│   ├── it should revert
+│   └── it should name subVerifier with the word and a zero live value
+├── when the set names another version the root routes
+│   └── it should pass
+├── when the sub verifier word differs
+│   ├── it should revert
+│   └── it should name subVerifier and carry the word and the live value
+├── when the verifier helper word differs
+│   ├── it should revert
+│   └── it should name verifierHelper and carry the word and the live value
+├── when the registry word differs
+│   ├── it should revert
+│   └── it should name rootRegistry and carry the word and the live value
+├── when the root admin word differs
+│   ├── it should revert
+│   └── it should name rootAdmin and carry the word and the live value
+├── when the root guardian word differs
+│   ├── it should revert
+│   └── it should name rootGuardian and carry the word and the live value
+├── when the sub verifier admin word differs
+│   ├── it should revert
+│   └── it should name subVerifierAdmin and carry the word and the live value
+├── when the sub verifier read reverts
+│   ├── it should revert
+│   └── it should name subVerifier and carry the expected word
+├── when the sub verifier read answers nothing
+│   ├── it should revert
+│   └── it should name subVerifier and carry the expected word
+├── when the sub verifier read answers a dirty word
+│   ├── it should revert
+│   └── it should name subVerifier and carry the expected word
+├── when the sub verifier read answers two words
+│   ├── it should revert
+│   └── it should name subVerifier and carry the expected word
+├── when the verifier helper read reverts
+│   ├── it should revert
+│   └── it should name verifierHelper and carry the expected word
+├── when the verifier helper read answers nothing
+│   ├── it should revert
+│   └── it should name verifierHelper and carry the expected word
+├── when the verifier helper read answers a dirty word
+│   ├── it should revert
+│   └── it should name verifierHelper and carry the expected word
+├── when the verifier helper read answers two words
+│   ├── it should revert
+│   └── it should name verifierHelper and carry the expected word
+├── when the registry read reverts
+│   ├── it should revert
+│   └── it should name rootRegistry and carry the expected word
+├── when the registry read answers nothing
+│   ├── it should revert
+│   └── it should name rootRegistry and carry the expected word
+├── when the registry read answers a dirty word
+│   ├── it should revert
+│   └── it should name rootRegistry and carry the expected word
+├── when the registry read answers two words
+│   ├── it should revert
+│   └── it should name rootRegistry and carry the expected word
+├── when the root admin read reverts
+│   ├── it should revert
+│   └── it should name rootAdmin and carry the expected word
+├── when the root admin read answers nothing
+│   ├── it should revert
+│   └── it should name rootAdmin and carry the expected word
+├── when the root admin read answers a dirty word
+│   ├── it should revert
+│   └── it should name rootAdmin and carry the expected word
+├── when the root admin read answers two words
+│   ├── it should revert
+│   └── it should name rootAdmin and carry the expected word
+├── when the root guardian read reverts
+│   ├── it should revert
+│   └── it should name rootGuardian and carry the expected word
+├── when the root guardian read answers nothing
+│   ├── it should revert
+│   └── it should name rootGuardian and carry the expected word
+├── when the root guardian read answers a dirty word
+│   ├── it should revert
+│   └── it should name rootGuardian and carry the expected word
+├── when the root guardian read answers two words
+│   ├── it should revert
+│   └── it should name rootGuardian and carry the expected word
+├── when the sub verifier admin read reverts
+│   ├── it should revert
+│   └── it should name subVerifierAdmin and carry the expected word
+├── when the sub verifier admin read answers nothing
+│   ├── it should revert
+│   └── it should name subVerifierAdmin and carry the expected word
+├── when the sub verifier admin read answers a dirty word
+│   ├── it should revert
+│   └── it should name subVerifierAdmin and carry the expected word
+├── when the sub verifier admin read answers two words
+│   ├── it should revert
+│   └── it should name subVerifierAdmin and carry the expected word
+├── when the root guardian word is zero and the root guardian read reverts
+│   ├── it should revert
+│   └── it should name rootGuardian and carry the zero word
+└── when the root guardian word is zero and the root guardian read answers nothing
+    ├── it should revert
+    └── it should name rootGuardian and carry the zero word

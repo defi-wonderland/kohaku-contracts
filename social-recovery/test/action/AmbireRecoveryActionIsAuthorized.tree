@@ -1,0 +1,19 @@
+AmbireRecoveryActionIsAuthorizedTest
+├── when the kit slot holds this action's binding
+│   └── it should return true
+├── when the kit slot is empty
+│   └── it should return false
+├── when the kit slot holds a key value
+│   └── it should return false
+├── when the kit slot holds another action's binding
+│   └── it should return false
+├── when the binding sits under another address
+│   └── it should return false
+├── when the kit slot holds any other value
+│   └── it should return false
+├── when two actions share one account
+│   └── it should read each action's own slot
+├── when the account has no code
+│   └── it should revert
+└── when the account returns nothing
+    └── it should revert

@@ -1,0 +1,17 @@
+IPolicyActionTest
+├── when the selectors are derived
+│   └── it should match each function's canonical signature
+├── when the compiled abi is read
+│   └── it should list exactly the specified functions events and errors
+├── when supportsAccount is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when isAuthority is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when isAuthorized is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when supportsInterface is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when name is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+└── when version is read from the abi
+    └── it should declare the specified parameters returns and mutability

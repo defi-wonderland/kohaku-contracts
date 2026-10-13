@@ -1,0 +1,9 @@
+DeployRecordLabelTest
+└── when the variable is set
+    ├── it should answer the variable's value
+    ├── it should answer the same value through the identity script
+    ├── it should stop the demo path's run with the invalid label error
+    ├── it should stop the identity script's run with the invalid label error
+    ├── it should create no contract in either run
+    ├── it should deploy the kit when run on a fork under a valid label
+    └── it should write no candidate outside a broadcast

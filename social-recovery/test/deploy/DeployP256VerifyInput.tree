@@ -1,0 +1,6 @@
+DeployP256VerifyInputTest
+├── when the input is read
+│   ├── it should be one hundred sixty bytes
+│   └── it should be the signed hash, r, s, x and y of the frozen vectors
+└── when the input is sent to the local precompile
+    └── it should be accepted by the precompile
