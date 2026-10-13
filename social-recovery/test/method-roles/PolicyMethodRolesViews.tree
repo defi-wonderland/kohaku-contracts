@@ -1,0 +1,20 @@
+PolicyMethodRolesViewsTest
+├── when both transfers are open
+│   └── it should report both pending holders beside the current ones.
+├── when both transfers are accepted
+│   └── it should report the new admin and the new pause holder and no pending holders.
+├── when asked about a supported interface
+│   └── it should return true for IPolicyMethod, IPolicyMethodPause, IPolicyMethodAdmin and IERC165.
+├── when asked about an unsupported interface
+│   └── it should return false.
+├── when asked for the name and the version
+│   └── it should return the strings the constructor set.
+├── when asked for each stored key by index
+│   └── it should return the word stored at that index.
+├── when asked for a key at any index below the length
+│   └── it should return the word at the same position of the full list.
+├── when asked for the key at the length
+│   ├── it should revert.
+│   └── it should name the array bounds panic.
+└── when asked for a key after the keys are replaced
+    └── it should return the new word at each index.

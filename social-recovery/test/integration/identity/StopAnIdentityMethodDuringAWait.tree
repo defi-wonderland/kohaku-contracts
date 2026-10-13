@@ -1,0 +1,11 @@
+StopAnIdentityMethodDuringAWaitTest
+├── when the zkPassport method is stopped during the wait
+│   └── it should let anyone end the attempt by veto and count the method again after the Safe unpauses it
+├── when the Aadhaar method is stopped during the wait
+│   └── it should let anyone end the attempt by veto and count the method again after the Safe unpauses it
+├── when nobody sends the veto cancel
+│   └── it should keep the attempt waiting and let it be spent in the first block after the Safe unpauses the method
+├── when the Aadhaar key admin sets a key it controls
+│   └── it should accept the proofs that key forges
+└── when the zkPassport key admin routes proofs to a verifier it controls
+    └── it should accept the proofs that verifier forges

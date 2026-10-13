@@ -1,0 +1,27 @@
+ZkPassportMethodForkTest
+├── when the live root verifier resolves the accepted version
+│   ├── it should route the accepted version to the pinned sub-verifier
+│   └── it should name the pinned verifier helper for the accepted version
+├── when the live registry checks the fixture roots
+│   ├── it should accept the circuit root
+│   └── it should refuse the certificate root
+├── when the live root verifier checks the fixture
+│   ├── it should answer valid
+│   ├── it should return the fixture's identifier
+│   └── it should return the pinned sepolia verifier helper
+├── when the live verifier helper reads the fixture committed inputs
+│   └── it should return the fixture's sender, chain id and custom data
+├── when the fixture public inputs are read where the method reads them
+│   ├── it should hold nullifier type zero third from the end
+│   └── it should hold the identifier the root returns second from the end
+├── when the method checks the fixture against its own identifier
+│   ├── it should send the root verifier the accepted version and a service config ending in false
+│   ├── it should pass the committed inputs to the live verifier helper
+│   └── it should answer zero because the custom data is not the digest's rendering
+├── when the method checks the fixture against another identifier
+│   ├── it should not call the verifier helper
+│   └── it should answer zero
+└── when a proof byte is corrupted
+    ├── it should revert
+    ├── it should fail in the live root verifier with the sumcheck error
+    └── it should pass the same error out of the method, which the manager reads as a refusal
