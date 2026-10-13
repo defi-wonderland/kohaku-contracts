@@ -1,6 +1,6 @@
 # Anon Aadhaar real-proof fixture
 
-Draft to verify. Generated on 2026-10-02. `fixture.json` holds one real Anon Aadhaar Groth16 proof, made for this repository, that verifies on the live Sepolia verifier `0xCBd85cd69C4779aA9a7AB9B6D6A9f6FEd61504F0`. The fork tests in `test/method-aadhaar/AadhaarMethodFork.t.sol` run it through the Aadhaar method on a Sepolia fork pinned to block 11,831,100.
+Generated on 2026-10-02. `fixture.json` holds one real Anon Aadhaar Groth16 proof, made for this repository, that verifies on the live Sepolia verifier `0xCBd85cd69C4779aA9a7AB9B6D6A9f6FEd61504F0`. The fork tests in `test/method-aadhaar/AadhaarMethodFork.t.sol` run it through the Aadhaar method on a Sepolia fork pinned to block 11,831,100.
 
 ## What the proof is
 
