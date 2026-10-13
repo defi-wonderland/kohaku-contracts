@@ -1,0 +1,19 @@
+AadhaarMethodDeclarationsTest
+├── when asked for the IPolicyMethod interface id
+│   └── it should answer true
+├── when asked for the pause interface id
+│   └── it should answer true
+├── when asked for the admin interface id
+│   └── it should answer true
+├── when asked for the ERC165 interface id
+│   └── it should answer true
+├── when asked for the invalid interface id
+│   └── it should answer false
+├── when the name is read
+│   └── it should answer method-aadhaar
+├── when the version is read
+│   └── it should answer 1.0.0
+├── when the verifier is read
+│   └── it should answer the verifier the method was deployed with
+└── when trusted parties are read
+    └── it should name the key admin, the pause holder and the issuer key and not the verifier

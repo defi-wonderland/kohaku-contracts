@@ -1,0 +1,13 @@
+AadhaarMethodKatTest
+├── when replaying the config vectors against matching inputs
+│   └── it should accept the proof for every row.
+├── when replaying the config vectors at the edge of their window
+│   └── it should accept a proof signed the window before and refuse one signed a second earlier, for every row.
+├── when replaying the config vectors against swapped inputs
+│   └── it should refuse the proof for any row.
+├── when replaying the proof vectors
+│   └── it should pass the frozen fields to the verifier and return the verify selector for every row.
+├── when replaying the proof vectors for another digest
+│   └── it should refuse the proof for any row.
+└── when replaying the vectors through the test builders
+    └── it should reproduce every frozen byte and signal hash.

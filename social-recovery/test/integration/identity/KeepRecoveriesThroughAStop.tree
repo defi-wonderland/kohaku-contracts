@@ -1,0 +1,13 @@
+KeepRecoveriesThroughAStopTest
+├── when the zkPassport method is stopped before the request
+│   └── it should judge, keep and spend the attempt as if no stop existed
+├── when the Aadhaar method is stopped before the request
+│   └── it should judge, keep and spend the attempt as if no stop existed
+├── when a forged proof from the stopped method is counted
+│   └── it should open the attempt and spend it the same way
+├── when the holder's key answers a forged attempt
+│   └── it should cancel it while the veto cannot
+├── when a satisfying set answers a forged attempt
+│   └── it should cancel it while the veto cannot
+└── when the holder changes the choice
+    └── it should take a fresh setup under the holder's key and never read the accepted attempt again

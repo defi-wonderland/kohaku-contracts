@@ -1,0 +1,63 @@
+AadhaarMethodVerifyTest
+├── when every check holds
+│   └── it should return the verify selector
+├── when the verifier is called
+│   └── it should pass the decoded points and exactly the nine inputs
+├── when the verifier accepts only a reversed b
+│   └── it should refuse the proof
+├── when input zero is another issuer key
+│   └── it should answer the zero word
+├── when input one is not the config nullifier
+│   └── it should refuse the proof
+├── when input seven is not the config nullifier seed
+│   └── it should refuse the proof
+├── when the config swaps nullifier and seed
+│   └── it should refuse the proof
+├── when input eight is not the signal of the digest
+│   └── it should refuse the proof
+├── when input eight is any other reduction of the digest
+│   └── it should refuse the proof
+├── when verify is asked about another digest
+│   └── it should refuse the proof
+├── when the verifier reverts
+│   └── it should answer the zero word
+├── when the verifier reverts with the word true
+│   └── it should answer the zero word
+├── when the verifier answers false
+│   └── it should answer the zero word
+├── when the verifier returns nothing
+│   └── it should answer the zero word
+├── when the verifier returns a short or a long answer
+│   └── it should answer the zero word
+├── when the verifier returns a word other than true
+│   └── it should answer the zero word
+├── when the proof is not 544 bytes
+│   └── it should answer the zero word
+├── when the config has any length but three words
+│   └── it should answer the zero word
+├── when inputs three through six carry any values
+│   └── it should return the verify selector
+├── when the freshness window is under an hour
+│   └── it should answer the zero word
+├── when the freshness window is exactly an hour
+│   └── it should return the verify selector
+├── when the signing time is exactly the window before the block
+│   └── it should return the verify selector
+├── when the signing time is one second past the window
+│   └── it should answer the zero word
+├── when a stale proof matches every other input
+│   └── it should answer the zero word
+├── when the signing time is in the future
+│   └── it should return the verify selector
+├── when the freshness window is the largest word
+│   └── it should return the verify selector
+├── when the inputs match any key config and digest
+│   └── it should return the verify selector
+├── when the method is paused and unpaused
+│   └── it should answer the same before, during and after the pause
+├── when the key admin rotates the key
+│   └── it should accept the new key and refuse the old one
+├── when the key admin rotates to any new key
+│   └── it should accept the new key and refuse the old one
+└── when the key admin rotates the key while the method is paused
+    └── it should accept the new key and refuse the old one

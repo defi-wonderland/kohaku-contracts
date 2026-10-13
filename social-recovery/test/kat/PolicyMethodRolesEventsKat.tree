@@ -1,0 +1,15 @@
+PolicyMethodRolesEventsKatTest
+├── when counting the method event rows
+│   └── it should find six rows with distinct ids.
+├── when the pause holder pauses the Paused row
+│   └── it should emit the row's topics and data.
+├── when the pause holder unpauses the Unpaused row
+│   └── it should emit the row's topics and data.
+├── when the key admin sets the TrustedKeysUpdated row
+│   └── it should emit the row's topics and data.
+├── when the key admin offers the AdminTransferOffered row
+│   └── it should emit the row's topics and data.
+├── when the nominee accepts the AdminTransferred row
+│   └── it should emit the row's topics and data.
+└── when the key admin renounces the AdminRenounced row
+    └── it should emit the row's topics and data.

@@ -1,0 +1,12 @@
+ZkPassportMethodDeclarationsTest
+├── when trusted parties are read
+│   ├── it should report the key admin and the pause holder with no transfer open
+│   └── it should report each of the eight words at its position
+├── when the name is read
+│   └── it should answer method-zkpassport
+├── when the version is read
+│   └── it should answer 1.0.0
+├── when asked for a supported interface id
+│   └── it should answer true for IPolicyMethod, IPolicyMethodPause, IPolicyMethodAdmin and IERC165
+└── when asked for the invalid interface id
+    └── it should answer false

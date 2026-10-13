@@ -1,0 +1,42 @@
+PolicyMethodRolesPauseTest
+├── when the pause holder pauses an unpaused method
+│   ├── it should report paused.
+│   └── it should emit Paused with the pause holder.
+├── when the pause holder pauses a paused method
+│   ├── it should revert.
+│   └── it should carry EnforcedPause.
+├── when the pause holder unpauses a paused method
+│   ├── it should report not paused.
+│   └── it should emit Unpaused with the pause holder.
+├── when the pause holder unpauses an unpaused method
+│   ├── it should revert.
+│   └── it should carry ExpectedPause.
+├── when anyone else pauses
+│   ├── it should revert.
+│   └── it should carry OwnableUnauthorizedAccount of the caller.
+├── when anyone else unpauses
+│   ├── it should revert.
+│   └── it should carry OwnableUnauthorizedAccount of the caller.
+├── when the pause holder calls a key admin function
+│   ├── it should revert.
+│   └── it should leave the keys and the key admin unchanged.
+├── when the pause holder renounces while paused
+│   ├── it should leave the method paused.
+│   └── it should let nobody unpause, the former holder included.
+├── when the pause holder renounces while unpaused
+│   └── it should let nobody pause.
+├── when the pause holder renounces with a transfer open
+│   └── it should let no earlier nominee accept.
+├── when the pause holder renounces
+│   └── it should leave the key admin standing.
+├── when the pause holder role is handed over in two steps
+│   ├── it should let only the new holder pause.
+│   └── it should leave the key admin and the keys unchanged.
+├── when the zero address calls after the pause holder renounced while paused
+│   ├── it should revert.
+│   ├── it should carry OwnableUnauthorizedAccount of the zero address for unpause, pause, transferOwnership and renounceOwnership.
+│   └── it should leave the method paused.
+└── when the zero address accepts with no transfer open
+    ├── it should revert.
+    ├── it should carry OwnableUnauthorizedAccount of the zero address.
+    └── it should leave the owner unchanged.
