@@ -246,7 +246,7 @@ cast call $(cast call $ROOT 'getSubVerifier(bytes32)(address)' $VERSION --rpc-ur
 
 ## The checks it runs
 
-Before anything else, the script looks up the chain's table (`DeployIdentity_UnsupportedChain`) and applies the label rule to `DEPLOYMENT_LABEL` when it is set (`DeployIdentity_InvalidLabel`). It then reads the five inputs (`DeployIdentity_MissingInput`). All three run in a dry run too.
+Before anything else, the script looks up the chain's table (`DeployIdentity_UnsupportedChain`) and applies the label rule to `DEPLOYMENT_LABEL` when it is set (`DeployIdentity_InvalidLabel`). It then reads its inputs, five on Sepolia and four on mainnet, where it skips `AADHAAR_METHOD_SAFE` (`DeployIdentity_MissingInput`). All three run in a dry run too.
 
 Then, before deploying, the script runs four checks.
 
