@@ -34,6 +34,14 @@ contract TornadoFeeAdapterForkTest is Test {
     address internal entryPointAddr;
 
     function setUp() public {
+        // Skip when there's no Sepolia RPC, e.g. on PRs from forks,
+        // which don't get secrets.
+        string memory rpc = vm.envOr("SEPOLIA_RPC_URL", string(""));
+        if (bytes(rpc).length == 0) {
+            vm.skip(true);
+            return;
+        }
+
         vm.createSelectFork(
             vm.rpcUrl("sepolia"),
             TornadoFixtures.loadForkBlock()

@@ -36,6 +36,14 @@ contract PrivacyPaymasterTest is Test {
     address internal sender = address(0x5EDE2);
 
     function setUp() public {
+        // Skip when there's no Sepolia RPC, e.g. on PRs from forks,
+        // which don't get secrets.
+        string memory rpc = vm.envOr("SEPOLIA_RPC_URL", string(""));
+        if (bytes(rpc).length == 0) {
+            vm.skip(true);
+            return;
+        }
+
         vm.createSelectFork(vm.rpcUrl("sepolia"), FORK_BLOCK);
 
         entryPointAddr = Chains.readAddress("protocols.erc4337", "entry_point");

@@ -65,5 +65,10 @@ jobs:
       - run: bun install
         working-directory: privacy-paymaster/sdk
 
+      # The e2e test forks Sepolia, so it needs the secret. Pull requests from forks get no secrets.
       - run: bun test
+        if: env.SEPOLIA_RPC_URL != ''
         working-directory: privacy-paymaster/sdk
+
+      - run: echo "::notice::SEPOLIA_RPC_URL is not set, so the SDK e2e test was skipped"
+        if: env.SEPOLIA_RPC_URL == ''
