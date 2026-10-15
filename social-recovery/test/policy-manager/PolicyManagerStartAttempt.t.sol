@@ -507,6 +507,36 @@ contract PolicyManagerStartAttemptTest is PolicyManagerAcceptanceTestBase {
     assertEq(uint8(_state(_account, _action).attempt.state), uint8(IPolicyManager.AttemptState.Waiting), 'waiting');
   }
 
+  /// @notice A rule may name one guardian at two places, the same credential under two salts. When the guardian proves
+  ///         once for each place, over each place's own digest, both places count and the attempt opens.
+  function test_WhenOneGuardianSitsAtTwoPlaces() external {
+    _useDefaultRule(1 days, false);
+    _credentials[3] = Credential(_methodB, 'config-2', keccak256('salt-3'));
+    _reshapeDefault(1 days, false);
+    _commitRule();
+    IPolicyManager.AttemptRequest memory _req = _request(_places(0, 2, 3));
+    _approve(_req);
+
+    _manager.startAttempt(_req);
+
+    assertEq(uint8(_state(_account, _action).attempt.state), uint8(IPolicyManager.AttemptState.Waiting), 'waiting');
+  }
+
+  /// @notice The proof made for place 2 is reused at place 3, where the same guardian sits. The digest names the
+  ///         place, so the proof does not count there and the request fails: one signature never fills two places.
+  function test_WhenOneProofIsReusedAtASecondPlaceOfTheSameGuardian() external {
+    _useDefaultRule(1 days, false);
+    _credentials[3] = Credential(_methodB, 'config-2', keccak256('salt-3'));
+    _reshapeDefault(1 days, false);
+    _commitRule();
+    IPolicyManager.AttemptRequest memory _req = _request(_places(0, 2, 3));
+    _approve(_req);
+    _req.proofs[2].proof = _req.proofs[1].proof;
+
+    vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_ProofRejected.selector, 3, _methodB));
+    _manager.startAttempt(_req);
+  }
+
   /// @notice A pause read that reverts, even with the encoding of true as its data, is not a stop,
   ///         so the request opens. `_revertData` is the revert's data.
   function test_WhenThePauseReadReverts(bytes calldata _revertData) external {
@@ -785,10 +815,10 @@ contract PolicyManagerStartAttemptTest is PolicyManagerAcceptanceTestBase {
     _manager.startAttempt{gas: _HUGE_ANSWER_GAS}(_req);
   }
 
-  /// @notice A method that binds its verdict to the digest, approving only a proof that seals the
-  ///         digest it is handed, rejects a proof sealed for the digest of another payload: the
-  ///         manager hands it this request's digest, so a proof approves one exact outcome. The seal
-  ///         is PolicyManagerMockDigestMethod's keccak256 of the config and the digest.
+  /// @notice A method that binds its verdict to the digest approves only a proof that seals the digest it is
+  ///         handed. A seal here is PolicyManagerMockDigestMethod's keccak256 of the config and the digest, and a
+  ///         proof sealed for a digest is that hash. Such a method rejects a proof sealed for the digest of another
+  ///         payload, since the manager hands it this request's digest, so a proof approves one exact outcome.
   function test_WhenTheProofApprovesAnotherPayload() external {
     PolicyManagerMockDigestMethod _binding = new PolicyManagerMockDigestMethod();
     _useDefaultRule(1 days, false);
@@ -802,6 +832,61 @@ contract PolicyManagerStartAttemptTest is PolicyManagerAcceptanceTestBase {
     bytes32 _otherDigest = _manager.hashApproval(_other, 2);
     _req.proofs[2].proof = _binding.seal(_req.proofs[2].config, _otherDigest);
     assertEq(_binding.verify(_req.proofs[2].config, _otherDigest, _req.proofs[2].proof), _MAGIC, 'seals the other');
+
+    vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_ProofRejected.selector, 2, address(_binding)));
+    _manager.startAttempt(_req);
+  }
+
+  /// @notice A proof sealed for the request with a higher payment amount is refused as PolicyManager_ProofRejected,
+  ///         so nobody can raise the price a guardian approved after the guardian signed.
+  function test_WhenTheProofApprovesAnotherOrderAmount() external {
+    PolicyManagerMockDigestMethod _binding = new PolicyManagerMockDigestMethod();
+    _useDefaultRule(1 days, false);
+    _credentials[2].method = address(_binding);
+    _reshapeDefault(1 days, false);
+    _commitRule();
+    IPolicyManager.AttemptRequest memory _req = _request(_places(0, 1, 2));
+    _approve(_request(_places(0, 1)));
+    IPolicyManager.AttemptRequest memory _other = _request(_places(0, 1, 2));
+    _other.order.amount = _req.order.amount + 1;
+    _req.proofs[2].proof = _binding.seal(_req.proofs[2].config, _manager.hashApproval(_other, 2));
+
+    vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_ProofRejected.selector, 2, address(_binding)));
+    _manager.startAttempt(_req);
+  }
+
+  /// @notice A proof sealed for the request that pays another payee is refused as PolicyManager_ProofRejected, so
+  ///         nobody can redirect the payment a guardian approved after the guardian signed.
+  function test_WhenTheProofApprovesAnotherOrderPayee() external {
+    PolicyManagerMockDigestMethod _binding = new PolicyManagerMockDigestMethod();
+    _useDefaultRule(1 days, false);
+    _credentials[2].method = address(_binding);
+    _reshapeDefault(1 days, false);
+    _commitRule();
+    IPolicyManager.AttemptRequest memory _req = _request(_places(0, 1, 2));
+    _approve(_request(_places(0, 1)));
+    IPolicyManager.AttemptRequest memory _other = _request(_places(0, 1, 2));
+    _other.order.payee = makeAddr('another payee');
+    _req.proofs[2].proof = _binding.seal(_req.proofs[2].config, _manager.hashApproval(_other, 2));
+
+    vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_ProofRejected.selector, 2, address(_binding)));
+    _manager.startAttempt(_req);
+  }
+
+  /// @notice A proof sealed for the cancellation of this same attempt id is refused as PolicyManager_ProofRejected:
+  ///         the two digests differ by their type, so a guardian's cancel never counts as an approval.
+  function test_WhenTheProofSignsTheCancellationDigest() external {
+    PolicyManagerMockDigestMethod _binding = new PolicyManagerMockDigestMethod();
+    _useDefaultRule(1 days, false);
+    _credentials[2].method = address(_binding);
+    _reshapeDefault(1 days, false);
+    _commitRule();
+    IPolicyManager.AttemptRequest memory _req = _request(_places(0, 1, 2));
+    _approve(_request(_places(0, 1)));
+    IPolicyManager.CancelRequest memory _cancel = _cancelRequest(_places(0, 1, 2));
+    _cancel.attemptId = _req.attemptId;
+    _cancel.validUntil = _req.validUntil;
+    _req.proofs[2].proof = _binding.seal(_req.proofs[2].config, _manager.hashCancel(_cancel, 2));
 
     vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_ProofRejected.selector, 2, address(_binding)));
     _manager.startAttempt(_req);
@@ -858,7 +943,7 @@ contract PolicyManagerStartAttemptTest is PolicyManagerAcceptanceTestBase {
   }
 
   /// @notice A committed rule whose every threshold is zero opens nothing, even with a valid proof,
-  ///         and is refused naming clause 0, since a stranger could meet it with no proof at all.
+  ///         and is refused naming clause 0, since anyone could meet it with no proof at all.
   function test_WhenEveryThresholdIsZero() external {
     _useDefaultRule(1 days, false);
     uint8[] memory _thresholds = new uint8[](2);
@@ -1064,7 +1149,7 @@ contract PolicyManagerStartAttemptTest is PolicyManagerAcceptanceTestBase {
   }
 
   /*///////////////////////////////////////////////////////////////
-                                HELPERS
+                                UTILITIES
   ///////////////////////////////////////////////////////////////*/
 
   /// @notice Replaces the request's proofs with one proof at place 99, past the end of the rule.

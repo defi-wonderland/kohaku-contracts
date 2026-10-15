@@ -58,6 +58,10 @@ PolicyManagerStartAttemptTest
 ├── When one method fills several places
 │   ├── It should read each method's pause once and verify each proof once.
 │   └── It should open the attempt with a proof beyond what the rule needs.
+├── When one guardian sits at two places
+│   └── It should open the attempt when each place carries a proof over its own digest.
+├── When one proof is reused at a second place of the same guardian
+│   └── It should revert with PolicyManager_ProofRejected naming the second place.
 ├── When the pause read reverts
 │   └── It should open the attempt.
 ├── When the pause read reverts with true
@@ -96,6 +100,12 @@ PolicyManagerStartAttemptTest
 │   └── It should revert with PolicyManager_ProofRejected on a gas budget that copying the answer would exhaust.
 ├── When the proof approves another payload
 │   └── It should revert with PolicyManager_ProofRejected though the method approves that payload's seal.
+├── When the proof approves another order amount
+│   └── It should revert with PolicyManager_ProofRejected though the method approves that request's seal.
+├── When the proof approves another order payee
+│   └── It should revert with PolicyManager_ProofRejected though the method approves that request's seal.
+├── When the proof signs the cancellation digest
+│   └── It should revert with PolicyManager_ProofRejected though the method approves the cancellation's seal.
 ├── When a rejected proof sits in a short set
 │   └── It should revert with PolicyManager_ProofRejected rather than PolicyManager_RuleUnsatisfied.
 ├── When a clause misses its threshold

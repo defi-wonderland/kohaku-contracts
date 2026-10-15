@@ -1,5 +1,0 @@
-LoseTheRaceToOpenTest
-├── when another set opens the attempt first
-│   └── it should refuse the request at every try and write nothing
-└── when the guardians must sign again
-    └── it should refuse every old proof and open only with new approvals

@@ -1,9 +1,0 @@
-MigrateTheKitTest
-├── when the holder migrates in one batch
-│   └── it should end everything on the old pair and recover on the new one
-├── when the holder edits one of two actions
-│   └── it should cancel only the edited action's attempt
-├── when both actions hand over in turn
-│   └── it should refuse the second first and run both in order
-└── when the second action has a weaker rule
-    └── it should let the weaker rule hand the account over

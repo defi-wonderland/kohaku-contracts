@@ -12,7 +12,7 @@ The full technical design is in [`docs/contracts.md`](docs/contracts.md).
 - `contracts/methods/`: one module per credential kind (`ecdsa`, `passkey`, `zkpassport`, `aadhaar`), plus `roles`, the admin and pause base the identity methods share.
 - `contracts/actions/ambire/`: the recovery action for Ambire's `AmbireAccount`.
 - `script/`: the deployment scripts. [`script/README.md`](script/README.md) is the runbook.
-- `test/`: unit, fuzz, invariant, symbolic and fork tests, known-answer vector replays under `test/kat/`, and end-to-end walks under `test/integration/`. The vectors live in `test/fixtures/kats/`.
+- `test/`: unit, fuzz, invariant, symbolic and fork tests, known-answer vector replays under `test/kat/`, end-to-end walks under `test/integration/`, and gas measurements under `test/gas/`. The vectors live in `test/fixtures/kats/`.
 
 ## Build and test
 

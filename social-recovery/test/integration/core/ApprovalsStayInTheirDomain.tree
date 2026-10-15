@@ -1,7 +1,0 @@
-ApprovalsStayInTheirDomainTest
-├── when the request is sent on another chain
-│   └── it should revert
-├── when the request is sent to a second manager
-│   └── it should revert
-└── when the request is sent for a second action
-    └── it should revert
