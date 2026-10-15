@@ -43,16 +43,19 @@ interface IDeployIdentity {
     bytes32 aadhaarKey;
   }
 
-  /// @notice The operator's inputs. They are not table entries: the Safe is created outside this repository, and
-  ///         the three role words are the values the deployment team reviewed, which the checks compare with the live
-  ///         upstream roles and so must never be read from them.
-  /// @param safe The pause holder and key admin of both methods.
+  /// @notice The operator's inputs. They are not table entries: the two Safes are created outside this repository,
+  ///         and the three role words are the values the deployment team reviewed, which the checks compare with
+  ///         the live upstream roles and so must never be read from them.
+  /// @param zkPassportMethodSafe The pause holder and key admin of the zkPassport method.
+  /// @param aadhaarMethodSafe The pause holder and key admin of the Aadhaar method. It may equal the zkPassport
+  ///        method's Safe. It is the zero address on a chain that deploys no Aadhaar method.
   /// @param rootAdmin The last reviewed admin of zkPassport's root verifier, the sixth trusted-key word.
   /// @param rootGuardian The last reviewed root guardian of zkPassport's root verifier, the seventh trusted-key word.
   ///        It may be zero, since the root verifier may run without a root guardian.
   /// @param subVerifierAdmin The last reviewed admin of the reviewed sub-verifier, the eighth trusted-key word.
   struct Inputs {
-    address safe;
+    address zkPassportMethodSafe;
+    address aadhaarMethodSafe;
     address rootAdmin;
     address rootGuardian;
     address subVerifierAdmin;
@@ -78,8 +81,9 @@ interface IDeployIdentity {
   /// @param _name The variable's name.
   error DeployIdentity_MissingInput(string _name);
 
-  /// @notice The Safe input is the zero address. The script never substitutes the operator's key for it.
-  error DeployIdentity_ZeroSafe();
+  /// @notice A Safe input is the zero address. The script never substitutes the operator's key for it.
+  /// @param _name The environment variable that holds that Safe.
+  error DeployIdentity_ZeroSafe(string _name);
 
   /// @notice An address the table pins has no code on this chain.
   /// @param _target The address with no code.
@@ -137,7 +141,7 @@ interface IDeployIdentity {
   ///        compares the candidate with the table, the verifier the candidate records.
   error DeployIdentity_AadhaarVerifierMismatch(address _expected, address _actual);
 
-  /// @notice A method does not declare the Safe as its key admin and pause holder, with no pending holder of
+  /// @notice A method does not declare its Safe as its key admin and pause holder, with no pending holder of
   ///         either role and exactly the trusted keys it was given.
   /// @param _method The method.
   error DeployIdentity_MethodRolesMismatch(address _method);
@@ -204,11 +208,13 @@ interface IDeployIdentity {
   /// @dev It publishes only what the chain confirms. It first resolves this chain's table, so on another chain it
   ///      stops with DeployIdentity_UnsupportedChain before anything else, and then applies the label rule to its
   ///      argument. It then checks that the record names this chain and holds eight zkPassport words, then that
-  ///      its Safe is nonzero, as a deployment's is. Then each method the record names must have code, its table
-  ///      values must equal this chain's table, and the recorded deployment must pass again every check a
-  ///      deployment passes, with the recorded Safe and role words. The code check runs last: each method must run
-  ///      exactly the kit's code. The published record is rebuilt from the values those checks read, never copied
-  ///      from the candidate's text. It broadcasts nothing.
+  ///      the Safe of each method this chain deploys is nonzero, as a deployment's is. On a chain that deploys no
+  ///      Aadhaar method the recorded Aadhaar Safe must be the zero address, or it fails with
+  ///      DeployIdentity_RecordMismatch and the key aadhaarMethodSafe. Then each method the record names must have
+  ///      code, its table values must equal this chain's table, and the recorded deployment must pass again every
+  ///      check a deployment passes, with the recorded Safes and role words. The code check runs last: each method
+  ///      must run exactly the kit's code. The published record is rebuilt from the values those checks read,
+  ///      never copied from the candidate's text. It broadcasts nothing.
   /// @param _label The label that names the candidate and the published record.
   /// @return _deployment The deployment the record names.
   function confirmLabel(string memory _label) external returns (Deployment memory _deployment);
@@ -219,16 +225,16 @@ interface IDeployIdentity {
   ///         the table, and never call this.
   /// @dev Every check that needs nothing deployed runs before the broadcast starts, so a failing one reverts the
   ///      script before any creation. The live checks compare with the given pins, not with the table, and no
-  ///      record is written. Both roles of each method go to the Safe. The last check requires each method to run
-  ///      exactly the kit's code, and the local copy it builds is created after the broadcast stops.
+  ///      record is written. Both roles of each method go to that method's Safe. The last check requires each
+  ///      method to run exactly the kit's code, and the local copy it builds is created after the broadcast stops.
   /// @param _pins The pins to deploy with, chosen by the caller.
   /// @param _inputs The operator's inputs.
   /// @return _deployment What this run deployed.
   function deploy(Pins memory _pins, Inputs memory _inputs) external returns (Deployment memory _deployment);
 
   /// @notice Builds the record of one deployment, the JSON the SDK and the screens read.
-  /// @dev The keys are chainId, zkPassportMethod, aadhaarMethod, safe, zkPassportKeys (the eight words),
-  ///      aadhaarVerifier, aadhaarVerifierCodehash and aadhaarKey.
+  /// @dev The keys are chainId, zkPassportMethod, aadhaarMethod, zkPassportMethodSafe, aadhaarMethodSafe,
+  ///      zkPassportKeys (the eight words), aadhaarVerifier, aadhaarVerifierCodehash and aadhaarKey.
   /// @param _deployment What the run deployed.
   /// @param _pins The table entry it deployed with.
   /// @param _inputs The operator's inputs it deployed with.
@@ -238,12 +244,16 @@ interface IDeployIdentity {
     external
     returns (string memory _json);
 
-  /// @notice Reads the four inputs from the environment: IDENTITY_SAFE, ZKPASSPORT_ROOT_ADMIN,
-  ///         ZKPASSPORT_ROOT_GUARDIAN and ZKPASSPORT_SUBVERIFIER_ADMIN, then runs checkInputs over them.
-  /// @dev Every variable is required, the root guardian included, so a forgotten variable never turns into a
-  ///      zero address. The root guardian may still be set to the zero address on purpose.
+  /// @notice Reads the inputs from the environment: ZKPASSPORT_METHOD_SAFE, AADHAAR_METHOD_SAFE where the chain
+  ///         deploys the Aadhaar method, ZKPASSPORT_ROOT_ADMIN, ZKPASSPORT_ROOT_GUARDIAN and
+  ///         ZKPASSPORT_SUBVERIFIER_ADMIN, then runs checkInputs over them.
+  /// @dev Every variable it reads is required, the root guardian included, so a forgotten variable never turns
+  ///      into a zero address. The root guardian may still be set to the zero address on purpose. On a chain that
+  ///      deploys no Aadhaar method it never reads AADHAAR_METHOD_SAFE and leaves that Safe the zero address, as
+  ///      the record holds it.
+  /// @param _shipsAadhaar Whether the chain deploys the Aadhaar method.
   /// @return _inputs The inputs read.
-  function inputsFromEnv() external view returns (Inputs memory _inputs);
+  function inputsFromEnv(bool _shipsAadhaar) external view returns (Inputs memory _inputs);
 
   /// @notice Requires every zkPassport address in the table, and the Aadhaar verifier where the chain ships it, to
   ///         have code, and the Aadhaar verifier's code to have the pinned hash. A pin with no code is a typo or a
@@ -255,17 +265,17 @@ interface IDeployIdentity {
   ///         verifier must route the accepted version to the sub-verifier word, return the verifier helper word
   ///         for it and name the registry word. Its root admin and root guardian must equal the two root role
   ///         words, and the sub-verifier's admin must equal the last word.
-  /// @dev It deploys nothing, so it is also the check to run before the Safe sends a setTrustedKeys transaction
-  ///      with a proposed set. Before any read it requires exactly eight words, then checks the seven address
-  ///      words in order for bits above their twenty address bytes, so a mismatch error never shows two equal
-  ///      addresses. A failed or malformed live read fails the comparison it feeds.
+  /// @dev It deploys nothing, so it is also the check to run before the zkPassport method's Safe sends a
+  ///      setTrustedKeys transaction with a proposed set. Before any read it requires exactly eight words, then
+  ///      checks the seven address words in order for bits above their twenty address bytes, so a mismatch error
+  ///      never shows two equal addresses. A failed or malformed live read fails the comparison it feeds.
   /// @param _words The eight words, in the order zkPassportKeys gives them.
   function checkZkPassportKeys(bytes32[] memory _words) external view;
 
   /// @notice Requires the deployed methods to declare the roles and keys they were given, to answer ERC-165 for
   ///         their three interfaces, and the Aadhaar method to call the pinned verifier.
-  /// @dev Each method must answer trustedParties with the Safe as key admin and pause holder, no pending holder
-  ///      and exactly the keys it was given. A method's constructor stores its verifier as given, so the
+  /// @dev Each method must answer trustedParties with its own Safe as key admin and pause holder, no pending
+  ///      holder and exactly the keys it was given. A method's constructor stores its verifier as given, so the
   ///      verifier is read back from the method itself.
   /// @param _deployment What the run deployed.
   /// @param _pins The table entry it deployed with.
@@ -282,10 +292,12 @@ interface IDeployIdentity {
   /// @return _pins The table entry for that chain.
   function pinsFor(uint256 _chainId) external pure returns (Pins memory _pins);
 
-  /// @notice Requires the Safe input to be nonzero. The script never substitutes the operator's key or any other
-  ///         address for a missing Safe.
+  /// @notice Requires the Safe of each method the chain deploys to be nonzero, the zkPassport method's first. The
+  ///         script never substitutes the operator's key or any other address for a missing Safe.
   /// @param _inputs The operator's inputs.
-  function checkInputs(Inputs memory _inputs) external pure;
+  /// @param _shipsAadhaar Whether the chain deploys the Aadhaar method. Without it, the Aadhaar method's Safe is
+  ///        not checked.
+  function checkInputs(Inputs memory _inputs, bool _shipsAadhaar) external pure;
 
   /// @notice The eight zkPassport trusted-key words, in the order the method documents: the accepted version, the
   ///         root verifier, the sub-verifier, the verifier helper, the root registry, the root admin, the root

@@ -16,9 +16,9 @@ import {DeployIdentityForkTestBase} from 'test/utils/DeployIdentityForkTestBase.
 ///         client to the wrong contract or show holders the wrong parties. Each test skips cleanly when its
 ///         endpoint is unset.
 contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
-  /// @notice The number of keys a published record holds: the chain id, the two methods, the Safe, the eight
-  ///         words, the Aadhaar verifier, its code hash and the Aadhaar key.
-  uint256 internal constant _RECORD_KEY_COUNT = 8;
+  /// @notice The number of keys a published record holds: the chain id, the two methods, each method's Safe, the
+  ///         eight words, the Aadhaar verifier, its code hash and the Aadhaar key.
+  uint256 internal constant _RECORD_KEY_COUNT = 9;
 
   function _pendingPath(string memory _label) internal pure returns (string memory _path) {
     _path = string.concat('script/deployments/', _label, '.identity.pending.json');
@@ -233,35 +233,71 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
     );
   }
 
-  /// confirmLabel reverts with the method roles mismatch, naming one of the two methods, and publishes nothing,
-  /// when the candidate records another Safe than the one both methods declare. The record names the Safe
-  /// holders and the screens show as the pause holder and key admin, so it must be the one on chain.
-  function test_RevertWhen_TheRecordedSafeIsNotTheMethodsSafe() external {
+  /// confirmLabel reverts with the method roles mismatch naming the zkPassport method, and publishes nothing, when
+  /// the candidate records another zkPassport method Safe than the one that method declares. The record names the
+  /// Safe holders and the screens show as that method's pause holder and key admin, so it must be the one on chain.
+  function test_RevertWhen_TheRecordedZkPassportMethodSafeIsNotItsSafe() external {
     if (!_forkSepolia()) return;
-    string memory _label = 'test-identity-confirm-other-safe';
+    string memory _label = 'test-identity-confirm-other-zkpassport-safe';
     (
       IDeployIdentity.Deployment memory _deployment,
       IDeployIdentity.Pins memory _table,
       IDeployIdentity.Inputs memory _operator
     ) = _deployFor(_label);
-    _operator.safe = _freshAddress('recordedOtherSafe', 0);
+    _operator.zkPassportMethodSafe = _freshAddress('recordedOtherZkPassportMethodSafe', 0);
+    // it should revert
+    // it should name the zkPassport method in the roles error
+    // it should publish no record
+    bytes memory _reason = _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
+    assertEq(_reason, _rolesMismatch(address(_deployment.zkPassportMethod)));
+  }
+
+  /// confirmLabel reverts with the method roles mismatch naming the Aadhaar method, and publishes nothing, when the
+  /// candidate records the zkPassport method's Safe as the Aadhaar method's Safe while the Aadhaar method declares
+  /// its own. Each method is checked against its own recorded Safe, so a record that names one method's party for
+  /// the other is caught even though the address it names holds a role on chain.
+  function test_RevertWhen_TheRecordedAadhaarMethodSafeIsTheOtherMethodsSafe() external {
+    if (!_forkSepolia()) return;
+    string memory _label = 'test-identity-confirm-other-aadhaar-safe';
+    (
+      IDeployIdentity.Deployment memory _deployment,
+      IDeployIdentity.Pins memory _table,
+      IDeployIdentity.Inputs memory _operator
+    ) = _deployFor(_label);
+    _operator.aadhaarMethodSafe = _operator.zkPassportMethodSafe;
+    // it should revert
+    // it should name the Aadhaar method in the roles error
+    // it should publish no record
+    bytes memory _reason = _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
+    assertEq(_reason, _rolesMismatch(address(_deployment.aadhaarMethod)));
+  }
+
+  /// confirmLabel reverts with the method roles mismatch, naming one of the two methods, and publishes nothing,
+  /// when the candidate records the two Safes under each other's keys. Both addresses hold roles on chain, but
+  /// each on the other method, so a record that lists them crosswise would show holders the wrong party.
+  function test_RevertWhen_TheCandidateSwapsTheTwoSafes() external {
+    if (!_forkSepolia()) return;
+    string memory _label = 'test-identity-confirm-swapped-safes';
+    (
+      IDeployIdentity.Deployment memory _deployment,
+      IDeployIdentity.Pins memory _table,
+      IDeployIdentity.Inputs memory _operator
+    ) = _deployFor(_label);
+    address _zkPassportMethodSafe = _operator.zkPassportMethodSafe;
+    _operator.zkPassportMethodSafe = _operator.aadhaarMethodSafe;
+    _operator.aadhaarMethodSafe = _zkPassportMethodSafe;
     // it should revert
     // it should name a method in the roles error
     // it should publish no record
     bytes memory _reason = _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
-    bool _namesZkPassport = keccak256(_reason)
-      == keccak256(
-        abi.encodeWithSelector(
-          IDeployIdentity.DeployIdentity_MethodRolesMismatch.selector, address(_deployment.zkPassportMethod)
-        )
-      );
-    bool _namesAadhaar = keccak256(_reason)
-      == keccak256(
-        abi.encodeWithSelector(
-          IDeployIdentity.DeployIdentity_MethodRolesMismatch.selector, address(_deployment.aadhaarMethod)
-        )
-      );
+    bool _namesZkPassport = keccak256(_reason) == keccak256(_rolesMismatch(address(_deployment.zkPassportMethod)));
+    bool _namesAadhaar = keccak256(_reason) == keccak256(_rolesMismatch(address(_deployment.aadhaarMethod)));
     assertTrue(_namesZkPassport || _namesAadhaar, 'the roles error naming one of the methods');
+  }
+
+  /// @notice The method roles mismatch naming `_method`.
+  function _rolesMismatch(address _method) internal pure returns (bytes memory _reason) {
+    _reason = abi.encodeWithSelector(IDeployIdentity.DeployIdentity_MethodRolesMismatch.selector, _method);
   }
 
   /// confirmLabel reverts with the method roles mismatch naming the Aadhaar method, and publishes nothing, when the
@@ -394,23 +430,65 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
     _clean(_label);
   }
 
-  /// confirmLabel reverts with the zero Safe error, and publishes nothing, when the candidate records the zero
-  /// address as the Safe. The methods were deployed with a nonzero Safe; only the record says zero. A record whose
-  /// Safe is nobody would show holders no pause holder and no key admin, which a deployment would never accept.
-  function test_RevertWhen_TheRecordedSafeIsZero() external {
+  /// confirmLabel reverts with the zero Safe error naming ZKPASSPORT_METHOD_SAFE, and publishes nothing, when the
+  /// candidate records the zero address as the zkPassport method's Safe. The method was deployed with a nonzero
+  /// Safe; only the record says zero. A record whose Safe is nobody would show holders no pause holder and no key
+  /// admin, which a deployment would never accept.
+  function test_RevertWhen_TheRecordedZkPassportMethodSafeIsZero() external {
     if (!_forkSepolia()) return;
-    string memory _label = 'test-identity-confirm-zero-safe';
+    string memory _label = 'test-identity-confirm-zero-zkpassport-safe';
     (
       IDeployIdentity.Deployment memory _deployment,
       IDeployIdentity.Pins memory _table,
       IDeployIdentity.Inputs memory _operator
     ) = _deployFor(_label);
-    _operator.safe = address(0);
+    _operator.zkPassportMethodSafe = address(0);
     // it should revert
-    // it should raise the zero safe error
+    // it should raise the zero safe error naming ZKPASSPORT_METHOD_SAFE
     // it should publish no record
     bytes memory _reason = _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
-    assertEq(_reason, abi.encodeWithSelector(IDeployIdentity.DeployIdentity_ZeroSafe.selector));
+    assertEq(
+      _reason, abi.encodeWithSelector(IDeployIdentity.DeployIdentity_ZeroSafe.selector, 'ZKPASSPORT_METHOD_SAFE')
+    );
+  }
+
+  /// confirmLabel reverts with the zero Safe error naming AADHAAR_METHOD_SAFE, and publishes nothing, when a Sepolia
+  /// candidate, whose chain deploys the Aadhaar method, records the zero address as that method's Safe.
+  function test_RevertWhen_TheRecordedAadhaarMethodSafeIsZero() external {
+    if (!_forkSepolia()) return;
+    string memory _label = 'test-identity-confirm-zero-aadhaar-safe';
+    (
+      IDeployIdentity.Deployment memory _deployment,
+      IDeployIdentity.Pins memory _table,
+      IDeployIdentity.Inputs memory _operator
+    ) = _deployFor(_label);
+    _operator.aadhaarMethodSafe = address(0);
+    // it should revert
+    // it should raise the zero safe error naming AADHAAR_METHOD_SAFE
+    // it should publish no record
+    bytes memory _reason = _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
+    assertEq(_reason, abi.encodeWithSelector(IDeployIdentity.DeployIdentity_ZeroSafe.selector, 'AADHAAR_METHOD_SAFE'));
+  }
+
+  /// On mainnet, which deploys no Aadhaar method, confirmLabel reverts naming the aadhaarMethodSafe field, and
+  /// publishes nothing, when the candidate records a nonzero Aadhaar method Safe. A record naming a party for a
+  /// method that does not exist would show holders a role nobody can use.
+  function test_RevertWhen_AMainnetCandidateRecordsAnAadhaarMethodSafe() external {
+    if (!_forkMainnet()) return;
+    string memory _label = 'test-identity-confirm-mainnet-aadhaar-safe';
+    (
+      IDeployIdentity.Deployment memory _deployment,
+      IDeployIdentity.Pins memory _table,
+      IDeployIdentity.Inputs memory _operator
+    ) = _deployFor(_label);
+    _operator.aadhaarMethodSafe = _freshAddress('mainnetAadhaarMethodSafe', 0);
+    // it should revert
+    // it should name the field in the record mismatch error
+    // it should publish no record
+    bytes memory _reason = _confirmReverting(_label, _script.recordJson(_deployment, _table, _operator, block.chainid));
+    assertEq(
+      _reason, abi.encodeWithSelector(IDeployIdentity.DeployIdentity_RecordMismatch.selector, 'aadhaarMethodSafe')
+    );
   }
 
   /// confirmLabel reverts naming the verifier helper, and publishes nothing, when a valid candidate meets a chain where
@@ -438,7 +516,7 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
   ///////////////////////////////////////////////////////////////*/
 
   /// @notice Publishes the candidate `_json` under `_label` and requires the published record to hold exactly the
-  ///         eight record keys, each equal to the value confirm checked, and not `_extraKey`. Removes the files it
+  ///         nine record keys, each equal to the value confirm checked, and not `_extraKey`. Removes the files it
   ///         wrote.
   function _confirmAndRequireCheckedRecord(
     string memory _label,
@@ -459,7 +537,10 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
       vm.parseJsonAddress(_published, '.zkPassportMethod'), address(_deployment.zkPassportMethod), 'zkPassportMethod'
     );
     assertEq(vm.parseJsonAddress(_published, '.aadhaarMethod'), address(_deployment.aadhaarMethod), 'aadhaarMethod');
-    assertEq(vm.parseJsonAddress(_published, '.safe'), _operator.safe, 'safe');
+    assertEq(
+      vm.parseJsonAddress(_published, '.zkPassportMethodSafe'), _operator.zkPassportMethodSafe, 'zkPassportMethodSafe'
+    );
+    assertEq(vm.parseJsonAddress(_published, '.aadhaarMethodSafe'), _operator.aadhaarMethodSafe, 'aadhaarMethodSafe');
     bytes32[] memory _recorded = vm.parseJsonBytes32Array(_published, '.zkPassportKeys');
     bytes32[] memory _expected = _words(_table, _operator);
     assertEq(_recorded.length, _KEY_COUNT, 'word count');
@@ -478,7 +559,7 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
   /// On Sepolia, confirmLabel publishes a record without the key zkPassportMethodV2 when the candidate adds it,
   /// naming an address of its own, to a record that holds on chain. No check reads that key, so a confirm that
   /// copied the candidate's text would publish an unchecked address a client might call. The published record
-  /// holds exactly the eight record keys, each the value confirm checked.
+  /// holds exactly the nine record keys, each the value confirm checked.
   function test_WhenTheCandidateCarriesAnExtraAddressKey() external {
     if (!_forkSepolia()) return;
     string memory _label = 'test-identity-confirm-extra-address-key';
@@ -492,13 +573,13 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
       vm.serializeAddress('identityExtraAddressKey', 'zkPassportMethodV2', _freshAddress('extraZkPassportMethodV2', 0));
     assertTrue(vm.keyExistsJson(_json, '.zkPassportMethodV2'), 'fixture: the candidate lacks the extra key');
     // it should publish no key the checks did not read
-    // it should publish exactly the eight record keys, each the checked value
+    // it should publish exactly the nine record keys, each the checked value
     _confirmAndRequireCheckedRecord(_label, _json, _deployment, _table, _operator, 'zkPassportMethodV2');
   }
 
   /// On Sepolia, confirmLabel publishes a record without the field sdkEndpoint when the candidate adds that
   /// unrelated string field to a record that holds on chain, so nothing a hand edit adds reaches the file the
-  /// screens read. The published record holds exactly the eight record keys, each the value confirm checked.
+  /// screens read. The published record holds exactly the nine record keys, each the value confirm checked.
   function test_WhenTheCandidateCarriesAnExtraUnrelatedField() external {
     if (!_forkSepolia()) return;
     string memory _label = 'test-identity-confirm-extra-field';
@@ -511,7 +592,7 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
     string memory _json = vm.serializeString('identityExtraField', 'sdkEndpoint', 'https://example.invalid/rpc');
     assertTrue(vm.keyExistsJson(_json, '.sdkEndpoint'), 'fixture: the candidate lacks the extra field');
     // it should publish no key the checks did not read
-    // it should publish exactly the eight record keys, each the checked value
+    // it should publish exactly the nine record keys, each the checked value
     _confirmAndRequireCheckedRecord(_label, _json, _deployment, _table, _operator, 'sdkEndpoint');
   }
 
@@ -623,7 +704,10 @@ contract DeployIdentityConfirmLabelForkTest is DeployIdentityForkTestBase {
     ) = _deployFor(_label);
     bytes32 _kitCodehash = address(_deployment.aadhaarMethod).codehash;
     AadhaarMethod _other = new AadhaarMethod(
-      _operator.safe, _operator.safe, _oneKey(_table.aadhaarKey), _freshAddress('otherAadhaarVerifier', 0)
+      _operator.aadhaarMethodSafe,
+      _operator.aadhaarMethodSafe,
+      _oneKey(_table.aadhaarKey),
+      _freshAddress('otherAadhaarVerifier', 0)
     );
     vm.mockCall(address(_other), abi.encodeCall(AadhaarMethod.verifier, ()), abi.encode(_table.aadhaarVerifier));
     assertEq(_other.verifier(), _table.aadhaarVerifier, 'fixture: the verifier read names another verifier');

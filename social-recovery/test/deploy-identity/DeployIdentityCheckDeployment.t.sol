@@ -8,22 +8,24 @@ import {IDeployIdentity} from 'script/IDeployIdentity.sol';
 import {DeployIdentityMockMethod} from 'test/mocks/DeployIdentityMockMethod.sol';
 import {DeployIdentityTestBase} from 'test/utils/DeployIdentityTestBase.sol';
 
-/// @notice The fifth assertion, over what was deployed: each identity method declares the Safe as its key admin
+/// @notice The fifth assertion, over what was deployed: each identity method declares its own Safe as its key admin
 ///         and pause holder with no handover open and exactly the keys it was given, confirms its three
 ///         interfaces through ERC-165, and the Aadhaar method calls the pinned verifier. A holder reads these
 ///         answers before trusting a method, so a deployment that answers differently is caught before anyone
 ///         adopts it. Each bad deployment departs from the good one in one place.
 contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
-  /// checkDeployment passes for the kit's two methods built with the Safe in both roles, the table's words and
-  /// the table's Aadhaar key and verifier.
-  function test_WhenBothMethodsMatchTheTableAndTheSafe() external view {
+  /// checkDeployment passes for the kit's two methods, each built with its own Safe in both roles, the table's
+  /// words and the table's Aadhaar key and verifier.
+  function test_WhenBothMethodsMatchTheTableAndTheirSafes() external view {
     // it should pass
     _script.checkDeployment(_good, _pins, _inputs);
   }
 
-  /// checkDeployment passes for a chain that ships no Aadhaar method, whose deployment names the zero address
-  /// there, the mainnet shape.
+  /// checkDeployment passes for a chain that ships no Aadhaar method, whose deployment and Aadhaar Safe are the
+  /// zero address there, the mainnet shape.
   function test_WhenTheChainShipsNoAadhaarMethod() external view {
+    IDeployIdentity.Inputs memory _operator = _inputs;
+    _operator.aadhaarMethodSafe = address(0);
     IDeployIdentity.Pins memory _table = _pins;
     _table.shipsAadhaar = false;
     _table.aadhaarVerifier = address(0);
@@ -32,28 +34,53 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
     IDeployIdentity.Deployment memory _deployment = _good;
     _deployment.aadhaarMethod = IPolicyMethod(address(0));
     // it should pass
-    _script.checkDeployment(_deployment, _table, _inputs);
+    _script.checkDeployment(_deployment, _table, _operator);
+  }
+
+  /// checkDeployment passes when one address is both methods' Safe and both methods declare it in both roles,
+  /// since the two Safes may be one multisig.
+  function test_WhenBothMethodsShareOneSafe() external {
+    IDeployIdentity.Inputs memory _operator = _inputs;
+    _operator.aadhaarMethodSafe = _operator.zkPassportMethodSafe;
+    address _shared = _operator.zkPassportMethodSafe;
+    IDeployIdentity.Deployment memory _deployment = IDeployIdentity.Deployment({
+      zkPassportMethod: _newZkPassportMethod(_shared, _shared, _words(_pins, _operator)),
+      aadhaarMethod: _newAadhaarMethod(_shared, _shared, _pins.aadhaarKey, _pins.aadhaarVerifier)
+    });
+    // it should pass
+    _script.checkDeployment(_deployment, _pins, _operator);
   }
 
   /*///////////////////////////////////////////////////////////////
                     THE ZKPASSPORT METHOD'S PARTIES
   ///////////////////////////////////////////////////////////////*/
 
-  /// checkDeployment reverts naming the zkPassport method when it declares a key admin other than the Safe.
+  /// checkDeployment reverts naming the zkPassport method when it declares a key admin other than its Safe.
   function test_RevertWhen_TheZkPassportMethodDeclaresAnotherAdmin() external {
     IDeployIdentity.Deployment memory _deployment = _good;
     _deployment.zkPassportMethod =
-      _newZkPassportMethod(_inputs.safe, _freshAddress('otherAdmin', 0), _words(_pins, _inputs));
+      _newZkPassportMethod(_inputs.zkPassportMethodSafe, _freshAddress('otherAdmin', 0), _words(_pins, _inputs));
     // it should revert
     // it should name the zkPassport method
     _expectRolesMismatch(_deployment, address(_deployment.zkPassportMethod));
   }
 
-  /// checkDeployment reverts naming the zkPassport method when it declares a pause holder other than the Safe.
+  /// checkDeployment reverts naming the zkPassport method when it declares a pause holder other than its Safe.
   function test_RevertWhen_TheZkPassportMethodDeclaresAnotherPauseHolder() external {
     IDeployIdentity.Deployment memory _deployment = _good;
     _deployment.zkPassportMethod =
-      _newZkPassportMethod(_freshAddress('otherPauseHolder', 0), _inputs.safe, _words(_pins, _inputs));
+      _newZkPassportMethod(_freshAddress('otherPauseHolder', 0), _inputs.zkPassportMethodSafe, _words(_pins, _inputs));
+    // it should revert
+    // it should name the zkPassport method
+    _expectRolesMismatch(_deployment, address(_deployment.zkPassportMethod));
+  }
+
+  /// checkDeployment reverts naming the zkPassport method when it declares the Aadhaar method's Safe in both roles,
+  /// so a deployment that hands one method's roles to the other method's party is caught before anyone adopts it.
+  function test_RevertWhen_TheZkPassportMethodDeclaresTheAadhaarMethodSafe() external {
+    IDeployIdentity.Deployment memory _deployment = _good;
+    _deployment.zkPassportMethod =
+      _newZkPassportMethod(_inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _words(_pins, _inputs));
     // it should revert
     // it should name the zkPassport method
     _expectRolesMismatch(_deployment, address(_deployment.zkPassportMethod));
@@ -62,7 +89,7 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
   /// checkDeployment reverts naming the zkPassport method when a key admin handover is open, since the offered
   /// address is one acceptance away from setting the method's keys.
   function test_RevertWhen_TheZkPassportMethodDeclaresAPendingAdmin() external {
-    vm.prank(_inputs.safe);
+    vm.prank(_inputs.zkPassportMethodSafe);
     IPolicyMethodAdmin(address(_good.zkPassportMethod)).transferAdmin(_freshAddress('pendingAdmin', 0));
     // it should revert
     // it should name the zkPassport method
@@ -71,7 +98,7 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
 
   /// checkDeployment reverts naming the zkPassport method when a pause holder handover is open.
   function test_RevertWhen_TheZkPassportMethodDeclaresAPendingPauseHolder() external {
-    vm.prank(_inputs.safe);
+    vm.prank(_inputs.zkPassportMethodSafe);
     IDeployIdentityOwnable2Step(address(_good.zkPassportMethod))
       .transferOwnership(_freshAddress('pendingPauseHolder', 0));
     // it should revert
@@ -85,7 +112,8 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
     IDeployIdentity.Inputs memory _otherInputs = _inputs;
     _otherInputs.rootAdmin = _freshAddress('otherRootAdmin', 0);
     IDeployIdentity.Deployment memory _deployment = _good;
-    _deployment.zkPassportMethod = _newZkPassportMethod(_inputs.safe, _inputs.safe, _words(_pins, _otherInputs));
+    _deployment.zkPassportMethod =
+      _newZkPassportMethod(_inputs.zkPassportMethodSafe, _inputs.zkPassportMethodSafe, _words(_pins, _otherInputs));
     // it should revert
     // it should name the zkPassport method
     _expectRolesMismatch(_deployment, address(_deployment.zkPassportMethod));
@@ -101,8 +129,11 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
     }
     _nine[_KEY_COUNT] = _eight[_KEY_COUNT - 1];
     IDeployIdentity.Deployment memory _deployment = _good;
-    _deployment.zkPassportMethod =
-      IPolicyMethod(address(new DeployIdentityMockMethod(_inputs.safe, _inputs.safe, _nine, address(0))));
+    _deployment.zkPassportMethod = IPolicyMethod(
+      address(
+        new DeployIdentityMockMethod(_inputs.zkPassportMethodSafe, _inputs.zkPassportMethodSafe, _nine, address(0))
+      )
+    );
     // it should revert
     // it should name the zkPassport method
     _expectRolesMismatch(_deployment, address(_deployment.zkPassportMethod));
@@ -112,21 +143,35 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
                       THE AADHAAR METHOD'S PARTIES
   ///////////////////////////////////////////////////////////////*/
 
-  /// checkDeployment reverts naming the Aadhaar method when it declares a key admin other than the Safe.
+  /// checkDeployment reverts naming the Aadhaar method when it declares a key admin other than its Safe.
   function test_RevertWhen_TheAadhaarMethodDeclaresAnotherAdmin() external {
     IDeployIdentity.Deployment memory _deployment = _good;
-    _deployment.aadhaarMethod =
-      _newAadhaarMethod(_inputs.safe, _freshAddress('otherAdmin', 0), _pins.aadhaarKey, _pins.aadhaarVerifier);
+    _deployment.aadhaarMethod = _newAadhaarMethod(
+      _inputs.aadhaarMethodSafe, _freshAddress('otherAdmin', 0), _pins.aadhaarKey, _pins.aadhaarVerifier
+    );
     // it should revert
     // it should name the Aadhaar method
     _expectRolesMismatch(_deployment, address(_deployment.aadhaarMethod));
   }
 
-  /// checkDeployment reverts naming the Aadhaar method when it declares a pause holder other than the Safe.
+  /// checkDeployment reverts naming the Aadhaar method when it declares a pause holder other than its Safe.
   function test_RevertWhen_TheAadhaarMethodDeclaresAnotherPauseHolder() external {
     IDeployIdentity.Deployment memory _deployment = _good;
-    _deployment.aadhaarMethod =
-      _newAadhaarMethod(_freshAddress('otherPauseHolder', 0), _inputs.safe, _pins.aadhaarKey, _pins.aadhaarVerifier);
+    _deployment.aadhaarMethod = _newAadhaarMethod(
+      _freshAddress('otherPauseHolder', 0), _inputs.aadhaarMethodSafe, _pins.aadhaarKey, _pins.aadhaarVerifier
+    );
+    // it should revert
+    // it should name the Aadhaar method
+    _expectRolesMismatch(_deployment, address(_deployment.aadhaarMethod));
+  }
+
+  /// checkDeployment reverts naming the Aadhaar method when it declares the zkPassport method's Safe in both
+  /// roles, so a deployment that hands one method's roles to the other method's party is caught.
+  function test_RevertWhen_TheAadhaarMethodDeclaresTheZkPassportMethodSafe() external {
+    IDeployIdentity.Deployment memory _deployment = _good;
+    _deployment.aadhaarMethod = _newAadhaarMethod(
+      _inputs.zkPassportMethodSafe, _inputs.zkPassportMethodSafe, _pins.aadhaarKey, _pins.aadhaarVerifier
+    );
     // it should revert
     // it should name the Aadhaar method
     _expectRolesMismatch(_deployment, address(_deployment.aadhaarMethod));
@@ -134,7 +179,7 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
 
   /// checkDeployment reverts naming the Aadhaar method when a key admin handover is open.
   function test_RevertWhen_TheAadhaarMethodDeclaresAPendingAdmin() external {
-    vm.prank(_inputs.safe);
+    vm.prank(_inputs.aadhaarMethodSafe);
     IPolicyMethodAdmin(address(_good.aadhaarMethod)).transferAdmin(_freshAddress('pendingAdmin', 0));
     // it should revert
     // it should name the Aadhaar method
@@ -143,7 +188,7 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
 
   /// checkDeployment reverts naming the Aadhaar method when a pause holder handover is open.
   function test_RevertWhen_TheAadhaarMethodDeclaresAPendingPauseHolder() external {
-    vm.prank(_inputs.safe);
+    vm.prank(_inputs.aadhaarMethodSafe);
     IDeployIdentityOwnable2Step(address(_good.aadhaarMethod)).transferOwnership(_freshAddress('pendingPauseHolder', 0));
     // it should revert
     // it should name the Aadhaar method
@@ -154,7 +199,8 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
   /// published test key in place of UIDAI's.
   function test_RevertWhen_TheAadhaarMethodDeclaresAnotherKey() external {
     IDeployIdentity.Deployment memory _deployment = _good;
-    _deployment.aadhaarMethod = _newAadhaarMethod(_inputs.safe, _inputs.safe, _AADHAAR_TEST_KEY, _pins.aadhaarVerifier);
+    _deployment.aadhaarMethod =
+      _newAadhaarMethod(_inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _AADHAAR_TEST_KEY, _pins.aadhaarVerifier);
     // it should revert
     // it should name the Aadhaar method
     _expectRolesMismatch(_deployment, address(_deployment.aadhaarMethod));
@@ -166,8 +212,11 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
     _two[0] = _pins.aadhaarKey;
     _two[1] = _pins.aadhaarKey;
     IDeployIdentity.Deployment memory _deployment = _good;
-    _deployment.aadhaarMethod =
-      IPolicyMethod(address(new DeployIdentityMockMethod(_inputs.safe, _inputs.safe, _two, _pins.aadhaarVerifier)));
+    _deployment.aadhaarMethod = IPolicyMethod(
+      address(
+        new DeployIdentityMockMethod(_inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _two, _pins.aadhaarVerifier)
+      )
+    );
     // it should revert
     // it should name the Aadhaar method
     _expectRolesMismatch(_deployment, address(_deployment.aadhaarMethod));
@@ -257,7 +306,8 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
   function test_RevertWhen_TheAadhaarMethodCallsAnotherVerifier() external {
     address _otherVerifier = _codeAt('otherAadhaarVerifier');
     IDeployIdentity.Deployment memory _deployment = _good;
-    _deployment.aadhaarMethod = _newAadhaarMethod(_inputs.safe, _inputs.safe, _pins.aadhaarKey, _otherVerifier);
+    _deployment.aadhaarMethod =
+      _newAadhaarMethod(_inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _pins.aadhaarKey, _otherVerifier);
     // it should revert
     // it should name the pin and the method's verifier
     vm.expectRevert(
@@ -280,8 +330,9 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
   /// @notice Puts in the zkPassport method's place a mock that declares exactly the right parties and gives
   ///         `_answer` for `_interfaceId`, then expects the interface error naming the mock and the id.
   function _expectZkPassportDenial(bytes4 _interfaceId, DeployIdentityMockMethod.Answer _answer) internal {
-    DeployIdentityMockMethod _mock =
-      new DeployIdentityMockMethod(_inputs.safe, _inputs.safe, _words(_pins, _inputs), address(0));
+    DeployIdentityMockMethod _mock = new DeployIdentityMockMethod(
+      _inputs.zkPassportMethodSafe, _inputs.zkPassportMethodSafe, _words(_pins, _inputs), address(0)
+    );
     _mock.refuse(_interfaceId, _answer);
     IDeployIdentity.Deployment memory _deployment = _good;
     _deployment.zkPassportMethod = IPolicyMethod(address(_mock));
@@ -296,8 +347,9 @@ contract DeployIdentityCheckDeploymentTest is DeployIdentityTestBase {
   /// @notice Puts in the Aadhaar method's place a mock that declares exactly the right parties and verifier and
   ///         answers false for `_interfaceId`, then expects the interface error naming the mock and the id.
   function _expectAadhaarDenial(bytes4 _interfaceId) internal {
-    DeployIdentityMockMethod _mock =
-      new DeployIdentityMockMethod(_inputs.safe, _inputs.safe, _oneKey(_pins.aadhaarKey), _pins.aadhaarVerifier);
+    DeployIdentityMockMethod _mock = new DeployIdentityMockMethod(
+      _inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _oneKey(_pins.aadhaarKey), _pins.aadhaarVerifier
+    );
     _mock.refuse(_interfaceId, DeployIdentityMockMethod.Answer.False);
     IDeployIdentity.Deployment memory _deployment = _good;
     _deployment.aadhaarMethod = IPolicyMethod(address(_mock));

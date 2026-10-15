@@ -144,7 +144,7 @@ A label still exported from a rehearsal makes the real broadcast write its candi
 Forge also reads a `.env` file in the project root on its own, and fills any variable the shell does not set from it. A label left there comes back after the `unset`. Check that no `.env` sets the label or the identity inputs.
 
 ```sh
-grep -E 'DEPLOYMENT_LABEL|IDENTITY_SAFE|ZKPASSPORT_' .env
+grep -E 'DEPLOYMENT_LABEL|ZKPASSPORT_|AADHAAR_METHOD_SAFE' .env
 ```
 
 No line may print, and a message that `.env` does not exist is fine. If a line prints, remove it from `.env` before you go on.
@@ -225,13 +225,13 @@ The operator runs only `run()` and `confirm()`, plus the read-only checks descri
 
 The zkPassport method takes eight trusted-key words in a fixed order. The first five come from the script's table: the accepted zkPassport version 0.21.0, the root verifier, the reviewed sub-verifier for that version, the verifier helper the root returns for it, and the root registry. The last three are inputs, described below. The Aadhaar method takes the Groth16 verifier at `0xCBd85cd69C4779aA9a7AB9B6D6A9f6FEd61504F0` and one trusted key, the hash of UIDAI's current public key, both from the table.
 
-Both methods get the same Safe as their pause holder and their key admin. Any other chain id stops the script with `DeployIdentity_UnsupportedChain`, in the deployment and in confirm alike, before any other check.
+Each method gets its own Safe as its pause holder and its key admin. The two Safes may be one address. Any other chain id stops the script with `DeployIdentity_UnsupportedChain`, in the deployment and in confirm alike, before any other check.
 
-## The four inputs
+## The five inputs
 
-The script reads four environment variables. Every one is required, and an unset or empty one stops the script with `DeployIdentity_MissingInput` and the variable's name.
+The script reads five environment variables on Sepolia and four on mainnet, where it never reads `AADHAAR_METHOD_SAFE`. Every one it reads is required, and an unset or empty one stops the script with `DeployIdentity_MissingInput` and the variable's name.
 
-- `IDENTITY_SAFE` is the Safe that holds both roles of both methods. At launch it is the Ethereum Foundation's Safe for that chain. Until it exists, a rehearsal uses a Safe the team controls. The zero address stops the script with `DeployIdentity_ZeroSafe`. The script never puts the deployer's key in its place.
+- `ZKPASSPORT_METHOD_SAFE` is the Safe that holds both roles of the zkPassport method, and `AADHAAR_METHOD_SAFE` the Safe that holds both roles of the Aadhaar method. The two may be the same address. At launch each is the Ethereum Foundation's Safe for that method on that chain. Until they exist, a rehearsal uses a Safe the team controls. On mainnet, where no Aadhaar method ships, the script does not read `AADHAAR_METHOD_SAFE` and records the zero address for that Safe, as it does for the method. A zero address in a Safe the script reads stops the script with `DeployIdentity_ZeroSafe` and the variable's name, `ZKPASSPORT_METHOD_SAFE` checked first. The script never puts the deployer's key in its place.
 - `ZKPASSPORT_ROOT_ADMIN`, `ZKPASSPORT_ROOT_GUARDIAN` and `ZKPASSPORT_SUBVERIFIER_ADMIN` are the zkPassport roles the deployment team reviewed: the root admin, the root guardian and the sub-verifier's admin. The team supplies them after reviewing who holds each role. The script compares them with the live roles and stops on a difference. It never fills them from those live reads, since the comparison would then prove nothing. The root guardian may be the zero address when the root verifier has none, which was the case on both chains on 2026-10-05, but the variable must still be set.
 
 While reviewing, you can read the live values with cast. Each answer is what the input will be compared with, not a value to copy without review.
@@ -246,24 +246,24 @@ cast call $(cast call $ROOT 'getSubVerifier(bytes32)(address)' $VERSION --rpc-ur
 
 ## The checks it runs
 
-Before anything else, the script looks up the chain's table (`DeployIdentity_UnsupportedChain`) and applies the label rule to `DEPLOYMENT_LABEL` when it is set (`DeployIdentity_InvalidLabel`). It then reads the four inputs (`DeployIdentity_MissingInput`). All three run in a dry run too.
+Before anything else, the script looks up the chain's table (`DeployIdentity_UnsupportedChain`) and applies the label rule to `DEPLOYMENT_LABEL` when it is set (`DeployIdentity_InvalidLabel`). It then reads its inputs, five on Sepolia and four on mainnet, where it skips `AADHAAR_METHOD_SAFE` (`DeployIdentity_MissingInput`). All three run in a dry run too.
 
 Then, before deploying, the script runs four checks.
 
-1. The Safe input is nonzero (`DeployIdentity_ZeroSafe`).
+1. The Safe of each method the chain deploys is nonzero (`DeployIdentity_ZeroSafe`, with the variable's name).
 2. Every zkPassport address in the table has code, and on Sepolia so does the Aadhaar verifier (`DeployIdentity_NoCode`, with the address). On Sepolia the verifier's code must also have the pinned code hash, so a wrong contract at that address is caught (`DeployIdentity_AadhaarVerifierCodehashMismatch`).
 3. Every zkPassport address word, from the root verifier to the sub-verifier admin, has nothing above its twenty address bytes (`DeployIdentity_WordNotClean`, with the word's position and the word). This runs before any live read, so a mismatch below never shows two equal addresses. Then the live zkPassport root verifier routes the accepted version to the table's sub-verifier with the table's verifier helper, and names the table's root registry (`DeployIdentity_ComponentMismatch`, with the component, the expected and the live address). Its live root admin and root guardian equal the two root role inputs, and the sub-verifier's live admin equals the third input (`DeployIdentity_RoleMismatch`, with the role, the expected and the live address). A read that fails reports the live value as the zero address.
 4. On Sepolia, the Aadhaar key is not the Anon Aadhaar stack's published test key (`DeployIdentity_AadhaarTestKey`), nor one of UIDAI's two expired production keys, from the certificates of 2021 and 2024 (`DeployIdentity_AadhaarExpiredKey`).
 
-After deploying, it reads each method back. Each must declare the Safe as key admin and pause holder, no pending holder of either role and exactly the keys it was given (`DeployIdentity_MethodRolesMismatch`). Each must answer ERC-165 for its three interfaces (`DeployIdentity_InterfaceNotSupported`). The Aadhaar method must name the pinned verifier (`DeployIdentity_AadhaarVerifierMismatch`). Last, each method must run exactly the kit's code, since the checks before read answers a contract chooses (`DeployIdentity_CodeMismatch`, with the record key `zkPassportMethod` or `aadhaarMethod`, the address, the expected code hash and the one found). The zkPassport method holds no immutable, so its code hash must equal the hash of the compiled runtime code. The Aadhaar method holds its verifier as an immutable, so the script builds a local copy with the table's verifier, the Safe and the key, after the broadcast has stopped, and compares the two code hashes. The copy is never sent.
+After deploying, it reads each method back. Each must declare its own Safe as key admin and pause holder, no pending holder of either role and exactly the keys it was given (`DeployIdentity_MethodRolesMismatch`). Each must answer ERC-165 for its three interfaces (`DeployIdentity_InterfaceNotSupported`). The Aadhaar method must name the pinned verifier (`DeployIdentity_AadhaarVerifierMismatch`). Last, each method must run exactly the kit's code, since the checks before read answers a contract chooses (`DeployIdentity_CodeMismatch`, with the record key `zkPassportMethod` or `aadhaarMethod`, the address, the expected code hash and the one found). The zkPassport method holds no immutable, so its code hash must equal the hash of the compiled runtime code. The Aadhaar method holds its verifier as an immutable, so the script builds a local copy with the table's verifier, the Aadhaar method's Safe and the key, after the broadcast has stopped, and compares the two code hashes. The copy is never sent.
 
 A component or role mismatch means zkPassport changed something since the last review. Do not change an input just to make the check pass. Review the change first, then update the table or the role inputs in their own change.
 
-Before a deployment, check zkPassport's latest release. If it is newer than the table's 0.21.0, the method still deploys and its checks pass, since the root keeps routing older versions. But the app makes proofs of the newer version, which the method refuses until the Safe moves the accepted version with `setTrustedKeys`, checked first with `checkZkPassportKeys` as [described below](#before-a-safe-settrustedkeys-transaction). Committed configs keep working, since they name no version.
+Before a deployment, check zkPassport's latest release. If it is newer than the table's 0.21.0, the method still deploys and its checks pass, since the root keeps routing older versions. But the app makes proofs of the newer version, which the method refuses until the zkPassport method's Safe moves the accepted version with `setTrustedKeys`, checked first with `checkZkPassportKeys` as [described below](#before-a-safe-settrustedkeys-transaction). Committed configs keep working, since they name no version.
 
 ## Commands
 
-Before deploying on any chain, check that `IDENTITY_SAFE` is the Safe the deployment team reviewed for that chain. The script checks only that the Safe input is nonzero. A Safe address copied from another chain, or an ordinary account, would pass and become both roles of both methods. First compare the address with the one the team reviewed for that chain. Then read the chain.
+Before deploying on any chain, check that `ZKPASSPORT_METHOD_SAFE`, and on Sepolia `AADHAAR_METHOD_SAFE`, are the Safes the deployment team reviewed for that chain. They may be the same address, and then one check covers both. The script checks only that each Safe input is nonzero. A Safe address copied from another chain, or an ordinary account, would pass and become both roles of its method. First compare each address with the one the team reviewed for that method and chain. Then read the chain, once for each Safe.
 
 ```sh
 cast code <safe> --rpc-url <url>
@@ -271,9 +271,9 @@ cast call <safe> 'getOwners()(address[])' --rpc-url <url>
 cast call <safe> 'getThreshold()(uint256)' --rpc-url <url>
 ```
 
-The first answer must be code, not `0x`. Code alone shows only that some contract sits at the address, so the owners and the threshold must also equal the ones the team reviewed. A deployment made with the wrong Safe is not repaired in place, since whoever holds the wrong address would have to hand both roles over. Deploy again with the right Safe and use the new record.
+The first answer must be code, not `0x`. Code alone shows only that some contract sits at the address, so the owners and the threshold must also equal the ones the team reviewed. A deployment made with a wrong Safe is not repaired in place, since whoever holds the wrong address would have to hand both roles of that method over. Deploy again with the right Safe and use the new record.
 
-Run the fork tests first, as [Step 0](#step-0-run-the-fork-tests-before-every-deployment) says. Then export the four inputs in the shell and run a dry run. It sends nothing and writes no record.
+Run the fork tests first, as [Step 0](#step-0-run-the-fork-tests-before-every-deployment) says. Then export the inputs in the shell, five on Sepolia and four on mainnet, and run a dry run. It sends nothing and writes no record.
 
 ```sh
 forge script script/DeployIdentity.s.sol --rpc-url <url>
@@ -281,7 +281,7 @@ forge script script/DeployIdentity.s.sol --rpc-url <url>
 
 Check that the dry run wrote no record. Run `ls script/deployments/` before and after the dry run and compare the two lists. No new `.pending.json` file may appear. If one appeared, stop. The dry run wrote a record it must not write, and no broadcast follows until the cause is found.
 
-A rehearsal on a Tenderly Virtual TestNet uses a label, as for the demo path, and the team's own Safe. Broadcast first.
+A rehearsal on a Tenderly Virtual TestNet uses a label, as for the demo path, and the team's own Safe for both methods. Broadcast first.
 
 ```sh
 DEPLOYMENT_LABEL=tenderly-sepolia forge script script/DeployIdentity.s.sol \
@@ -295,7 +295,7 @@ DEPLOYMENT_LABEL=tenderly-sepolia forge script script/DeployIdentity.s.sol \
   --sig 'confirm()' --rpc-url <tenderly-rpc>
 ```
 
-Then compare the method addresses in `script/deployments/tenderly-sepolia.identity.json` with the contract addresses forge printed during the broadcast, and its `safe` with the value you set in `IDENTITY_SAFE`. If anything differs, do not use the record, and find out why. Confirm proves that each address runs the kit's code, not that your own broadcast created it, and it publishes whatever Safe a coherent candidate names.
+Then compare the method addresses in `script/deployments/tenderly-sepolia.identity.json` with the contract addresses forge printed during the broadcast, and its `zkPassportMethodSafe` and `aadhaarMethodSafe` with the values you set in `ZKPASSPORT_METHOD_SAFE` and `AADHAAR_METHOD_SAFE`. If anything differs, do not use the record, and find out why. Confirm proves that each address runs the kit's code, not that your own broadcast created it, and it publishes whatever Safes a coherent candidate names.
 
 On a real chain, leave out the label. First open a new terminal, or clear any label left from a rehearsal.
 
@@ -303,13 +303,13 @@ On a real chain, leave out the label. First open a new terminal, or clear any la
 unset DEPLOYMENT_LABEL
 ```
 
-A label still exported from a rehearsal makes the real broadcast write its candidate under the rehearsal's name. Forge also fills any variable the shell does not set from a `.env` file in the project root, as the demo path explains. A rehearsal's label or Safe left there would override the `unset` and the missing-input check, so a forgotten `IDENTITY_SAFE` would deploy with the rehearsal's Safe. Check that no `.env` sets them.
+A label still exported from a rehearsal makes the real broadcast write its candidate under the rehearsal's name. Forge also fills any variable the shell does not set from a `.env` file in the project root, as the demo path explains. A rehearsal's label or Safe left there would override the `unset` and the missing-input check, so a forgotten `ZKPASSPORT_METHOD_SAFE` or `AADHAAR_METHOD_SAFE` would deploy with the rehearsal's Safe. Check that no `.env` sets them.
 
 ```sh
-grep -E 'DEPLOYMENT_LABEL|IDENTITY_SAFE|ZKPASSPORT_' .env
+grep -E 'DEPLOYMENT_LABEL|ZKPASSPORT_|AADHAAR_METHOD_SAFE' .env
 ```
 
-No line may print, and a message that `.env` does not exist is fine. If a line prints, remove it from `.env`, export the four inputs in the shell again, and rerun the dry run. Then broadcast. On mainnet:
+No line may print, and a message that `.env` does not exist is fine. If a line prints, remove it from `.env`, export the inputs in the shell again, and rerun the dry run. Then broadcast. On mainnet:
 
 ```sh
 forge script script/DeployIdentity.s.sol --rpc-url <url> --account kit-deployer --broadcast --slow
@@ -328,7 +328,7 @@ Check that the candidate appeared. Run `ls script/deployments/` and look for `<c
 forge script script/DeployIdentity.s.sol --sig 'confirm()' --rpc-url <url>
 ```
 
-Then compare the method addresses in `script/deployments/<chainId>.identity.json` with the contract addresses forge printed during the broadcast, and its `safe` with the value you set in `IDENTITY_SAFE`. If anything differs, do not commit the record, and find out why. Confirm proves that each address runs the kit's code, not that your own broadcast created it, and it publishes whatever Safe a coherent candidate names.
+Then compare the method addresses in `script/deployments/<chainId>.identity.json` with the contract addresses forge printed during the broadcast, and its `zkPassportMethodSafe` and `aadhaarMethodSafe` with the values you set in `ZKPASSPORT_METHOD_SAFE` and `AADHAAR_METHOD_SAFE`. On mainnet `aadhaarMethodSafe` must be the zero address. If anything differs, do not commit the record, and find out why. Confirm proves that each address runs the kit's code, not that your own broadcast created it, and it publishes whatever Safes a coherent candidate names.
 
 If forge stops partway through the broadcast, rerun the broadcast command with `--resume` in place of `--broadcast` and keep `--slow` on it, as for the demo path. The resume sends the saved transactions with their saved gas limits, so on Sepolia it works only when the stopped broadcast carried the gas flag.
 
@@ -338,9 +338,9 @@ forge script script/DeployIdentity.s.sol --rpc-url <url> --account kit-deployer 
 
 If a creation ran out of gas because the broadcast went out without the gas flag, do not resume, for the reason the demo path gives. Run a new broadcast with the flag from the start. It deploys a fresh set at new addresses, and its candidate replaces the old one. The contracts of the failed run are left unused. Check with `ls script/deployments/` that the candidate is there before you run confirm.
 
-The broadcast writes a candidate to `script/deployments/<label>.identity.pending.json`, where the label is the chain id when `DEPLOYMENT_LABEL` is not set. The `.identity` part keeps it apart from the demo path's record on the same chain and label, since a label cannot hold a dot. Once every transaction is confirmed, confirm publishes `script/deployments/<label>.identity.json` and removes the candidate. The record holds the chain id, the two method addresses (the Aadhaar one is the zero address on mainnet), the Safe, the eight zkPassport words, the Aadhaar verifier, its code hash and the Aadhaar key.
+The broadcast writes a candidate to `script/deployments/<label>.identity.pending.json`, where the label is the chain id when `DEPLOYMENT_LABEL` is not set. The `.identity` part keeps it apart from the demo path's record on the same chain and label, since a label cannot hold a dot. Once every transaction is confirmed, confirm publishes `script/deployments/<label>.identity.json` and removes the candidate. The record holds the chain id, the two method addresses (the Aadhaar one is the zero address on mainnet), the two Safes as `zkPassportMethodSafe` and `aadhaarMethodSafe` (the Aadhaar one is the zero address on mainnet), the eight zkPassport words, the Aadhaar verifier, its code hash and the Aadhaar key.
 
-Confirm needs no key and none of the four inputs, because it reads the Safe and the role words from the candidate. It first looks up this chain's table, so another chain stops it with `DeployIdentity_UnsupportedChain` before anything else, and then applies the label rule. It then checks that the candidate names this chain (`DeployIdentity_RecordChainMismatch`), that its eight zkPassport words are eight (`DeployIdentity_WordCount`) and that its Safe is nonzero (`DeployIdentity_ZeroSafe`), as a deployment's is. It then checks that each recorded method has code (`DeployIdentity_NotDeployed`). On mainnet, where no Aadhaar method ships, a recorded Aadhaar address other than zero also fails with `DeployIdentity_NotDeployed`. It then checks that the recorded table values equal the script's table, and runs every check above again against the live chain, the code check last. Only then does it write the published record, rebuilt from the values it checked, never copied from the candidate's text, so a key no check read never reaches it. A recorded outside address word with anything above its twenty address bytes fails with `DeployIdentity_WordNotClean`, and one that differs from the table with `DeployIdentity_ComponentMismatch`, and a recorded Aadhaar verifier with `DeployIdentity_AadhaarVerifierMismatch`. In these two errors the expected value is the table's and the actual value is the candidate's, so they mean the candidate was edited or written by a build with another table, not that the chain changed. Any other difference fails with `DeployIdentity_RecordMismatch` and the record key that holds it: `zkPassportKeys` for the accepted version or a role word with stray upper bytes, `aadhaarVerifierCodehash` or `aadhaarKey`. A label outside the label rule stops it with `DeployIdentity_InvalidLabel`, right after the chain check. The rule is the demo path's, so a label of digits alone is refused too, since it could take another chain's record name, such as `1.identity.json` written from Sepolia.
+Confirm needs no key and none of the inputs, because it reads the two Safes and the role words from the candidate. It first looks up this chain's table, so another chain stops it with `DeployIdentity_UnsupportedChain` before anything else, and then applies the label rule. It then checks that the candidate names this chain (`DeployIdentity_RecordChainMismatch`), that its eight zkPassport words are eight (`DeployIdentity_WordCount`) and that the Safe of each method the chain deploys is nonzero (`DeployIdentity_ZeroSafe`, with the variable's name), as a deployment's is. On mainnet a recorded Aadhaar Safe other than zero fails with `DeployIdentity_RecordMismatch` and the key `aadhaarMethodSafe`. It then checks that each recorded method has code (`DeployIdentity_NotDeployed`). On mainnet, where no Aadhaar method ships, a recorded Aadhaar address other than zero also fails with `DeployIdentity_NotDeployed`. It then checks that the recorded table values equal the script's table, and runs every check above again against the live chain, the code check last. Only then does it write the published record, rebuilt from the values it checked, never copied from the candidate's text, so a key no check read never reaches it. A recorded outside address word with anything above its twenty address bytes fails with `DeployIdentity_WordNotClean`, and one that differs from the table with `DeployIdentity_ComponentMismatch`, and a recorded Aadhaar verifier with `DeployIdentity_AadhaarVerifierMismatch`. In these two errors the expected value is the table's and the actual value is the candidate's, so they mean the candidate was edited or written by a build with another table, not that the chain changed. Any other difference fails with `DeployIdentity_RecordMismatch` and the record key that holds it: `zkPassportKeys` for the accepted version or a role word with stray upper bytes, `aadhaarVerifierCodehash` or `aadhaarKey`. A label outside the label rule stops it with `DeployIdentity_InvalidLabel`, right after the chain check. The rule is the demo path's, so a label of digits alone is refused too, since it could take another chain's record name, such as `1.identity.json` written from Sepolia.
 
 When `DeployIdentity_MethodRolesMismatch`, `DeployIdentity_InterfaceNotSupported` or `DeployIdentity_AadhaarVerifierMismatch` names an address that holds the other method, the broadcast landed out of order and the two methods swapped addresses. Check with `cast call <address> 'name()(string)' --rpc-url <url>`, which answers `method-zkpassport` or `method-aadhaar`. Deploy again with `--slow`, without changing any input. The candidate is not published, so nothing needs undoing.
 
@@ -348,7 +348,7 @@ A `DeployIdentity_CodeMismatch` from confirm after a broadcast that went well us
 
 ## Before a Safe setTrustedKeys transaction
 
-The Safe replaces the zkPassport method's keys with `setTrustedKeys` after a reviewed zkPassport release or role change. Before anyone signs that transaction, run the same live check over the proposed eight words. It deploys nothing and sends nothing.
+The zkPassport method's Safe replaces its keys with `setTrustedKeys` after a reviewed zkPassport release or role change. Before anyone signs that transaction, run the same live check over the proposed eight words. It deploys nothing and sends nothing.
 
 ```sh
 forge script script/DeployIdentity.s.sol --sig 'checkZkPassportKeys(bytes32[])' \
@@ -358,7 +358,7 @@ forge script script/DeployIdentity.s.sol --sig 'checkZkPassportKeys(bytes32[])' 
 
 Each word is 32 bytes in hex, and each address is left-padded with zeroes to 32 bytes. Before any read, the check requires exactly eight words (`DeployIdentity_WordCount`), then checks the seven address words in order, from the root verifier to the sub-verifier admin, for anything above their twenty address bytes (`DeployIdentity_WordNotClean`). "Script ran successfully" means the live root routes the proposed version to the proposed sub-verifier and verifier helper, names the proposed registry, and its roles and the sub-verifier's admin equal the proposed role words. A failure names the first word that disagrees, with the same errors as the deployment. The check does not compare the words with the script's table, since the point of the update is to move away from it. It also does not repeat what the method itself refuses, such as a zero word or a version word that is not canonical, since the method's own `setTrustedKeys` refuses those.
 
-Before the Safe rotates the Aadhaar method's key with `setTrustedKeys`, run the Aadhaar key check over the proposed key. It deploys nothing, sends nothing and reads no chain, so it needs no endpoint.
+Before the Aadhaar method's Safe rotates its key with `setTrustedKeys`, run the Aadhaar key check over the proposed key. It deploys nothing, sends nothing and reads no chain, so it needs no endpoint.
 
 ```sh
 forge script script/DeployIdentity.s.sol --sig 'checkAadhaarKey(bytes32)' <proposed key>

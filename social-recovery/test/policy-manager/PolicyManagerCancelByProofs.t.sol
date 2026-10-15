@@ -58,7 +58,7 @@ contract PolicyManagerCancelByProofsTest is PolicyManagerAcceptanceTestBase {
   function test_WhenTheAttemptWasAlreadyCancelled() external {
     _openDefault();
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
     IPolicyManager.Attempt memory _ended = _state(_account, _action).attempt;
     IPolicyManager.CancelRequest memory _req = _poisoned(_cancelRequest(_places(0, 1, 2)));
 
@@ -197,7 +197,7 @@ contract PolicyManagerCancelByProofsTest is PolicyManagerAcceptanceTestBase {
   function test_WhenNoAttemptWaitsAndEveryOtherCheckFails() external {
     _openDefault();
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
     vm.warp(block.timestamp + 2 days);
     IPolicyManager.CancelRequest memory _req = _poisoned(_cancelRequest(_places(0, 1, 2)));
     _req.attemptId = 9;
@@ -331,7 +331,7 @@ contract PolicyManagerCancelByProofsTest is PolicyManagerAcceptanceTestBase {
     _openDefault();
     IPolicyManager.CancelRequest memory _forFirst = _cancelRequest(_places(0, 1, 2));
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
     _open(_places(0, 1, 2));
     vm.clearMockedCalls();
     _approveCancel(_forFirst);

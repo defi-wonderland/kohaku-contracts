@@ -20,7 +20,8 @@ contract DeployIdentityZkPassportKeysTest is DeployIdentityTestBase {
     _table.verifierHelper = _freshAddress('anyVerifierHelper', _seed);
     _table.rootRegistry = _freshAddress('anyRegistry', _seed);
     IDeployIdentity.Inputs memory _operator = IDeployIdentity.Inputs({
-      safe: _freshAddress('anySafe', _seed),
+      zkPassportMethodSafe: _freshAddress('anyZkPassportMethodSafe', _seed),
+      aadhaarMethodSafe: _freshAddress('anyAadhaarMethodSafe', _seed),
       rootAdmin: _freshAddress('anyRootAdmin', _seed),
       rootGuardian: _freshAddress('anyRootGuardian', _seed),
       subVerifierAdmin: _freshAddress('anySubVerifierAdmin', _seed)
@@ -40,8 +41,8 @@ contract DeployIdentityZkPassportKeysTest is DeployIdentityTestBase {
   }
 
   /// For Sepolia's table, zkPassportKeys answers the published words: 0.21.0, then the root verifier, the
-  /// sub-verifier, the verifier helper and the registry as left-padded words, then the three operator inputs. The Safe
-  /// is not among them, since it holds the roles and is no trusted key.
+  /// sub-verifier, the verifier helper and the registry as left-padded words, then the three operator inputs. Neither
+  /// method's Safe is among them, since a Safe holds roles and is no trusted key.
   function test_WhenSepoliasTableIsRendered() external view {
     bytes32[] memory _keys = _script.zkPassportKeys(_script.pinsFor(_SEPOLIA_CHAIN_ID), _inputs);
     // it should answer the published route and the operator's role words

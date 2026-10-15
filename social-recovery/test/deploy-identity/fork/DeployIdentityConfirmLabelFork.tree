@@ -26,7 +26,15 @@ DeployIdentityConfirmLabelForkTest
 │   ├── it should revert
 │   ├── it should carry the recorded word and the live role
 │   └── it should publish no record
-├── when the recorded safe is not the methods safe
+├── when the recorded zkPassport method safe is not its safe
+│   ├── it should revert
+│   ├── it should name the zkPassport method in the roles error
+│   └── it should publish no record
+├── when the recorded Aadhaar method safe is the other methods safe
+│   ├── it should revert
+│   ├── it should name the Aadhaar method in the roles error
+│   └── it should publish no record
+├── when the candidate swaps the two safes
 │   ├── it should revert
 │   ├── it should name a method in the roles error
 │   └── it should publish no record
@@ -53,9 +61,17 @@ DeployIdentityConfirmLabelForkTest
 ├── when an identity record shares its label stem with a core record
 │   ├── it should publish the identity record under a name holding the dot
 │   └── it should leave the core record untouched
-├── when the recorded safe is zero
+├── when the recorded zkPassport method safe is zero
 │   ├── it should revert
-│   ├── it should raise the zero safe error
+│   ├── it should raise the zero safe error naming ZKPASSPORT_METHOD_SAFE
+│   └── it should publish no record
+├── when the recorded Aadhaar method safe is zero
+│   ├── it should revert
+│   ├── it should raise the zero safe error naming AADHAAR_METHOD_SAFE
+│   └── it should publish no record
+├── when a mainnet candidate records an Aadhaar method safe
+│   ├── it should revert
+│   ├── it should name the field in the record mismatch error
 │   └── it should publish no record
 ├── when a table address has lost its code
 │   ├── it should revert
@@ -63,10 +79,10 @@ DeployIdentityConfirmLabelForkTest
 │   └── it should publish no record
 ├── when the candidate carries an extra address key
 │   ├── it should publish no key the checks did not read
-│   └── it should publish exactly the eight record keys, each the checked value
+│   └── it should publish exactly the nine record keys, each the checked value
 ├── when the candidate carries an extra unrelated field
 │   ├── it should publish no key the checks did not read
-│   └── it should publish exactly the eight record keys, each the checked value
+│   └── it should publish exactly the nine record keys, each the checked value
 ├── when the recorded zkPassport method is a look alike
 │   ├── it should revert
 │   ├── it should name zkPassportMethod, the look-alike, the kit's code hash and the one found

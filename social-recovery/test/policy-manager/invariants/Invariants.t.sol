@@ -52,11 +52,12 @@ contract PolicyManagerInvariants is PolicyManagerInvariantSetup {
     assertFalse(_handler.ghost_wrongEvents(), 'events');
   }
 
-  /// @notice While an attempt is waiting, the account's cancelByOwner call always succeeds. It
-  ///         calls no method and reads no pause, so whatever the methods answer, the account's
-  ///         current key can always stop a recovery in progress. A clear over a waiting attempt reaches
-  ///         no other contract either, and a commit reaches only its own action, asked by a static call
-  ///         whether it serves the account, so no method can block those ways of ending an attempt.
+  /// @notice While an attempt is waiting, the account's cancelByOwner call naming that attempt's id
+  ///         always succeeds. It calls no method and reads no pause, so whatever the methods answer,
+  ///         the account's current key can always stop a recovery in progress. A clear over a waiting
+  ///         attempt reaches no other contract either, and a commit reaches only its own action, asked
+  ///         by a static call whether it serves the account, so no method can block those ways of
+  ///         ending an attempt.
   function invariant_currentKeyCancels() external view {
     assertFalse(_handler.ghost_ownerCancelRefused(), 'the holder was refused while an attempt waited');
     assertFalse(_handler.ghost_reachedOtherContract(), 'an account call reached another contract');

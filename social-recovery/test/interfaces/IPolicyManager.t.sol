@@ -12,8 +12,8 @@ contract IPolicyManagerTest is InterfacesArtifacts {
   function test_WhenTheSelectorsAreDerived() external pure {
     // it should match each function's canonical signature
     _interfacesAssertSelector(IPolicyManager.commitSetup.selector, 'commitSetup(address,bytes32,uint64,bytes,bytes)');
-    _interfacesAssertSelector(IPolicyManager.clearSetup.selector, 'clearSetup(address)');
-    _interfacesAssertSelector(IPolicyManager.cancelByOwner.selector, 'cancelByOwner(address)');
+    _interfacesAssertSelector(IPolicyManager.clearSetup.selector, 'clearSetup(address,uint64)');
+    _interfacesAssertSelector(IPolicyManager.cancelByOwner.selector, 'cancelByOwner(address,uint64)');
     _interfacesAssertSelector(
       IPolicyManager.startAttempt.selector, string.concat('startAttempt(', _interfacesAttemptRequestTuple(), ')')
     );
@@ -43,8 +43,8 @@ contract IPolicyManagerTest is InterfacesArtifacts {
     string memory _json = _interfacesLoad('IPolicyManager');
     string[] memory _signatures = new string[](14);
     _signatures[0] = 'commitSetup(address,bytes32,uint64,bytes,bytes)';
-    _signatures[1] = 'clearSetup(address)';
-    _signatures[2] = 'cancelByOwner(address)';
+    _signatures[1] = 'clearSetup(address,uint64)';
+    _signatures[2] = 'cancelByOwner(address,uint64)';
     _signatures[3] = string.concat('startAttempt(', _interfacesAttemptRequestTuple(), ')');
     _signatures[4] = string.concat('cancelByProofs(', _interfacesCancelRequestTuple(), ')');
     _signatures[5] = 'cancelByVeto(address,address,uint64,address)';
@@ -81,7 +81,7 @@ contract IPolicyManagerTest is InterfacesArtifacts {
   function test_WhenClearSetupIsReadFromTheAbi() external {
     // it should declare the specified parameters returns and mutability
     string memory _json = _interfacesLoad('IPolicyManager');
-    _interfacesAssertFunction(_json, 'clearSetup', 'nonpayable', 'address _action', '');
+    _interfacesAssertFunction(_json, 'clearSetup', 'nonpayable', 'address _action,uint64 _nonce', '');
   }
 
   /// Checks that cancelByOwner in the compiled ABI of IPolicyManager has the specified parameter and return types
@@ -89,7 +89,7 @@ contract IPolicyManagerTest is InterfacesArtifacts {
   function test_WhenCancelByOwnerIsReadFromTheAbi() external {
     // it should declare the specified parameters returns and mutability
     string memory _json = _interfacesLoad('IPolicyManager');
-    _interfacesAssertFunction(_json, 'cancelByOwner', 'nonpayable', 'address _action', '');
+    _interfacesAssertFunction(_json, 'cancelByOwner', 'nonpayable', 'address _action,uint64 _attemptId', '');
   }
 
   /// Checks that startAttempt in the compiled ABI of IPolicyManager has the specified parameter and return types

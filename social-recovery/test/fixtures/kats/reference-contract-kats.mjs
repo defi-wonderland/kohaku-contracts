@@ -274,7 +274,7 @@ const aadhaarA = [1n,2n]
 const packedBWords = [4n,3n,6n,5n]
 const aadhaarB = [[packedBWords[0],packedBWords[1]],[packedBWords[2],packedBWords[3]]]
 const aadhaarC = [7n,8n]
-const aadhaarInputs = [99n,aadhaarConfig.nullifier,1700000000n,18n,1n,110001n,7n,aadhaarConfig.nullifierSeed,signalHash]
+const aadhaarInputs = [99n,aadhaarConfig.nullifier,1700000000n,0n,0n,0n,0n,aadhaarConfig.nullifierSeed,signalHash]
 const aadhaarEncoded = abi([{type:'uint256[2]'},{type:'uint256[2][2]'},{type:'uint256[2]'},{type:'uint256[9]'}],[aadhaarA,aadhaarB,aadhaarC,aadhaarInputs])
 if ((aadhaarEncoded.length - 2) / 2 !== 544) throw new Error('unexpected Aadhaar proof length')
 file('method-aadhaar-proof.json', 'method-aadhaar-proof-v1', 'abi.encode(uint256[2] a, uint256[2][2] b, uint256[2] c, uint256[9] inputs)', [

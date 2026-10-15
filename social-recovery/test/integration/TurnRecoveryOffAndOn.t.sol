@@ -8,6 +8,7 @@ import {IAmbireAccount} from 'contracts/actions/ambire/IAmbireAccount.sol';
 import {IAmbireRecoveryAction} from 'contracts/actions/ambire/IAmbireRecoveryAction.sol';
 
 import {IntegrationBase} from 'test/integration/base/IntegrationBase.sol';
+import {LocalAmbireAccount} from 'test/integration/base/LocalAmbire.sol';
 
 /// @notice A holder with their key turns recovery off, clearing the setup and removing the kit's binding in one batch,
 ///         and months later turns it back on. Turning it off halfway, by removing the binding alone, leaves a live
@@ -36,14 +37,16 @@ contract TurnRecoveryOffAndOn is IntegrationBase {
   function test_WhenTheHolderTurnsRecoveryOffAndOn() external {
     // Earlier, Maya tried her approvers once: attempt 1 opened and she cancelled it with her key.
     _approversOpen(_handover(_newKey.addr, _originalKey.addr));
-    _keySignsAndRelayerSends(_account, _originalKey, _batch(_cancelByOwnerCall()));
+    _keySignsAndRelayerSends(_account, _originalKey, _batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
 
     // The approvers had also signed a request for attempt 2, valid for a year, which someone kept.
     IPolicyManager.AttemptRequest memory _old =
       _approversSign(_handover(_newKey.addr, _originalKey.addr), uint48(block.timestamp + 365 days));
 
     // The holder sends one batch, clearSetup then setAddrPrivilege(KIT_SLOT, 0).
-    _keySignsAndRelayerSends(_account, _originalKey, _batch(_clearCall(), _unbindKitCall(_account)));
+    _keySignsAndRelayerSends(
+      _account, _originalKey, _batch(_clearCall(_stateOf(_account).setupNonce), _unbindKitCall(_account))
+    );
 
     // Someone sends the old signed request. It fails.
     vm.prank(_attacker.addr);
@@ -172,7 +175,7 @@ contract TurnRecoveryOffAndOn is IntegrationBase {
 
     // Months later the holder cancels the waiting attempt, then writes the binding back alone.
     skip(180 days);
-    _keySignsAndRelayerSends(_account, _originalKey, _batch(_cancelByOwnerCall()));
+    _keySignsAndRelayerSends(_account, _originalKey, _batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
     _keySignsAndRelayerSends(_account, _originalKey, _batch(_bindKitCall(_account)));
 
     // In the next block the attacker's bot executes, and it reverts.
@@ -224,7 +227,9 @@ contract TurnRecoveryOffAndOn is IntegrationBase {
     bytes memory _payload = _attackerOpens(_account, _holderRule, _originalKey.addr);
 
     // The holder turns recovery off in one batch.
-    _keySignsAndRelayerSends(_account, _originalKey, _batch(_clearCall(), _unbindKitCall(_account)));
+    _keySignsAndRelayerSends(
+      _account, _originalKey, _batch(_clearCall(_stateOf(_account).setupNonce), _unbindKitCall(_account))
+    );
     assertEq(uint8(_attempt(_account).state), uint8(IPolicyManager.AttemptState.Cancelled), 'turning off cancelled it');
 
     // Months later the holder turns recovery back on in one batch, and the attacker's bot executes in the next block.
@@ -247,7 +252,7 @@ contract TurnRecoveryOffAndOn is IntegrationBase {
     bytes memory _payload = _attackerOpens(_account, _holderRule, _originalKey.addr);
 
     // The holder clears the setup, leaving KIT_SLOT set.
-    _keySignsAndRelayerSends(_account, _originalKey, _batch(_clearCall()));
+    _keySignsAndRelayerSends(_account, _originalKey, _batch(_clearCall(_stateOf(_account).setupNonce)));
 
     // The wait passes, and the attacker's executeHandover reverts.
     skip(5 days);
@@ -270,6 +275,48 @@ contract TurnRecoveryOffAndOn is IntegrationBase {
     skip(5 days);
     _executes(_executor, _account, _honest);
     _assertKeyControls(_account, _newKey, 'the new key');
+  }
+
+  /// @notice Maya signs one batch that turns recovery off and pays her friend more than the account holds. It reverts,
+  ///         and a reverted batch leaves the account's nonce where it was, so its signed bytes stay valid. She keeps
+  ///         recovery on and later commits a new setup with her key sending the batch itself. Whoever kept the old
+  ///         bytes sends them again once the account is funded: the clear names the nonce it was signed for, so it
+  ///         reverts and the new setup stays. Without the nonce, the old batch would turn off recovery she rebuilt.
+  function test_WhenAClearThatRevertedIsSentAgainAfterANewCommit() external {
+    // Maya's key signs clearSetup naming the current nonce, the binding removal and a 2 ETH payment, for a relayer.
+    uint64 _signedFor = _stateOf(_account).setupNonce;
+    IAmbireRecoveryAction.Transaction[] memory _off =
+      _batch(_clearCall(_signedFor), _unbindKitCall(_account), _transferCall(_friend, 2 ether));
+    bytes memory _signature = _keySigns(_account, _originalKey.key, _off);
+    uint256 _accountNonce = LocalAmbireAccount(payable(_account)).nonce();
+    uint256 _friendBalance = _friend.balance;
+
+    // The account holds less than 2 ETH, so the payment fails and the whole batch reverts, keeping the nonce.
+    assertLt(_account.balance, 2 ether, 'the account cannot pay');
+    vm.prank(_relayer);
+    vm.expectRevert();
+    IAmbireAccount(_account).execute(_off, _signature);
+    assertEq(LocalAmbireAccount(payable(_account)).nonce(), _accountNonce, 'the reverted batch kept the nonce');
+
+    // Maya keeps recovery on, and later her key sends a new commit itself, under the next nonce.
+    skip(30 days);
+    uint64 _current = _signedFor + 1;
+    _keySendsItself(_account, _originalKey, _batch(_commitCall(_account, _holderRule, _current)));
+    assertEq(LocalAmbireAccount(payable(_account)).nonce(), _accountNonce, 'the old bytes are still valid');
+
+    // The account is funded, and whoever kept the old bytes sends them again. The clear names the old nonce, and the
+    // account's call reverts with both nonces.
+    vm.deal(_account, 5 ether);
+    bytes4 _wrongNonce = IPolicyManager.PolicyManager_WrongSetupNonce.selector;
+    vm.prank(_attacker.addr);
+    vm.expectRevert(abi.encodeWithSelector(_wrongNonce, _signedFor, _current));
+    IAmbireAccount(_account).execute(_off, _signature);
+
+    // The new setup and the kit's binding stay, and the friend was paid nothing.
+    assertEq(_stateOf(_account).setupNonce, _current, 'the nonce stays');
+    assertEq(_stateOf(_account).setupCommitment, _commitment(_account, _current, _holderRule), 'the new setup stays');
+    assertEq(_privilegeOf(_account, _action.KIT_SLOT()), _action.BINDING(), 'the binding stays');
+    assertEq(_friend.balance, _friendBalance, 'nothing was paid');
   }
 
   /*///////////////////////////////////////////////////////////////

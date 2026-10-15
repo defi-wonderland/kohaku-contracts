@@ -9,17 +9,21 @@ import {MethodAadhaarTestBase} from 'test/utils/MethodAadhaarTestBase.sol';
 /// @notice The Aadhaar method's verify. A proof is accepted only when every bound input matches and the raw verifier
 ///         answers exactly true. Input zero must be the stored issuer key. Inputs one and seven must be the config's
 ///         nullifier and seed. Input eight must be the digest's signal. Input two, the QR's signing time, must lie at
-///         most the config's freshness window before the verifying block. A mock stands in for the verifier.
+///         most the config's freshness window before the verifying block. Inputs three through six, the four
+///         disclosures, must be zero. A mock stands in for the verifier.
 contract AadhaarMethodVerifyTest is MethodAadhaarTestBase {
   /// @dev The BN254 scalar field order, the modulus a circuit field reduction would use.
   uint256 internal constant _SNARK_SCALAR_FIELD =
     21_888_242_871_839_275_222_246_405_745_257_275_088_548_364_400_416_034_343_698_204_186_575_808_495_617;
 
-  /// A proof that matches every bound input and that the verifier accepts returns the verify selector. This is the
-  /// one answer that lets an Aadhaar guardian approve a recovery.
+  /// A proof that matches every bound input, discloses nothing in inputs three through six, and that the verifier
+  /// accepts returns the verify selector. This is the one answer that lets an Aadhaar guardian approve a recovery.
   function test_WhenEveryCheckHolds() external {
     // it should return the verify selector
     AadhaarProof memory _proof = _aadhaarDefaultProof();
+    for (uint256 _i = 3; _i < 7; ++_i) {
+      assertEq(_proof.inputs[_i], 0, 'the fixture proof reveals no field');
+    }
     _aadhaarExpect(_proof);
     bytes4 _answer = _method.verify(_aadhaarDefaultConfig(), _digest, _aadhaarEncode(_proof));
     assertEq(_answer, IPolicyMethod.verify.selector, 'magic value');
@@ -245,17 +249,52 @@ contract AadhaarMethodVerifyTest is MethodAadhaarTestBase {
     _aadhaarAssertZeroWord(_config, _digest, _aadhaarEncode(_aadhaarDefaultProof()), vm.toString(_length));
   }
 
-  /// Inputs three through six never change the verdict. They hold the four disclosures. The method makes no claim
-  /// about them, and a proof with any values there is still accepted.
-  function test_WhenInputsThreeThroughSixCarryAnyValues(uint256 _i3, uint256 _i4, uint256 _i5, uint256 _i6) external {
-    // it should return the verify selector
+  /// A proof whose input three, the age above 18 disclosure, is nonzero gets the zero word, even though the verifier
+  /// accepts it and every bound input matches. A revealed field would publish the guardian's data on chain for good,
+  /// beside the account it recovers. `_value` is the disclosed word, bounded to any nonzero value.
+  function test_WhenInputThreeIsNonzero(uint256 _value) external {
+    // it should answer the zero word
     AadhaarProof memory _proof = _aadhaarDefaultProof();
-    _proof.inputs[3] = _i3;
-    _proof.inputs[4] = _i4;
-    _proof.inputs[5] = _i5;
-    _proof.inputs[6] = _i6;
+    _proof.inputs[3] = bound(_value, 1, type(uint256).max);
     _aadhaarExpect(_proof);
-    assertTrue(_aadhaarAccepts(_proof));
+    assertEq(_aadhaarAnswer(_proof), bytes4(0), 'the direct answer is the zero word');
+    _aadhaarAssertZeroWord(_aadhaarDefaultConfig(), _digest, _aadhaarEncode(_proof), 'a disclosed input three');
+  }
+
+  /// A proof whose input four, the gender disclosure, is nonzero gets the zero word, even though the verifier
+  /// accepts it and every bound input matches. A revealed field would publish the guardian's data on chain for good,
+  /// beside the account it recovers. `_value` is the disclosed word, bounded to any nonzero value.
+  function test_WhenInputFourIsNonzero(uint256 _value) external {
+    // it should answer the zero word
+    AadhaarProof memory _proof = _aadhaarDefaultProof();
+    _proof.inputs[4] = bound(_value, 1, type(uint256).max);
+    _aadhaarExpect(_proof);
+    assertEq(_aadhaarAnswer(_proof), bytes4(0), 'the direct answer is the zero word');
+    _aadhaarAssertZeroWord(_aadhaarDefaultConfig(), _digest, _aadhaarEncode(_proof), 'a disclosed input four');
+  }
+
+  /// A proof whose input five, the postcode disclosure, is nonzero gets the zero word, even though the verifier
+  /// accepts it and every bound input matches. A revealed field would publish the guardian's data on chain for good,
+  /// beside the account it recovers. `_value` is the disclosed word, bounded to any nonzero value.
+  function test_WhenInputFiveIsNonzero(uint256 _value) external {
+    // it should answer the zero word
+    AadhaarProof memory _proof = _aadhaarDefaultProof();
+    _proof.inputs[5] = bound(_value, 1, type(uint256).max);
+    _aadhaarExpect(_proof);
+    assertEq(_aadhaarAnswer(_proof), bytes4(0), 'the direct answer is the zero word');
+    _aadhaarAssertZeroWord(_aadhaarDefaultConfig(), _digest, _aadhaarEncode(_proof), 'a disclosed input five');
+  }
+
+  /// A proof whose input six, the state disclosure, is nonzero gets the zero word, even though the verifier
+  /// accepts it and every bound input matches. A revealed field would publish the guardian's data on chain for good,
+  /// beside the account it recovers. `_value` is the disclosed word, bounded to any nonzero value.
+  function test_WhenInputSixIsNonzero(uint256 _value) external {
+    // it should answer the zero word
+    AadhaarProof memory _proof = _aadhaarDefaultProof();
+    _proof.inputs[6] = bound(_value, 1, type(uint256).max);
+    _aadhaarExpect(_proof);
+    assertEq(_aadhaarAnswer(_proof), bytes4(0), 'the direct answer is the zero word');
+    _aadhaarAssertZeroWord(_aadhaarDefaultConfig(), _digest, _aadhaarEncode(_proof), 'a disclosed input six');
   }
 
   /// A config whose freshness window is under an hour gets the zero word, even for a proof signed in this very

@@ -281,7 +281,8 @@ interface IPolicyManager {
   error PolicyManager_InvalidCommitment(bytes32 _supplied);
 
   /// @notice The nonce is not the expected one: commitSetup got a nonce other than the current one
-  ///         plus one, or a request was signed under a nonce other than the stored one.
+  ///         plus one, clearSetup got one other than the current one, or a request was signed under a
+  ///         nonce other than the stored one.
   /// @param _supplied The nonce supplied.
   /// @param _expected The nonce expected.
   error PolicyManager_WrongSetupNonce(uint64 _supplied, uint64 _expected);
@@ -433,16 +434,23 @@ interface IPolicyManager {
 
   /// @notice Remove the caller's setup for the given action.
   /// @dev Increments the setup nonce and cancels the action's active attempt, if one exists.
-  ///      Reverts when the action has no setup (PolicyManager_NoSetup).
+  ///      Reverts when the action has no setup (PolicyManager_NoSetup), then when the nonce is
+  ///      not the current one (PolicyManager_WrongSetupNonce). Naming the nonce ties a signed
+  ///      account batch to the setup it removes, so a batch that reverted and is sent again later
+  ///      cannot remove a setup committed after it.
   /// @param _action The action whose setup is removed.
-  function clearSetup(address _action) external;
+  /// @param _nonce The setup nonce the caller removes, which must be the current one.
+  function clearSetup(address _action, uint64 _nonce) external;
 
   /// @notice Cancel the caller's own active attempt with the account's own key.
   /// @dev Only the account may call it, as with commitSetup and clearSetup. Reverts when no
-  ///      attempt is waiting (PolicyManager_NoActiveAttempt). It reads no nonce, because no attempt
-  ///      outlives the setup it was judged under.
+  ///      attempt is waiting (PolicyManager_NoActiveAttempt), then when the waiting attempt has
+  ///      another id (PolicyManager_WrongAttemptId). Attempt ids never repeat for one account and
+  ///      action, so naming the id ties a signed account batch to the one attempt it cancels, and
+  ///      a batch that reverted and is sent again later cannot cancel a later attempt.
   /// @param _action The action whose active attempt is cancelled.
-  function cancelByOwner(address _action) external;
+  /// @param _attemptId The id of the waiting attempt the caller cancels.
+  function cancelByOwner(address _action, uint64 _attemptId) external;
 
   // ---- Attempts. Permissionless to call, authorized by proofs alone. ----
 

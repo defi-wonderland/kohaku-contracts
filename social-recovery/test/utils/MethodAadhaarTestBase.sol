@@ -96,7 +96,8 @@ abstract contract MethodAadhaarTestBase is Test {
   /// @notice A proof whose public inputs match this issuer key, config and digest. Input zero is the key, one the
   ///         nullifier, seven the seed and eight the signal. Input two, the QR's signing time, is the current block
   ///         time, so the proof is fresh under any window in this block. The points are distinct small integers.
-  ///         Inputs three to six hold made-up disclosure values the method does not read.
+  ///         Inputs three to six, the age, gender, postcode and state disclosures, stay zero, what the circuit outputs
+  ///         for a field it does not reveal.
   function _aadhaarValidProof(bytes32 _key, uint256 _proofNullifier, uint256 _proofNullifierSeed, bytes32 _forDigest)
     internal
     view
@@ -108,10 +109,6 @@ abstract contract MethodAadhaarTestBase is Test {
     _proof.inputs[0] = uint256(_key);
     _proof.inputs[1] = _proofNullifier;
     _proof.inputs[2] = block.timestamp;
-    _proof.inputs[3] = 18;
-    _proof.inputs[4] = 1;
-    _proof.inputs[5] = 110_001;
-    _proof.inputs[6] = 7;
     _proof.inputs[7] = _proofNullifierSeed;
     _proof.inputs[8] = _aadhaarSignal(_forDigest);
   }

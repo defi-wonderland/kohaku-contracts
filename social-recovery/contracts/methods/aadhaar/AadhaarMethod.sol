@@ -15,9 +15,12 @@ import {PolicyMethodRoles} from 'contracts/methods/roles/PolicyMethodRoles.sol';
 ///      chooses the window when committing the guardian, so it is fixed in the commitment. Nobody who builds a
 ///      request later can change it. The proof is
 ///      `abi.encode(uint256[2] a, uint256[2][2] b, uint256[2] c, uint256[9] inputs)`, which is 544 bytes. The method
-///      reads five of the nine inputs. They are the public-key hash at index 0, the nullifier at 1, the QR's signing
-///      time at 2, the nullifier seed at 7 and the signal hash at 8. The method does not interpret inputs three
-///      through six, the four disclosures. It makes no claim about what the guardian disclosed.
+///      checks all nine inputs. They are the public-key hash at index 0, the nullifier at 1, the QR's signing time
+///      at 2, the four disclosures at 3 to 6, the nullifier seed at 7 and the signal hash at 8. The disclosures are
+///      the age, gender, postcode and state the circuit reveals when the prover turns the matching flag on, and the
+///      circuit outputs zero for a field it does not reveal. The method requires all four to be zero. A proof that
+///      disclosed one would publish the guardian's data on chain for good, beside the account it recovers. The
+///      method makes no other claim from those inputs.
 ///      The one trusted key is the issuer's public-key hash. The key admin replaces it when the issuer rotates its
 ///      key. Anon Aadhaar's wrapper contract stores one public-key hash that never changes. So the method calls the
 ///      raw Groth16 verifier instead.
@@ -49,6 +52,19 @@ contract AadhaarMethod is PolicyMethodRoles, IAadhaarMethod {
 
   /// @notice The position of the QR's signing time in the proof's public inputs, truncated to the hour.
   uint256 private constant _SIGNED_AT_INPUT = 2;
+
+  /// @notice The position of the age disclosure in the proof's public inputs. It must be zero, the value of a
+  ///         field the circuit does not reveal.
+  uint256 private constant _REVEAL_AGE_INPUT = 3;
+
+  /// @notice The position of the gender disclosure in the proof's public inputs. It must be zero.
+  uint256 private constant _REVEAL_GENDER_INPUT = 4;
+
+  /// @notice The position of the postcode disclosure in the proof's public inputs. It must be zero.
+  uint256 private constant _REVEAL_POSTCODE_INPUT = 5;
+
+  /// @notice The position of the state disclosure in the proof's public inputs. It must be zero.
+  uint256 private constant _REVEAL_STATE_INPUT = 6;
 
   /// @notice The position of the nullifier seed in the proof's public inputs.
   uint256 private constant _NULLIFIER_SEED_INPUT = 7;
@@ -85,11 +101,13 @@ contract AadhaarMethod is PolicyMethodRoles, IAadhaarMethod {
   ///////////////////////////////////////////////////////////////*/
 
   /// @inheritdoc IPolicyMethod
-  /// @dev The method answers the magic value only when three things hold. The proof's public inputs name the
-  ///      stored public-key hash, the config's nullifier and seed, and this digest's signal hash. The QR's signing
-  ///      time, input 2, is at most the config's freshness window before this block's timestamp. A signing time in
-  ///      the future counts as fresh. The verifier answers exactly true. These checks tie a valid proof to this
-  ///      issuer, this guardian, this recovery and a recently downloaded QR.
+  /// @dev The method answers the magic value only when four things hold. The proof's public inputs name the
+  ///      stored public-key hash, the config's nullifier and seed, and this digest's signal hash. The four
+  ///      disclosures, inputs 3 to 6, are zero, so the proof publishes none of the guardian's age, gender, postcode
+  ///      or state. The QR's signing time, input 2, is at most the config's freshness window before this block's
+  ///      timestamp. A signing time in the future counts as fresh. The verifier answers exactly true. These checks
+  ///      tie a valid proof to this issuer, this guardian, this recovery and a recently downloaded QR, and keep the
+  ///      guardian's data off chain.
   ///      Every other case answers the zero word. That includes a config that is not 96 bytes, a proof that is not
   ///      544 bytes, and a freshness window under one hour. The circuit sets the minutes of the signing time to
   ///      zero, so a QR signed at 11:59 reads as 11:00, and a window under an hour would refuse a QR in the hour it
@@ -116,7 +134,8 @@ contract AadhaarMethod is PolicyMethodRoles, IAadhaarMethod {
     uint256 _now = block.timestamp;
     if (
       _inputs[_PUBKEY_HASH_INPUT] != uint256(_trustedKey(_PUBKEY_HASH_KEY)) || _inputs[_NULLIFIER_INPUT] != _nullifier
-        || _inputs[_NULLIFIER_SEED_INPUT] != _nullifierSeed
+        || _inputs[_REVEAL_AGE_INPUT] != 0 || _inputs[_REVEAL_GENDER_INPUT] != 0 || _inputs[_REVEAL_POSTCODE_INPUT] != 0
+        || _inputs[_REVEAL_STATE_INPUT] != 0 || _inputs[_NULLIFIER_SEED_INPUT] != _nullifierSeed
         || _inputs[_SIGNAL_HASH_INPUT] != uint256(keccak256(abi.encodePacked(uint256(_digest)))) >> 3
         || (_signedAt < _now && _now - _signedAt > _freshnessWindow)
     ) return _magicValue;

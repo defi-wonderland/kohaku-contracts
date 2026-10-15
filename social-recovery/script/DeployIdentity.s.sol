@@ -136,8 +136,11 @@ contract DeployIdentity is Script, IDeployIdentity {
   /// @notice The size of one ABI word, the only length a single address or bool answer has.
   uint256 internal constant _WORD = 32;
 
-  /// @notice The environment variable that holds the Safe.
-  string internal constant _SAFE_VARIABLE = 'IDENTITY_SAFE';
+  /// @notice The environment variable that holds the zkPassport method's Safe.
+  string internal constant _ZKPASSPORT_METHOD_SAFE_VARIABLE = 'ZKPASSPORT_METHOD_SAFE';
+
+  /// @notice The environment variable that holds the Aadhaar method's Safe.
+  string internal constant _AADHAAR_METHOD_SAFE_VARIABLE = 'AADHAAR_METHOD_SAFE';
 
   /// @notice The environment variable that holds the reviewed root admin.
   string internal constant _ROOT_ADMIN_VARIABLE = 'ZKPASSPORT_ROOT_ADMIN';
@@ -175,7 +178,7 @@ contract DeployIdentity is Script, IDeployIdentity {
   function run() external returns (Deployment memory _deployment) {
     Pins memory _pins = _pinsFor(block.chainid);
     string memory _label = _recordLabel(block.chainid);
-    Inputs memory _inputs = _inputsFromEnv();
+    Inputs memory _inputs = _inputsFromEnv(_pins.shipsAadhaar);
     _deployment = _deploy(_pins, _inputs);
     if (vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) || vm.isContext(VmSafe.ForgeContext.ScriptResume)) {
       string memory _dir = string.concat(vm.projectRoot(), _DEPLOYMENTS_DIR);
@@ -213,8 +216,8 @@ contract DeployIdentity is Script, IDeployIdentity {
   }
 
   /// @inheritdoc IDeployIdentity
-  function inputsFromEnv() external view returns (Inputs memory _inputs) {
-    _inputs = _inputsFromEnv();
+  function inputsFromEnv(bool _shipsAadhaar) external view returns (Inputs memory _inputs) {
+    _inputs = _inputsFromEnv(_shipsAadhaar);
   }
 
   /// @inheritdoc IDeployIdentity
@@ -246,8 +249,8 @@ contract DeployIdentity is Script, IDeployIdentity {
   }
 
   /// @inheritdoc IDeployIdentity
-  function checkInputs(Inputs calldata _inputs) external pure {
-    _checkInputs(_inputs);
+  function checkInputs(Inputs calldata _inputs, bool _shipsAadhaar) external pure {
+    _checkInputs(_inputs, _shipsAadhaar);
   }
 
   /// @inheritdoc IDeployIdentity
@@ -287,17 +290,22 @@ contract DeployIdentity is Script, IDeployIdentity {
   /// @param _inputs The operator's inputs.
   /// @return _deployment What this run deployed.
   function _deploy(Pins memory _pins, Inputs memory _inputs) internal returns (Deployment memory _deployment) {
-    _checkInputs(_inputs);
+    _checkInputs(_inputs, _pins.shipsAadhaar);
     _checkCode(_pins);
     bytes32[] memory _words = _zkPassportKeys(_pins, _inputs);
     _checkZkPassportKeys(_words);
     if (_pins.shipsAadhaar) _checkAadhaarKey(_pins.aadhaarKey);
 
     vm.startBroadcast();
-    _deployment.zkPassportMethod = IPolicyMethod(address(new ZkPassportMethod(_inputs.safe, _inputs.safe, _words)));
+    _deployment.zkPassportMethod =
+      IPolicyMethod(address(new ZkPassportMethod(_inputs.zkPassportMethodSafe, _inputs.zkPassportMethodSafe, _words)));
     if (_pins.shipsAadhaar) {
       _deployment.aadhaarMethod = IPolicyMethod(
-        address(new AadhaarMethod(_inputs.safe, _inputs.safe, _aadhaarKeys(_pins.aadhaarKey), _pins.aadhaarVerifier))
+        address(
+          new AadhaarMethod(
+            _inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _aadhaarKeys(_pins.aadhaarKey), _pins.aadhaarVerifier
+          )
+        )
       );
     }
     vm.stopBroadcast();
@@ -309,8 +317,8 @@ contract DeployIdentity is Script, IDeployIdentity {
   /// @notice Publishes the candidate record a label names, once the chain confirms it.
   /// @dev confirm and confirmLabel resolve this chain's table before they read the label, so an unsupported chain
   ///      stops with DeployIdentity_UnsupportedChain before anything else, and the label is already valid when it
-  ///      arrives here. The Safe and the three role words come from the record, since they are inputs no table
-  ///      holds, and every check runs again with them. Every check runs before anything is written. The published
+  ///      arrives here. The two Safes and the three role words come from the record, since they are inputs no
+  ///      table holds, and every check runs again with them. Every check runs before anything is written. The published
   ///      record is rebuilt from the values the checks read, never copied from the candidate's text, so a key no
   ///      check read never reaches it.
   /// @param _label The label that names the candidate and the published record.
@@ -327,13 +335,17 @@ contract DeployIdentity is Script, IDeployIdentity {
     bytes32[] memory _words = vm.parseJsonBytes32Array(_json, '.zkPassportKeys');
     require(_words.length == _ZKPASSPORT_KEY_COUNT, DeployIdentity_WordCount(_words.length));
     Inputs memory _inputs = Inputs({
-      safe: vm.parseJsonAddress(_json, '.safe'),
+      zkPassportMethodSafe: vm.parseJsonAddress(_json, '.zkPassportMethodSafe'),
+      aadhaarMethodSafe: vm.parseJsonAddress(_json, '.aadhaarMethodSafe'),
       rootAdmin: _toAddress(_words[_ROOT_ADMIN_WORD]),
       rootGuardian: _toAddress(_words[_ROOT_GUARDIAN_WORD]),
       subVerifierAdmin: _toAddress(_words[_SUB_VERIFIER_ADMIN_WORD])
     });
 
-    _checkInputs(_inputs);
+    _checkInputs(_inputs, _pins.shipsAadhaar);
+    if (!_pins.shipsAadhaar) {
+      require(_inputs.aadhaarMethodSafe == address(0), DeployIdentity_RecordMismatch('aadhaarMethodSafe'));
+    }
 
     _deployment.zkPassportMethod = IPolicyMethod(_requireDeployed(vm.parseJsonAddress(_json, '.zkPassportMethod')));
     address _recordedAadhaarMethod = vm.parseJsonAddress(_json, '.aadhaarMethod');
@@ -369,8 +381,9 @@ contract DeployIdentity is Script, IDeployIdentity {
       'zkPassportMethod', address(_deployment.zkPassportMethod), keccak256(type(ZkPassportMethod).runtimeCode)
     );
     if (_pins.shipsAadhaar) {
-      AadhaarMethod _copy =
-        new AadhaarMethod(_inputs.safe, _inputs.safe, _aadhaarKeys(_pins.aadhaarKey), _pins.aadhaarVerifier);
+      AadhaarMethod _copy = new AadhaarMethod(
+        _inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _aadhaarKeys(_pins.aadhaarKey), _pins.aadhaarVerifier
+      );
       _requireKitCode('aadhaarMethod', address(_deployment.aadhaarMethod), address(_copy).codehash);
     }
   }
@@ -389,21 +402,25 @@ contract DeployIdentity is Script, IDeployIdentity {
     vm.serializeUint(_key, 'chainId', _chainId);
     vm.serializeAddress(_key, 'zkPassportMethod', address(_deployment.zkPassportMethod));
     vm.serializeAddress(_key, 'aadhaarMethod', address(_deployment.aadhaarMethod));
-    vm.serializeAddress(_key, 'safe', _inputs.safe);
+    vm.serializeAddress(_key, 'zkPassportMethodSafe', _inputs.zkPassportMethodSafe);
+    vm.serializeAddress(_key, 'aadhaarMethodSafe', _inputs.aadhaarMethodSafe);
     vm.serializeBytes32(_key, 'zkPassportKeys', _zkPassportKeys(_pins, _inputs));
     vm.serializeAddress(_key, 'aadhaarVerifier', _pins.aadhaarVerifier);
     vm.serializeBytes32(_key, 'aadhaarVerifierCodehash', _pins.aadhaarVerifierCodehash);
     _json = vm.serializeBytes32(_key, 'aadhaarKey', _pins.aadhaarKey);
   }
 
-  /// @notice Reads the four inputs from the environment and checks them.
+  /// @notice Reads the inputs from the environment and checks them. The Aadhaar method's Safe is read only where
+  ///         the chain deploys that method, and stays the zero address elsewhere.
+  /// @param _shipsAadhaar Whether the chain deploys the Aadhaar method.
   /// @return _inputs The inputs read.
-  function _inputsFromEnv() internal view returns (Inputs memory _inputs) {
-    _inputs.safe = _requiredAddress(_SAFE_VARIABLE);
+  function _inputsFromEnv(bool _shipsAadhaar) internal view returns (Inputs memory _inputs) {
+    _inputs.zkPassportMethodSafe = _requiredAddress(_ZKPASSPORT_METHOD_SAFE_VARIABLE);
+    if (_shipsAadhaar) _inputs.aadhaarMethodSafe = _requiredAddress(_AADHAAR_METHOD_SAFE_VARIABLE);
     _inputs.rootAdmin = _requiredAddress(_ROOT_ADMIN_VARIABLE);
     _inputs.rootGuardian = _requiredAddress(_ROOT_GUARDIAN_VARIABLE);
     _inputs.subVerifierAdmin = _requiredAddress(_SUB_VERIFIER_ADMIN_VARIABLE);
-    _checkInputs(_inputs);
+    _checkInputs(_inputs, _shipsAadhaar);
   }
 
   /// @notice Reads one address from the environment, refusing a variable that is unset or empty.
@@ -530,23 +547,23 @@ contract DeployIdentity is Script, IDeployIdentity {
   /// @param _inputs The operator's inputs it was deployed with.
   function _checkDeployment(Deployment memory _deployment, Pins memory _pins, Inputs memory _inputs) internal view {
     address _zkPassportMethod = address(_deployment.zkPassportMethod);
-    _checkMethodRoles(_zkPassportMethod, _inputs.safe, _zkPassportKeys(_pins, _inputs));
+    _checkMethodRoles(_zkPassportMethod, _inputs.zkPassportMethodSafe, _zkPassportKeys(_pins, _inputs));
     _checkMethodInterfaces(_zkPassportMethod);
 
     if (_pins.shipsAadhaar) {
       address _aadhaarMethod = address(_deployment.aadhaarMethod);
-      _checkMethodRoles(_aadhaarMethod, _inputs.safe, _aadhaarKeys(_pins.aadhaarKey));
+      _checkMethodRoles(_aadhaarMethod, _inputs.aadhaarMethodSafe, _aadhaarKeys(_pins.aadhaarKey));
       _checkMethodInterfaces(_aadhaarMethod);
       _checkAadhaarVerifier(_aadhaarMethod, _pins.aadhaarVerifier);
     }
   }
 
-  /// @notice Requires a method to declare the Safe as key admin and pause holder, no pending holder of either
+  /// @notice Requires a method to declare its Safe as key admin and pause holder, no pending holder of either
   ///         role, and exactly the given keys.
   /// @dev The raw answer is compared with the encoding of the expected declaration rather than decoded, so a
   ///      revert, an address with no code and an answer too malformed to decode all fail with the same error.
   /// @param _method The method.
-  /// @param _safe The Safe.
+  /// @param _safe The method's Safe.
   /// @param _keys The keys the method was given.
   function _checkMethodRoles(address _method, address _safe, bytes32[] memory _keys) internal view {
     (bool _success, bytes memory _answer) = _method.staticcall(abi.encodeCall(IPolicyMethod.trustedParties, ()));
@@ -631,11 +648,17 @@ contract DeployIdentity is Script, IDeployIdentity {
     }
   }
 
-  /// @notice Requires the Safe input to be nonzero, since a deployment without it must fail rather than leave
-  ///         both roles with someone else.
+  /// @notice Requires the Safe of each method the chain deploys to be nonzero, the zkPassport method's first,
+  ///         since a deployment without one must fail rather than leave that method's roles with someone else.
+  ///         The error names the variable that holds the zero Safe.
   /// @param _inputs The operator's inputs.
-  function _checkInputs(Inputs memory _inputs) internal pure {
-    require(_inputs.safe != address(0), DeployIdentity_ZeroSafe());
+  /// @param _shipsAadhaar Whether the chain deploys the Aadhaar method. Without it, the Aadhaar method's Safe is
+  ///        not checked.
+  function _checkInputs(Inputs memory _inputs, bool _shipsAadhaar) internal pure {
+    require(_inputs.zkPassportMethodSafe != address(0), DeployIdentity_ZeroSafe(_ZKPASSPORT_METHOD_SAFE_VARIABLE));
+    if (_shipsAadhaar) {
+      require(_inputs.aadhaarMethodSafe != address(0), DeployIdentity_ZeroSafe(_AADHAAR_METHOD_SAFE_VARIABLE));
+    }
   }
 
   /// @notice Builds the eight zkPassport words from the table and the operator's inputs.
@@ -672,7 +695,7 @@ contract DeployIdentity is Script, IDeployIdentity {
   /// @param _json The candidate record.
   /// @param _words The recorded zkPassport words.
   /// @param _pins This chain's table entry.
-  /// @param _inputs The Safe and role words the record holds.
+  /// @param _inputs The Safes and role words the record holds.
   function _requireRecordedPins(string memory _json, bytes32[] memory _words, Pins memory _pins, Inputs memory _inputs)
     internal
     pure

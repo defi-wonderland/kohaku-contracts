@@ -150,8 +150,8 @@ contract OtherAuthoritiesOnTheAccount is IntegrationBase {
     bytes memory _payload = _approversOpen(_newKey.addr, _laptop.addr);
 
     // The thief, holding the phone's key, sends cancelByOwner, then clears the setup.
-    _keySignsAndRelayerSends(_account, _phone, _batch(_cancelByOwnerCall()));
-    _keySignsAndRelayerSends(_account, _phone, _batch(_clearCall()));
+    _keySignsAndRelayerSends(_account, _phone, _batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
+    _keySignsAndRelayerSends(_account, _phone, _batch(_clearCall(_stateOf(_account).setupNonce)));
 
     // The wait passes, and the approvers' handover cannot run, nor can they open a new one.
     skip(5 days);
@@ -238,7 +238,7 @@ contract OtherAuthoritiesOnTheAccount is IntegrationBase {
     bytes memory _payload = _approversOpen(_newKey.addr, _laptop.addr);
 
     // The other validator cancels the waiting attempt as if it were the holder.
-    _validatorSends(_batch(_cancelByOwnerCall()));
+    _validatorSends(_batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
 
     // The other validator commits a rule whose only approver is its own operator, with a one-day wait.
     Rule memory _operatorRule =
@@ -246,8 +246,13 @@ contract OtherAuthoritiesOnTheAccount is IntegrationBase {
     _validatorSends(_batch(_commitCall(_account, _operatorRule, 2)));
 
     // The other validator clears the account's setup under the second kit.
+    uint64 _secondNonce = _second.manager.stateOf(_account, address(_second.action)).setupNonce;
     _validatorSends(
-      _batch(_call(address(_second.manager), abi.encodeCall(IPolicyManager.clearSetup, (address(_second.action)))))
+      _batch(
+        _call(
+          address(_second.manager), abi.encodeCall(IPolicyManager.clearSetup, (address(_second.action), _secondNonce))
+        )
+      )
     );
 
     // The approvers' recovery is gone, the kit now follows the operator's rule, and the second kit holds no setup.

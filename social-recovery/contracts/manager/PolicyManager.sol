@@ -60,17 +60,19 @@ contract PolicyManager is IPolicyManager {
   }
 
   /// @inheritdoc IPolicyManager
-  function clearSetup(address _action) external {
+  function clearSetup(address _action, uint64 _nonce) external {
     Setup storage _setup = _existingSetup(msg.sender, _action);
+    require(_nonce == _setup.nonce, PolicyManager_WrongSetupNonce(_nonce, _setup.nonce));
     uint64 _next = _setup.nonce + 1;
     _writeSetup(_setup, msg.sender, _action, bytes32(0), _next);
     emit SetupCleared(msg.sender, _action, _next);
   }
 
   /// @inheritdoc IPolicyManager
-  function cancelByOwner(address _action) external {
+  function cancelByOwner(address _action, uint64 _attemptId) external {
     Attempt storage _attempt = _attempts[msg.sender][_action];
     require(_attempt.state == AttemptState.Waiting, PolicyManager_NoActiveAttempt(msg.sender, _action));
+    require(_attemptId == _attempt.attemptId, PolicyManager_WrongAttemptId(_attemptId, _attempt.attemptId));
     _cancel(msg.sender, _action, _attempt, msg.sender, address(0), new uint256[](0));
   }
 

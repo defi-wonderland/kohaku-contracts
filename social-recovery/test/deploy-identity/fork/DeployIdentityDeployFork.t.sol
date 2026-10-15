@@ -45,7 +45,8 @@ contract DeployIdentityDeployForkTest is DeployIdentityForkTestBase {
   }
 
   /// deploy on mainnet creates exactly one contract, the zkPassport method it returns, and returns the zero
-  /// address for the Aadhaar method, since no Aadhaar verifier is published on mainnet.
+  /// address for the Aadhaar method, since no Aadhaar verifier is published on mainnet. The inputs give the Aadhaar
+  /// method's Safe as the zero address, which a chain without that method accepts.
   function test_WhenMainnetsTableIsDeployed() external {
     if (!_forkMainnet()) return;
     IDeployIdentity.Pins memory _table = _script.pinsFor(block.chainid);
@@ -59,9 +60,9 @@ contract DeployIdentityDeployForkTest is DeployIdentityForkTestBase {
     assertEq(address(_deployment.aadhaarMethod), address(0), 'Aadhaar method');
   }
 
-  /// The zkPassport method deploy returns on Sepolia declares the Safe as key admin and pause holder, no open
-  /// handover, and the eight words in the method's order, so a holder reading it sees the reviewed route and
-  /// the operator's role words.
+  /// The zkPassport method deploy returns on Sepolia declares its own Safe as key admin and pause holder, not the
+  /// Aadhaar method's Safe, which the inputs make a different address, no open handover, and the eight words in the
+  /// method's order, so a holder reading it sees the reviewed route and the operator's role words.
   function test_WhenTheDeployedZkPassportMethodIsRead() external {
     if (!_forkSepolia()) return;
     IDeployIdentity.Pins memory _table = _script.pinsFor(block.chainid);
@@ -69,10 +70,10 @@ contract DeployIdentityDeployForkTest is DeployIdentityForkTestBase {
     IDeployIdentity.Deployment memory _deployment = _script.deploy(_table, _operator);
     (address _admin, address _pendingAdmin, bytes32[] memory _keys, address _pauseHolder, address _pendingPauseHolder) =
       _deployment.zkPassportMethod.trustedParties();
-    // it should declare the safe in both roles with no handover open
-    assertEq(_admin, _operator.safe, 'admin');
+    // it should declare its own safe in both roles with no handover open
+    assertEq(_admin, _operator.zkPassportMethodSafe, 'admin');
     assertEq(_pendingAdmin, address(0), 'pending admin');
-    assertEq(_pauseHolder, _operator.safe, 'pause holder');
+    assertEq(_pauseHolder, _operator.zkPassportMethodSafe, 'pause holder');
     assertEq(_pendingPauseHolder, address(0), 'pending pause holder');
     // it should declare the eight words in order
     bytes32[] memory _expected = _words(_table, _operator);
@@ -82,8 +83,9 @@ contract DeployIdentityDeployForkTest is DeployIdentityForkTestBase {
     }
   }
 
-  /// The Aadhaar method deploy returns on Sepolia declares the Safe as key admin and pause holder, no open
-  /// handover, UIDAI's key as its one trusted key, and calls the pinned Sepolia verifier.
+  /// The Aadhaar method deploy returns on Sepolia declares its own Safe as key admin and pause holder, not the
+  /// zkPassport method's Safe, which the inputs make a different address, no open handover, UIDAI's key as its one
+  /// trusted key, and calls the pinned Sepolia verifier.
   function test_WhenTheDeployedAadhaarMethodIsRead() external {
     if (!_forkSepolia()) return;
     IDeployIdentity.Pins memory _table = _script.pinsFor(block.chainid);
@@ -91,10 +93,10 @@ contract DeployIdentityDeployForkTest is DeployIdentityForkTestBase {
     IDeployIdentity.Deployment memory _deployment = _script.deploy(_table, _operator);
     (address _admin, address _pendingAdmin, bytes32[] memory _keys, address _pauseHolder, address _pendingPauseHolder) =
       _deployment.aadhaarMethod.trustedParties();
-    // it should declare the safe in both roles with no handover open
-    assertEq(_admin, _operator.safe, 'admin');
+    // it should declare its own safe in both roles with no handover open
+    assertEq(_admin, _operator.aadhaarMethodSafe, 'admin');
     assertEq(_pendingAdmin, address(0), 'pending admin');
-    assertEq(_pauseHolder, _operator.safe, 'pause holder');
+    assertEq(_pauseHolder, _operator.aadhaarMethodSafe, 'pause holder');
     assertEq(_pendingPauseHolder, address(0), 'pending pause holder');
     // it should declare UIDAI's key alone
     assertEq(_keys.length, 1, 'key count');
@@ -126,9 +128,9 @@ contract DeployIdentityDeployForkTest is DeployIdentityForkTestBase {
     assertTrue(_called(_accesses, _aadhaar, abi.encodeCall(IAadhaarMethod.verifier, ())), 'verifier');
   }
 
-  /// deploy places at the returned addresses exactly the code the kit's two methods have when built there with
-  /// the Safe in both roles, the eight words, UIDAI's key and the pinned verifier. The test rebuilds each method
-  /// in place with those arguments and compares the code before and after, so a substituted contract or a
+  /// deploy places at the returned addresses exactly the code the kit's two methods have when built there with each
+  /// method's own Safe in both its roles, the eight words, UIDAI's key and the pinned verifier. The test rebuilds each
+  /// method in place with those arguments and compares the code before and after, so a substituted contract or a
   /// different constructor argument stored in code shows up.
   function test_WhenTheDeployedMethodsAreRebuiltInPlace() external {
     if (!_forkSepolia()) return;
@@ -141,12 +143,14 @@ contract DeployIdentityDeployForkTest is DeployIdentityForkTestBase {
     bytes memory _aadhaarCode = _aadhaar.code;
     deployCodeTo(
       'ZkPassportMethod.sol:ZkPassportMethod',
-      abi.encode(_operator.safe, _operator.safe, _words(_table, _operator)),
+      abi.encode(_operator.zkPassportMethodSafe, _operator.zkPassportMethodSafe, _words(_table, _operator)),
       _zkPassport
     );
     deployCodeTo(
       'AadhaarMethod.sol:AadhaarMethod',
-      abi.encode(_operator.safe, _operator.safe, _oneKey(_UIDAI_KEY), _SEPOLIA_AADHAAR_VERIFIER),
+      abi.encode(
+        _operator.aadhaarMethodSafe, _operator.aadhaarMethodSafe, _oneKey(_UIDAI_KEY), _SEPOLIA_AADHAAR_VERIFIER
+      ),
       _aadhaar
     );
     // it should hold the kit's zkPassport method

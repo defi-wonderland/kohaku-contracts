@@ -15,7 +15,7 @@ abstract contract ActionHandlerCancelByOwner is ActionBaseHandler {
     if (_before.state != IPolicyManager.AttemptState.Waiting) return;
     if (!_attemptIsStuck() && _seed % 8 != 0) return;
     vm.prank(account);
-    manager.cancelByOwner(address(action));
+    manager.cancelByOwner(address(action), _before.attemptId);
     _checkNothingSpent(_before);
   }
 }

@@ -1,12 +1,17 @@
 DeployIdentityCheckDeploymentTest
-├── when both methods match the table and the safe
+├── when both methods match the table and their safes
 │   └── it should pass
 ├── when the chain ships no Aadhaar method
+│   └── it should pass
+├── when both methods share one safe
 │   └── it should pass
 ├── when the zkPassport method declares another admin
 │   ├── it should revert
 │   └── it should name the zkPassport method
 ├── when the zkPassport method declares another pause holder
+│   ├── it should revert
+│   └── it should name the zkPassport method
+├── when the zkPassport method declares the Aadhaar method safe
 │   ├── it should revert
 │   └── it should name the zkPassport method
 ├── when the zkPassport method declares a pending admin
@@ -25,6 +30,9 @@ DeployIdentityCheckDeploymentTest
 │   ├── it should revert
 │   └── it should name the Aadhaar method
 ├── when the Aadhaar method declares another pause holder
+│   ├── it should revert
+│   └── it should name the Aadhaar method
+├── when the Aadhaar method declares the zkPassport method safe
 │   ├── it should revert
 │   └── it should name the Aadhaar method
 ├── when the Aadhaar method declares a pending admin

@@ -5,13 +5,13 @@ import {IDeployIdentity} from 'script/IDeployIdentity.sol';
 import {DeployIdentityForkTestBase} from 'test/utils/DeployIdentityForkTestBase.sol';
 
 /// @notice The second and third assertions against zkPassport's live contracts, over a set of eight words: the
-///         deployment's own, or a set the Safe proposes to install with setTrustedKeys. The words are a reviewed
-///         snapshot of zkPassport's route and roles, and the zkPassport method trusts that route between reviews,
-///         so a set that disagrees with the chain must be caught before it is deployed or installed. Each bad set
-///         changes one word of a good set. The good set takes the table's words and the three role words the
-///         test reads from the live contracts; the property under test is that the script compares, not what the
-///         live values are. The local suite proves the same comparisons and every malformed read against mocks;
-///         this one proves them against the real contracts. Each test skips cleanly when its endpoint is unset.
+///         deployment's own, or a set the method's Safe proposes to install with setTrustedKeys. The words are a
+///         reviewed snapshot of zkPassport's route and roles, and the zkPassport method trusts that route between
+///         reviews, so a set that disagrees with the chain must be caught before it is deployed or installed. Each bad
+///         set changes one word of a good set. The good set takes the table's words and the three role words the test
+///         reads from the live contracts; the property under test is that the script compares, not what the live values
+///         are. The local suite proves the same comparisons and every malformed read against mocks; this one proves
+///         them against the real contracts. Each test skips cleanly when its endpoint is unset.
 contract DeployIdentityCheckZkPassportKeysForkTest is DeployIdentityForkTestBase {
   /// checkZkPassportKeys passes on a mainnet fork for mainnet's table words and the live role words.
   function test_WhenMainnetsWordsMatchTheLiveContracts() external {

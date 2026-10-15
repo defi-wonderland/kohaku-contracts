@@ -9,18 +9,20 @@ import {PolicyManagerTestBase} from 'test/utils/PolicyManagerTestBase.sol';
 
 /// @notice clearSetup, the call through which an account removes its own setup for one action. A
 ///         clear is how a holder leaves the kit, so it must end any waiting recovery attempt and must
-///         not depend on any method answering.
+///         not depend on any method answering. It names the setup nonce it removes, so a signed account
+///         batch whose clear reverted, sent again later, cannot remove a setup committed after it.
 contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
   /*///////////////////////////////////////////////////////////////
                              TREE TESTS
   ///////////////////////////////////////////////////////////////*/
 
   /// @notice Clearing an action that never had a setup reverts, since it would record a removal that
-  ///         did not happen. `_anyAction` is any action address.
-  function test_WhenNoSetupWasEverCommitted(address _anyAction) external {
+  ///         did not happen. `_anyAction` is any action address and `_namedNonce` any nonce the holder
+  ///         names, so a missing setup is reported before a wrong nonce.
+  function test_WhenNoSetupWasEverCommitted(address _anyAction, uint64 _namedNonce) external {
     vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_NoSetup.selector, _account, _anyAction));
     vm.prank(_account);
-    _manager.clearSetup(_anyAction);
+    _manager.clearSetup(_anyAction, _namedNonce);
 
     assertEq(_state(_account, _anyAction).setupNonce, 0, 'nonce untouched');
   }
@@ -33,9 +35,66 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
 
     vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_NoSetup.selector, _account, _action));
     vm.prank(_account);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, _before.setupNonce);
 
     assertEq(abi.encode(_state(_account, _action)), abi.encode(_before), 'a refused clear changes nothing');
+  }
+
+  /// @notice With the setup cleared, a clear naming a nonce other than the stored one still reports
+  ///         the missing setup, the more fundamental refusal, rather than a wrong nonce. `_offsetSeed`
+  ///         builds the named nonce, any value but the stored one.
+  function test_WhenTheSetupWasAlreadyClearedAndTheNamedNonceIsWrong(uint64 _offsetSeed) external {
+    _commit(_account, _action);
+    _clear(_account, _action);
+    IPolicyManager.ActionState memory _before = _state(_account, _action);
+    uint64 _namedNonce = _otherThan(_before.setupNonce, _offsetSeed);
+
+    vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_NoSetup.selector, _account, _action));
+    vm.prank(_account);
+    _manager.clearSetup(_action, _namedNonce);
+
+    assertEq(abi.encode(_state(_account, _action)), abi.encode(_before), 'a refused clear changes nothing');
+  }
+
+  /// @notice A clear naming any nonce but the current one reverts with both nonces and changes
+  ///         nothing, so the setup and its waiting attempt stay. `_offsetSeed` builds the named nonce,
+  ///         any value but the current one.
+  function test_WhenTheNamedNonceIsNotTheCurrentOne(uint64 _offsetSeed) external {
+    (uint64 _nonce,) = _commit(_account, _action);
+    _plantWaiting(_account, _action, 1, false);
+    IPolicyManager.ActionState memory _before = _state(_account, _action);
+    uint64 _namedNonce = _otherThan(_nonce, _offsetSeed);
+
+    // it should revert with PolicyManager_WrongSetupNonce carrying the named nonce and the current one
+    vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_WrongSetupNonce.selector, _namedNonce, _nonce));
+    vm.prank(_account);
+    _manager.clearSetup(_action, _namedNonce);
+
+    // it should change nothing
+    assertEq(abi.encode(_state(_account, _action)), abi.encode(_before), 'a refused clear changes nothing');
+  }
+
+  /// @notice A clear naming the nonce of a setup that a later commit replaced reverts and leaves the
+  ///         later setup in place. This is the replay a reverted signed clear would make after a
+  ///         recommit: it must not remove the setup the holder wrote since. `_recommits` makes 1 to 4
+  ///         later commits.
+  function test_WhenTheNamedNonceIsFromBeforeARecommit(uint8 _recommits) external {
+    (uint64 _earlierNonce,) = _commit(_account, _action);
+    uint64 _currentNonce;
+    for (uint256 _i; _i < bound(_recommits, 1, 4); ++_i) {
+      (_currentNonce,) = _commit(_account, _action);
+    }
+    IPolicyManager.ActionState memory _before = _state(_account, _action);
+
+    // it should revert with PolicyManager_WrongSetupNonce carrying the earlier nonce and the current one
+    vm.expectRevert(
+      abi.encodeWithSelector(IPolicyManager.PolicyManager_WrongSetupNonce.selector, _earlierNonce, _currentNonce)
+    );
+    vm.prank(_account);
+    _manager.clearSetup(_action, _earlierNonce);
+
+    // it should leave the later setup in place
+    assertEq(abi.encode(_state(_account, _action)), abi.encode(_before), 'later setup kept');
   }
 
   /// @notice A clear zeroes the commitment, moves the nonce by exactly one, records its block, emits
@@ -50,7 +109,7 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
     vm.recordLogs();
     vm.startStateDiffRecording();
     vm.prank(_account);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, _before.setupNonce);
     Vm.AccountAccess[] memory _accesses = vm.stopAndReturnStateDiff();
     Vm.Log[] memory _logs = vm.getRecordedLogs();
 
@@ -80,7 +139,7 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
     vm.recordLogs();
     vm.startStateDiffRecording();
     vm.prank(_account);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, _before.setupNonce);
     Vm.AccountAccess[] memory _accesses = vm.stopAndReturnStateDiff();
     Vm.Log[] memory _logs = vm.getRecordedLogs();
 
@@ -113,7 +172,7 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
 
     vm.startStateDiffRecording();
     vm.prank(_account);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, _before.setupNonce);
     Vm.AccountAccess[] memory _accesses = vm.stopAndReturnStateDiff();
 
     IPolicyManager.ActionState memory _actionState = _state(_account, _action);
@@ -146,7 +205,7 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
 
     vm.expectRevert(stdError.arithmeticError);
     vm.prank(_account);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, type(uint64).max);
 
     assertEq(abi.encode(_state(_account, _action)), abi.encode(_before), 'a refused clear changes nothing');
   }
@@ -181,7 +240,7 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
     // it should revert with SafeCastOverflowedUintDowncast carrying the width and the block number
     vm.expectRevert(abi.encodeWithSelector(SafeCast.SafeCastOverflowedUintDowncast.selector, uint8(48), _blockNumber));
     vm.prank(_account);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, _before.setupNonce);
 
     // it should change nothing
     assertEq(abi.encode(_state(_account, _action)), abi.encode(_before), 'a refused clear changes nothing');
@@ -210,7 +269,8 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
   }
 
   /// @notice Another address clearing the same action only reaches its own empty entry and reverts,
-  ///         so nobody but the account can remove the account's setup. `_callerSeed` builds it.
+  ///         so nobody but the account can remove the account's setup, even naming its current
+  ///         nonce. `_callerSeed` builds it.
   function test_WhenAnAddressOtherThanTheAccountCalls(uint256 _callerSeed) external {
     address _caller = _addressFrom('caller', _callerSeed);
     _commit(_account, _action);
@@ -220,7 +280,7 @@ contract PolicyManagerClearSetupTest is PolicyManagerTestBase {
     // it should revert with PolicyManager_NoSetup carrying that address and the action
     vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_NoSetup.selector, _caller, _action));
     vm.prank(_caller);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, _before.setupNonce);
 
     // it should leave the account's setup and waiting attempt untouched
     assertEq(abi.encode(_state(_account, _action)), abi.encode(_before), 'account untouched');
