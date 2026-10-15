@@ -8,7 +8,9 @@ import {IntegrationDemoKitTestBase} from 'test/utils/IntegrationDemoKitTestBase.
 /// @notice Measures the gas of an opening, a cancel by proofs and a handover with real proofs. It uses
 ///         the demo rule with every place filled, and a wider rule of thirteen places. The contracts set
 ///         no limit on a rule's size, so the setup screen needs these numbers to refuse a rule too big
-///         for a block. Each test logs its figure and asserts it stays far below a block.
+///         for a block. Each test logs its figure and asserts it stays far below a block. The figures
+///         are what forge measures under the evm_version foundry.toml pins; a chain on a later hard fork
+///         that reprices storage or code gives different figures.
 contract TheCostOfAWideRuleTest is IntegrationDemoKitTestBase {
   /// @notice The ceiling each call of the demo rule must stay under: one thirtieth of a 30 million
   ///         gas block.

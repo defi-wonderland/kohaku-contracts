@@ -672,6 +672,24 @@ contract PolicyManagerCancelByProofsTest is PolicyManagerAcceptanceTestBase {
     assertEq(_after.nextAttemptId, _before.nextAttemptId, 'attempt counter');
   }
 
+  /// @notice A cancel by proofs never calls or reads the account, so nothing the account runs, no hook and no
+  ///         contract it trusts, can stop guardians from cancelling for a holder who lost the key.
+  function test_WhenTheCancelRuns() external {
+    _openDefault();
+    IPolicyManager.CancelRequest memory _req = _cancelRequest(_places(0, 2, 3));
+    _approveCancel(_req);
+
+    vm.startStateDiffRecording();
+    _manager.cancelByProofs(_req);
+    Vm.AccountAccess[] memory _accesses = vm.stopAndReturnStateDiff();
+
+    // it should never call or read the account
+    assertEq(uint8(_state(_account, _action).attempt.state), uint8(IPolicyManager.AttemptState.Cancelled), 'cancelled');
+    for (uint256 _i; _i < _accesses.length; ++_i) {
+      assertTrue(_accesses[_i].account != _account, 'the cancel reached the account');
+    }
+  }
+
   /// @notice Once cancelled, the attempt cannot be cancelled again by the same proofs, since nothing
   ///         waits any more.
   function test_WhenTheSameCancellationIsSentTwice() external {

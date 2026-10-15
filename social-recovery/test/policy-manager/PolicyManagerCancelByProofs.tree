@@ -81,6 +81,8 @@ PolicyManagerCancelByProofsTest
 │   ├── It should set the attempt to Cancelled and keep the rest of its record.
 │   ├── It should emit AttemptCancelled alone.
 │   └── It should leave the setup and the attempt counter unchanged.
+├── When the cancel runs
+│   └── It should never call or read the account.
 ├── When the same cancellation is sent twice
 │   └── It should revert with PolicyManager_NoActiveAttempt.
 └── When an attempt opens after the cancel

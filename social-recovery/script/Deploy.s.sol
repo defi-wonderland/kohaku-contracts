@@ -201,8 +201,9 @@ contract Deploy is Script, IDeploy {
   ///      the chain. This check therefore sends an eth_call to the node at the latest block.
   ///      Without a node the cheatcode fails and the script stops, since there is no chain to
   ///      deploy to. vm.rpc decodes a hex result into its bytes, so the answer arrives as the raw words the
-  ///      precompile returned, and as empty bytes from a chain without it.
-  function _checkP256Verify() internal {
+  ///      precompile returned, and as empty bytes from a chain without it. Virtual so that a
+  ///      configuration for a chain without a node, such as the local test chain, can supply its own check.
+  function _checkP256Verify() internal virtual {
     string memory _params = string.concat(_P256_CALL_PREFIX, vm.toString(_p256VerifyInput()), _P256_CALL_SUFFIX);
     _checkP256VerifyAnswer(vm.rpc('eth_call', _params));
   }
@@ -573,9 +574,11 @@ contract Deploy is Script, IDeploy {
   }
 
   /// @notice Looks up the pins for one chain in the table.
+  /// @dev Virtual so that a configuration for another chain, such as the local test chain, can supply its own pins
+  ///      and keep the deploy logic of this script.
   /// @param _chainId The chain id.
   /// @return _pins The pins for that chain.
-  function _pinsFor(uint256 _chainId) internal pure returns (Pins memory _pins) {
+  function _pinsFor(uint256 _chainId) internal pure virtual returns (Pins memory _pins) {
     require(_chainId == _MAINNET_CHAIN_ID || _chainId == _SEPOLIA_CHAIN_ID, Deploy_UnsupportedChain(_chainId));
     _pins = Pins({
       ambireImplementation: _AMBIRE_IMPLEMENTATION, ambireImplementationCodehash: _AMBIRE_IMPLEMENTATION_CODEHASH

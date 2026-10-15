@@ -1,9 +1,0 @@
-CancelWithTheHoldersKeyTest
-├── when the holder cancels with their key
-│   └── it should cancel the attempt, keep the counter and refuse every approval signed under the old setup
-├── when the attempt ended first
-│   └── it should revert
-├── when the handover ran first
-│   └── it should revert
-└── when the accounts own path reverts
-    └── it should still let a satisfying set cancel without touching the account
