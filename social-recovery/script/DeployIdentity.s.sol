@@ -609,9 +609,11 @@ contract DeployIdentity is Script, IDeployIdentity {
   }
 
   /// @notice Looks up the table entry for one chain.
+  /// @dev Virtual so that a configuration for another chain, such as the local test chain, can supply its own
+  ///      entry and keep the deploy logic of this script.
   /// @param _chainId The chain id.
   /// @return _pins The table entry for that chain.
-  function _pinsFor(uint256 _chainId) internal pure returns (Pins memory _pins) {
+  function _pinsFor(uint256 _chainId) internal pure virtual returns (Pins memory _pins) {
     require(_chainId == _MAINNET_CHAIN_ID || _chainId == _SEPOLIA_CHAIN_ID, DeployIdentity_UnsupportedChain(_chainId));
     _pins.acceptedVersion = _ACCEPTED_VERSION;
     _pins.rootVerifier = _ROOT_VERIFIER;
