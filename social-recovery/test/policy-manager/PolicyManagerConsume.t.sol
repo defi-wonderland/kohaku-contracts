@@ -47,7 +47,7 @@ contract PolicyManagerConsumeTest is PolicyManagerAcceptanceTestBase {
   function test_WhenTheAttemptWasCancelled() external {
     IPolicyManager.AttemptRequest memory _opening = _openDefault();
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
     vm.warp(_openedAt + _WAIT);
 
     _expectNoMethodCalled();
@@ -509,7 +509,7 @@ contract PolicyManagerConsumeTest is PolicyManagerAcceptanceTestBase {
   function test_WhenTheWaitIsOverAndNoUsedMethodVetoes(uint256 _delaySeed) external {
     _openDefault();
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
     _openedAt = block.timestamp;
     IPolicyManager.AttemptRequest memory _opening = _open(_places(0, 1, 2));
     vm.warp(_openedAt + _WAIT + bound(_delaySeed, 0, 365 days));

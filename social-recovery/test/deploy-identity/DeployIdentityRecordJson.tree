@@ -2,12 +2,13 @@ DeployIdentityRecordJsonTest
 ├── when a sepolia deployment is recorded
 │   ├── it should hold the chain id
 │   ├── it should hold both method addresses
-│   ├── it should hold the safe
+│   ├── it should hold each method's safe under its own key
 │   ├── it should hold the eight zkPassport words in order
 │   ├── it should hold the Aadhaar verifier, its code hash and the key
 │   └── it should hold no other key
 ├── when a mainnet deployment is recorded
-│   ├── it should record no Aadhaar method, verifier, code hash or key
-│   └── it should hold the same eight keys
+│   ├── it should hold the zkPassport method's safe
+│   ├── it should record no Aadhaar method, safe, verifier, code hash or key
+│   └── it should hold the same nine keys
 └── when any chain id is recorded
     └── it should hold that chain id

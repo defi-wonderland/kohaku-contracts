@@ -75,7 +75,7 @@ contract EditSetupWhileRecoveryRuns is IntegrationBase {
     (, IPolicyManager.AttemptRequest memory _next) = _attackerWaitsAndHoldsTheNext();
 
     // The holder clears the setup, then commits the very same body under the next nonce.
-    _keySignsAndRelayerSends(_account, _originalKey, _batch(_clearCall()));
+    _keySignsAndRelayerSends(_account, _originalKey, _batch(_clearCall(_stateOf(_account).setupNonce)));
     uint64 _nonce = _stateOf(_account).setupNonce + 1;
     _keySignsAndRelayerSends(_account, _originalKey, _batch(_commitCall(_account, _holderRule, _nonce)));
 

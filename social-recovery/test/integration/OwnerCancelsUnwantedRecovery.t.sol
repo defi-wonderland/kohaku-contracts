@@ -8,6 +8,7 @@ import {IAmbireAccount} from 'contracts/actions/ambire/IAmbireAccount.sol';
 import {IAmbireRecoveryAction} from 'contracts/actions/ambire/IAmbireRecoveryAction.sol';
 
 import {IntegrationBase} from 'test/integration/base/IntegrationBase.sol';
+import {LocalAmbireAccount} from 'test/integration/base/LocalAmbire.sol';
 
 /// @notice Bob still holds his account key, but his bag with the synced passkey and the hardware wallet is in an
 ///         attacker's hands. The attacker opens a recovery to their own key, and Bob stops it with his key alone, then
@@ -62,8 +63,8 @@ abstract contract OwnerCancelsUnwantedRecovery is IntegrationBase {
     // Some hours pass.
     skip(6 hours);
 
-    // Bob's account sends cancelByOwner.
-    _bobSends(_batch(_cancelByOwnerCall()));
+    // Bob's account sends cancelByOwner, naming the attacker's attempt.
+    _bobSends(_batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
 
     // The 48 hours pass, and the attacker sends executeHandover. It reverts.
     skip(48 hours);
@@ -157,7 +158,7 @@ contract OwnerCancelsUnwantedRecoveryWithARelayedBatch is OwnerCancelsUnwantedRe
     skip(48 hours);
 
     // In one block, Bob's cancel comes first.
-    _bobSends(_batch(_cancelByOwnerCall()));
+    _bobSends(_batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
 
     // Then, in the same block, the attacker calls executeHandover.
     vm.prank(_attacker.addr);
@@ -169,13 +170,62 @@ contract OwnerCancelsUnwantedRecoveryWithARelayedBatch is OwnerCancelsUnwantedRe
     assertEq(_privilegeOf(_account, _attacker.addr), bytes32(0), 'the attacker holds nothing');
   }
 
+  /// @notice Bob's signed cancel for the attacker's attempt 1 reverts, because the attacker ended attempt 1 first with
+  ///         a cancel by proofs. A reverted batch leaves the account's nonce where it was, so the signed bytes stay
+  ///         valid. Weeks later Bob's approvers open attempt 2, and the attacker sends the kept bytes again: they name
+  ///         attempt 1, so they revert and attempt 2 still hands the account to Bob's new key. Without the id, the old
+  ///         cancel would have stopped a recovery Bob never saw.
+  function test_WhenARevertedCancelIsSentAgainForALaterAttempt() external {
+    // The attacker opens attempt 1 with the stolen passkey and hardware wallet.
+    _openAttackersAttempt();
+    uint64 _first = _attempt(_account).attemptId;
+
+    // Bob's key signs a cancel naming attempt 1, and he hands it to a relayer.
+    IAmbireRecoveryAction.Transaction[] memory _cancel = _batch(_cancelByOwnerCall(_first));
+    bytes memory _bobsSignature = _keySigns(_account, _originalKey.key, _cancel);
+    uint256 _accountNonce = LocalAmbireAccount(payable(_account)).nonce();
+
+    // The attacker sees it coming and ends attempt 1 first, with a cancel by proofs from the stolen devices.
+    IPolicyManager.CancelRequest memory _byProofs =
+      _cancelRequest(_account, _bobsRule, _first, uint48(block.timestamp + 24 hours));
+    _signCancel(_byProofs, _bobsRule, 0);
+    _signCancel(_byProofs, _bobsRule, 1);
+    _submitsCancel(_attacker.addr, _byProofs);
+
+    // Bob's batch then arrives and reverts, since nothing waits, and the account's nonce stays where it was.
+    vm.prank(_relayer);
+    vm.expectRevert(
+      abi.encodeWithSelector(IPolicyManager.PolicyManager_NoActiveAttempt.selector, _account, address(_action))
+    );
+    IAmbireAccount(_account).execute(_cancel, _bobsSignature);
+    assertEq(LocalAmbireAccount(payable(_account)).nonce(), _accountNonce, 'the reverted batch kept the nonce');
+
+    // Weeks later Bob's hardware wallet and passport open attempt 2, handing the account to his new key.
+    skip(21 days);
+    bytes memory _payload = _handover(_newKey.addr, _originalKey.addr);
+    _submits(_friend, _bobsOwnRequest(_payload, _noPayment(), uint48(block.timestamp + 24 hours)));
+    uint64 _second = _attempt(_account).attemptId;
+    assertEq(_second, _first + 1, 'attempt 2 opened');
+
+    // The attacker sends Bob's kept bytes again. They name attempt 1, and the account's call reverts with both ids.
+    vm.prank(_attacker.addr);
+    vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_WrongAttemptId.selector, _first, _second));
+    IAmbireAccount(_account).execute(_cancel, _bobsSignature);
+
+    // Attempt 2 keeps waiting, and after the wait it hands the account to Bob's new key.
+    assertEq(uint8(_attempt(_account).state), uint8(IPolicyManager.AttemptState.Waiting), 'attempt 2 still waits');
+    skip(48 hours);
+    _executes(_executor, _account, _payload);
+    _assertKeyControls(_account, _newKey, 'Bob new key');
+  }
+
   /// @notice After the wait, the attacker's execution and Bob's cancel land in the same block, the execution first. The
   ///         execution wins and Bob's key is gone before his cancel runs: past the wait, ordering decides.
   function test_WhenTheSpendComesBeforeTheCancel() external {
     // The attacker opens the attempt, and the wait passes. Bob signs his cancel.
     bytes memory _payload = _openAttackersAttempt();
     skip(48 hours);
-    IAmbireRecoveryAction.Transaction[] memory _cancel = _batch(_cancelByOwnerCall());
+    IAmbireRecoveryAction.Transaction[] memory _cancel = _batch(_cancelByOwnerCall(_attempt(_account).attemptId));
     bytes memory _bobsSignature = _keySigns(_account, _originalKey.key, _cancel);
 
     // In one block, the attacker's executeHandover comes first.
@@ -200,14 +250,14 @@ contract OwnerCancelsUnwantedRecoveryWithARelayedBatch is OwnerCancelsUnwantedRe
   function test_WhenTheAttackerReopensAfterTheCancel() external {
     // The attacker opens attempt 1, and Bob's key cancels it.
     _openAttackersAttempt();
-    _bobSends(_batch(_cancelByOwnerCall()));
+    _bobSends(_batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
 
     // Right away the attacker opens attempt 2 with the same stolen devices.
     bytes memory _payload = _openAttackersAttempt();
     assertEq(_attempt(_account).attemptId, 2, 'attempt 2 opened');
 
     // Bob's key cancels again, and the attacker opens attempt 3.
-    _bobSends(_batch(_cancelByOwnerCall()));
+    _bobSends(_batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
     _payload = _openAttackersAttempt();
     assertEq(_attempt(_account).attemptId, 3, 'attempt 3 opened');
 
@@ -219,15 +269,17 @@ contract OwnerCancelsUnwantedRecoveryWithARelayedBatch is OwnerCancelsUnwantedRe
   }
 
   /// @notice Bob opened his own recovery to move the account to a new key, and then sends cancelByOwner to stop what he
-  ///         takes for a hostile attempt. The cancel names no attempt id, so it cancels whatever attempt is live, his
-  ///         own included.
+  ///         takes for a hostile attempt. The cancel names the id of the attempt waiting on chain, and an id says which
+  ///         attempt waits, not whose it is, so the cancel ends the attempt it names, his own included.
   function test_WhenTheCancelMeetsTheHoldersOwnAttempt() external {
     // Bob's hardware wallet and passport open his own recovery to his new key.
     bytes memory _payload = _handover(_newKey.addr, _originalKey.addr);
     _submits(_friend, _bobsOwnRequest(_payload, _noPayment(), uint48(block.timestamp + 24 hours)));
+    uint64 _his = _attempt(_account).attemptId;
 
-    // Bob's key sends cancelByOwner, meaning to stop an attacker's attempt.
-    _bobSends(_batch(_cancelByOwnerCall()));
+    // Bob's key sends cancelByOwner naming the waiting attempt's id, meaning to stop an attacker's attempt.
+    _bobSends(_batch(_cancelByOwnerCall(_his)));
+    assertEq(_attempt(_account).attemptId, _his, 'the cancel ended the attempt it named');
 
     // The wait passes, and Bob's own handover cannot run.
     skip(48 hours);
@@ -246,13 +298,13 @@ contract OwnerCancelsUnwantedRecoveryWithARelayedBatch is OwnerCancelsUnwantedRe
     bytes memory _payload = _handover(_newKey.addr, _originalKey.addr);
     _submits(_friend, _bobsOwnRequest(_payload, _noPayment(), uint48(block.timestamp + 24 hours)));
 
-    // The thief signs cancelByOwner with the laptop key, and it cancels Bob's recovery.
-    _bobSends(_batch(_cancelByOwnerCall()));
+    // The thief signs cancelByOwner with the laptop key, naming the waiting attempt, and it cancels Bob's recovery.
+    _bobSends(_batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
     assertEq(uint8(_attempt(_account).state), uint8(IPolicyManager.AttemptState.Cancelled), 'attempt 1 is cancelled');
 
     // Bob's approvers open attempt 2, and the thief cancels it the same way.
     _submits(_friend, _bobsOwnRequest(_payload, _noPayment(), uint48(block.timestamp + 24 hours)));
-    _bobSends(_batch(_cancelByOwnerCall()));
+    _bobSends(_batch(_cancelByOwnerCall(_attempt(_account).attemptId)));
     assertEq(uint8(_attempt(_account).state), uint8(IPolicyManager.AttemptState.Cancelled), 'attempt 2 is cancelled');
 
     // The wait passes, and nobody can execute Bob's handover.

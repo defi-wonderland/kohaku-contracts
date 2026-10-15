@@ -64,7 +64,7 @@ contract PolicyManagerExecutionPaths is PolicyManagerInvariantSetup {
     assertEq(uint8(_state.attempt.state), uint8(IPolicyManager.AttemptState.Waiting), 'second start: state');
     assertEq(_state.attempt.attemptId, 2, 'second start: attempt id');
 
-    _handler.handler_cancelByOwner(0, 0);
+    _handler.handler_cancelByOwner(0, 0, 0);
     _state = _manager.stateOf(_alice, _action);
     assertEq(uint8(_state.attempt.state), uint8(IPolicyManager.AttemptState.Cancelled), 'owner cancel: state');
 
@@ -144,7 +144,7 @@ contract PolicyManagerExecutionPaths is PolicyManagerInvariantSetup {
 
     _handler.handler_startAttempt(1, 1, 0, _CLEAN_SET, 'second', 0, 2);
     assertEq(_manager.stateOf(_bob, _action).attempt.attemptId, 2, 'second start: attempt id');
-    _handler.handler_clearSetup(1, 1);
+    _handler.handler_clearSetup(1, 1, 0);
     _state = _manager.stateOf(_bob, _action);
     assertEq(_state.setupNonce, _nonce + 1, 'clear: nonce');
     assertEq(uint8(_state.attempt.state), uint8(IPolicyManager.AttemptState.Cancelled), 'clear: state');

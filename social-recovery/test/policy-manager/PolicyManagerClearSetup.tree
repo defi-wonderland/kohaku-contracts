@@ -3,6 +3,14 @@ PolicyManagerClearSetupTest
 │   └── It should revert with PolicyManager_NoSetup carrying the caller and the action.
 ├── When the setup was already cleared
 │   └── It should revert with PolicyManager_NoSetup carrying the caller and the action.
+├── When the setup was already cleared and the named nonce is wrong
+│   └── It should revert with PolicyManager_NoSetup rather than a wrong nonce.
+├── When the named nonce is not the current one
+│   ├── It should revert with PolicyManager_WrongSetupNonce carrying the named nonce and the current one.
+│   └── It should change nothing.
+├── When the named nonce is from before a recommit
+│   ├── It should revert with PolicyManager_WrongSetupNonce carrying the earlier nonce and the current one.
+│   └── It should leave the later setup in place.
 ├── When a setup exists
 │   ├── It should zero the commitment and move the nonce by exactly one.
 │   ├── It should write the current block as setupCommittedAtBlock.

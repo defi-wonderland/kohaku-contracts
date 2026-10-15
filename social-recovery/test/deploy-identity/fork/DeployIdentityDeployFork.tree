@@ -5,10 +5,10 @@ DeployIdentityDeployForkTest
 │   ├── it should create only the zkPassport method
 │   └── it should return no Aadhaar method
 ├── when the deployed zkPassport method is read
-│   ├── it should declare the safe in both roles with no handover open
+│   ├── it should declare its own safe in both roles with no handover open
 │   └── it should declare the eight words in order
 ├── when the deployed Aadhaar method is read
-│   ├── it should declare the safe in both roles with no handover open
+│   ├── it should declare its own safe in both roles with no handover open
 │   ├── it should declare UIDAI's key alone
 │   └── it should call the pinned verifier
 ├── when the checks deploy makes are recorded

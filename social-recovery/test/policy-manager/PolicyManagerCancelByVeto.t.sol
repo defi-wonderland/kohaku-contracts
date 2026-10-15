@@ -45,7 +45,7 @@ contract PolicyManagerCancelByVetoTest is PolicyManagerAcceptanceTestBase {
   function test_WhenTheAttemptWasCancelled() external {
     _openDefault();
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
     _stop(_methodB);
 
     _expectNoMethodCalled();

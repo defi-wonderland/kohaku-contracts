@@ -131,7 +131,8 @@ abstract contract IntegrationBase is Test, LocalDeploy {
   ZkPassportMethod internal _zkPassportMethod;
   LocalDeployIdentity internal _identityScript;
 
-  /// @notice The Safe that holds the identity methods' pause and key admin roles.
+  /// @notice The Safe that holds the pause and key admin roles of both identity methods. Each method takes its own
+  ///         Safe at deployment, and the stories give both the same address, which the deployment allows.
   address internal _identitySafe;
 
   /// @notice The Ambire implementation the deployment pinned: the stand-in locally, Ambire's own on a fork.
@@ -233,15 +234,16 @@ abstract contract IntegrationBase is Test, LocalDeploy {
     assertEq(_aadhaarSignal(_frozenDigest), _frozenSignal, 'fixture: the signal function disagrees with the vector');
   }
 
-  /// @notice The identity methods' deployment, through the real script's local configuration, with the Safe holding
-  ///         their roles.
+  /// @notice The identity methods' deployment, through the real script's local configuration, with one Safe given as
+  ///         each method's Safe, so it holds the roles of both.
   function _deployIdentityMethods() internal {
     _identitySafe = makeAddr('identity methods Safe');
     _identityScript = new LocalDeployIdentity();
     IDeployIdentity.Deployment memory _identity = _identityScript.deploy(
       _identityScript.pinsFor(block.chainid),
       IDeployIdentity.Inputs({
-        safe: _identitySafe,
+        zkPassportMethodSafe: _identitySafe,
+        aadhaarMethodSafe: _identitySafe,
         rootAdmin: LocalIdentityRoles.ROOT_ADMIN,
         rootGuardian: LocalIdentityRoles.ROOT_GUARDIAN,
         subVerifierAdmin: LocalIdentityRoles.ROOT_ADMIN
@@ -608,14 +610,16 @@ abstract contract IntegrationBase is Test, LocalDeploy {
     );
   }
 
-  /// @notice The account clears its setup.
-  function _clearCall() internal view returns (IAmbireRecoveryAction.Transaction memory _t) {
-    _t = _call(address(_manager), abi.encodeCall(IPolicyManager.clearSetup, (address(_action))));
+  /// @notice The account clears its setup, naming the setup nonce it removes, as the holder's client reads it from
+  ///         the chain before the key signs.
+  function _clearCall(uint64 _nonce) internal view returns (IAmbireRecoveryAction.Transaction memory _t) {
+    _t = _call(address(_manager), abi.encodeCall(IPolicyManager.clearSetup, (address(_action), _nonce)));
   }
 
-  /// @notice The account cancels its waiting attempt with its own key.
-  function _cancelByOwnerCall() internal view returns (IAmbireRecoveryAction.Transaction memory _t) {
-    _t = _call(address(_manager), abi.encodeCall(IPolicyManager.cancelByOwner, (address(_action))));
+  /// @notice The account cancels a waiting attempt with its own key, naming the attempt's id, as the holder's client
+  ///         reads it from the chain before the key signs.
+  function _cancelByOwnerCall(uint64 _attemptId) internal view returns (IAmbireRecoveryAction.Transaction memory _t) {
+    _t = _call(address(_manager), abi.encodeCall(IPolicyManager.cancelByOwner, (address(_action), _attemptId)));
   }
 
   /// @notice A native transfer from the account.

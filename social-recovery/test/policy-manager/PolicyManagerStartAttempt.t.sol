@@ -126,7 +126,7 @@ contract PolicyManagerStartAttemptTest is PolicyManagerAcceptanceTestBase {
     _commitRule();
     IPolicyManager.AttemptRequest memory _first = _open(_places(0, 1, 2));
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
 
     vm.expectRevert(abi.encodeWithSelector(IPolicyManager.PolicyManager_WrongAttemptId.selector, uint64(1), uint64(2)));
     _manager.startAttempt(_first);
@@ -1138,7 +1138,7 @@ contract PolicyManagerStartAttemptTest is PolicyManagerAcceptanceTestBase {
     _commitRule();
     _open(_places(0, 1, 2));
     vm.prank(_account);
-    _manager.cancelByOwner(_action);
+    _manager.cancelByOwner(_action, 1);
 
     _open(_places(0, 2, 3));
 

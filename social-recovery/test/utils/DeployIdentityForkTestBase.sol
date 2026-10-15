@@ -59,16 +59,18 @@ abstract contract DeployIdentityForkTestBase is DeployIdentityTestBase {
     _forked = _fork('SEPOLIA_RPC_URL', _SEPOLIA_FORK_BLOCK);
   }
 
-  /// @notice Good operator inputs for the forked chain: a Safe hashed from a label, and the three role words
-  ///         read from the live root verifier and the table's sub-verifier. The test reads them only to build an
-  ///         input the script's comparison should accept; the script itself never fills them from the chain.
+  /// @notice Good operator inputs for the forked chain: each method's Safe hashed from its own label, the Aadhaar
+  ///         one left zero where the chain deploys no Aadhaar method, and the three role words read from the live
+  ///         root verifier and the table's sub-verifier. The test reads them only to build an input the script's
+  ///         comparison should accept; the script itself never fills them from the chain.
   function _liveInputs(IDeployIdentity.Pins memory _table)
     internal
     view
     returns (IDeployIdentity.Inputs memory _operator)
   {
     _operator = IDeployIdentity.Inputs({
-      safe: _freshAddress('forkSafe', 0),
+      zkPassportMethodSafe: _freshAddress('forkZkPassportMethodSafe', 0),
+      aadhaarMethodSafe: _table.shipsAadhaar ? _freshAddress('forkAadhaarMethodSafe', 0) : address(0),
       rootAdmin: IDeployIdentityForkRoot(_table.rootVerifier).admin(),
       rootGuardian: IDeployIdentityForkRoot(_table.rootVerifier).guardian(),
       subVerifierAdmin: IDeployIdentityForkSubVerifier(_table.subVerifier).admin()

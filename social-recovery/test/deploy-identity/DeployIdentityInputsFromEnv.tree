@@ -2,5 +2,11 @@ DeployIdentityInputsFromEnvTest
 └── when the inputs arrive one by one
     ├── it should name the variable while it is absent
     ├── it should name the variable when it is empty
-    ├── it should raise the zero safe error when the safe is the zero address
-    └── it should answer the four addresses once all four are set
+    ├── it should leave the Aadhaar safe zero without reading it on a chain that ships no Aadhaar
+    ├── it should name the Aadhaar safe variable while it is absent on a chain that ships Aadhaar
+    ├── it should name the Aadhaar safe variable when it is empty on a chain that ships Aadhaar
+    ├── it should not read a malformed Aadhaar safe on a chain that ships no Aadhaar
+    ├── it should raise the zero safe error naming the variable that holds a zero safe
+    ├── it should answer every address once all are set
+    ├── it should answer the zero address for the Aadhaar safe on a chain that ships no Aadhaar even when it is set
+    └── it should accept one address as both safes

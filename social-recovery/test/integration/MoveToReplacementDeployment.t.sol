@@ -136,8 +136,8 @@ contract MoveToReplacementDeployment is IntegrationBase {
     _submits(_attacker.addr, _theft);
 
     // Lee's cancelByOwner for the second pair reverts, since nothing waits there, and the old attempt keeps waiting.
-    IAmbireRecoveryAction.Transaction[] memory _cancel =
-      _batch(_call(address(_secondManager), abi.encodeCall(IPolicyManager.cancelByOwner, (address(_secondAction)))));
+    bytes memory _cancelData = abi.encodeCall(IPolicyManager.cancelByOwner, (address(_secondAction), _theft.attemptId));
+    IAmbireRecoveryAction.Transaction[] memory _cancel = _batch(_call(address(_secondManager), _cancelData));
     bytes memory _signature = _keySigns(_leeAccount, _lee.key, _cancel);
     vm.prank(_relayer);
     vm.expectPartialRevert(IPolicyManager.PolicyManager_NoActiveAttempt.selector);
@@ -162,7 +162,7 @@ contract MoveToReplacementDeployment is IntegrationBase {
   function _moveBatch() internal returns (IAmbireRecoveryAction.Transaction[] memory _calls) {
     _clientPointsAt(_oldManager, _oldAction);
     IAmbireRecoveryAction.Transaction memory _unbindOld = _unbindKitCall(_account);
-    IAmbireRecoveryAction.Transaction memory _clearOld = _clearCall();
+    IAmbireRecoveryAction.Transaction memory _clearOld = _clearCall(_stateOf(_account).setupNonce);
     _clientPointsAt(_newManager, _newAction);
     _calls = _batch(_unbindOld, _clearOld, _bindKitCall(_account), _commitCall(_account, _holderRule, 1));
   }

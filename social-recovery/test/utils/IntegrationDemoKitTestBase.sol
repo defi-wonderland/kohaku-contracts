@@ -210,9 +210,10 @@ abstract contract IntegrationDemoKitTestBase is PasskeyMethodHelpers {
     ActionAmbireAccountFixture(payable(_account)).executeBySender(_calls);
   }
 
-  /// @notice The account's cancelByOwner call for the holder's action.
+  /// @notice The account's cancelByOwner call for the holder's action, naming the attempt waiting now.
   function _cancelByOwnerCall() internal view returns (IAmbireRecoveryAction.Transaction memory _call) {
-    _call = _managerCall(abi.encodeCall(IPolicyManager.cancelByOwner, (address(_action))));
+    uint64 _attemptId = _manager.stateOf(_account, address(_action)).attempt.attemptId;
+    _call = _managerCall(abi.encodeCall(IPolicyManager.cancelByOwner, (address(_action), _attemptId)));
   }
 
   /// @notice The account's call to itself that authorizes the action under its kit slot.

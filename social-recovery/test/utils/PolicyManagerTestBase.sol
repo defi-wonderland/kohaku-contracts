@@ -100,10 +100,12 @@ abstract contract PolicyManagerTestBase is Test {
     _manager.commitSetup(_pairAction, _commitment, _nonce, '', '');
   }
 
-  /// @notice Clears `_pairAccount`'s setup for `_pairAction`, as the account.
+  /// @notice Clears `_pairAccount`'s setup for `_pairAction`, as the account, naming the current
+  ///         setup nonce as the one it removes.
   function _clear(address _pairAccount, address _pairAction) internal {
+    uint64 _current = _manager.stateOf(_pairAccount, _pairAction).setupNonce;
     vm.prank(_pairAccount);
-    _manager.clearSetup(_pairAction);
+    _manager.clearSetup(_pairAction, _current);
   }
 
   /// @notice The manager's summary of one action on one account.

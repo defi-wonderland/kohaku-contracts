@@ -35,8 +35,14 @@ AadhaarMethodVerifyTest
 │   └── it should answer the zero word
 ├── when the config has any length but three words
 │   └── it should answer the zero word
-├── when inputs three through six carry any values
-│   └── it should return the verify selector
+├── when input three is nonzero
+│   └── it should answer the zero word
+├── when input four is nonzero
+│   └── it should answer the zero word
+├── when input five is nonzero
+│   └── it should answer the zero word
+├── when input six is nonzero
+│   └── it should answer the zero word
 ├── when the freshness window is under an hour
 │   └── it should answer the zero word
 ├── when the freshness window is exactly an hour

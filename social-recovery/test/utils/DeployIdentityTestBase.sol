@@ -83,9 +83,11 @@ abstract contract DeployIdentityTestBase is Test {
   /// @notice A local table: every address holds code, the version is 0.21.0, and the Aadhaar method ships with
   ///         UIDAI's key and the code hash of the code etched at its verifier.
   IDeployIdentity.Pins internal _pins;
-  /// @notice Operator inputs hashed from labels.
+  /// @notice Operator inputs hashed from labels. The two methods' Safes are different addresses, so a role given
+  ///         to the other method's Safe shows up as a mismatch.
   IDeployIdentity.Inputs internal _inputs;
-  /// @notice A good deployment: the kit's real methods, built with `_pins` and `_inputs`, both roles on the Safe.
+  /// @notice A good deployment: the kit's real methods, built with `_pins` and `_inputs`, both roles of each method
+  ///         on that method's own Safe.
   IDeployIdentity.Deployment internal _good;
 
   function setUp() public virtual {
@@ -103,14 +105,19 @@ abstract contract DeployIdentityTestBase is Test {
     });
     _pins.aadhaarVerifierCodehash = _pins.aadhaarVerifier.codehash;
     _inputs = IDeployIdentity.Inputs({
-      safe: _freshAddress('safe', 0),
+      zkPassportMethodSafe: _freshAddress('zkPassportMethodSafe', 0),
+      aadhaarMethodSafe: _freshAddress('aadhaarMethodSafe', 0),
       rootAdmin: _freshAddress('rootAdmin', 0),
       rootGuardian: _freshAddress('rootGuardian', 0),
       subVerifierAdmin: _freshAddress('subVerifierAdmin', 0)
     });
     _good = IDeployIdentity.Deployment({
-      zkPassportMethod: _newZkPassportMethod(_inputs.safe, _inputs.safe, _words(_pins, _inputs)),
-      aadhaarMethod: _newAadhaarMethod(_inputs.safe, _inputs.safe, _pins.aadhaarKey, _pins.aadhaarVerifier)
+      zkPassportMethod: _newZkPassportMethod(
+        _inputs.zkPassportMethodSafe, _inputs.zkPassportMethodSafe, _words(_pins, _inputs)
+      ),
+      aadhaarMethod: _newAadhaarMethod(
+        _inputs.aadhaarMethodSafe, _inputs.aadhaarMethodSafe, _pins.aadhaarKey, _pins.aadhaarVerifier
+      )
     });
   }
 

@@ -78,7 +78,7 @@ contract PolicyManagerEventsKatTest is ManagerKatBase {
 
     vm.recordLogs();
     vm.prank(_account);
-    _manager.clearSetup(_action);
+    _manager.clearSetup(_action, _nonce - 1);
     _assertOnlyLogMatches(_json, _row, address(_manager));
   }
 
