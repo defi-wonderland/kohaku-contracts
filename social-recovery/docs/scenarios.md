@@ -225,7 +225,7 @@ Runs for each of:
 **Walk**
 
 1. The attacker opens attempt N with places 0 and 4, handing the account to the attacker's key.
-2. {"The guardians at places 2 and 3 sign the cancellation of attempt N. With default salts they build it without the holder's backup": "each rebuilds their own config and salt and finds their place in the published body, and their places alone satisfy every clause. This fails under salts the holder chose, for passkey or identity credentials, and when a clause needs one of the holder's devices. (D-110)"}
+2. The guardians at places 2 and 3 sign the cancellation of attempt N. With default salts they build it without the holder's backup: each rebuilds their own config and salt and finds their place in the published body, and their places alone satisfy every clause. This fails under salts the holder chose, for passkey or identity credentials, and when a clause needs one of the holder's devices. (D-110)
 3. The friend sends cancelByProofs.
 4. The wait passes, and the attacker sends executeHandover. It reverts.
 5. The guardians at places 2 and 3 sign approvals for attempt N+1 handing the account to the holder's new key, and the friend sends startAttempt.
