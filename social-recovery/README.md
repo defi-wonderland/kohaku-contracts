@@ -2,7 +2,7 @@
 
 On-chain contracts that let a smart account holder who lost their signing key take the account back through guardians or credentials they already hold. A policy manager judges recovery requests against the rule the holder committed, method modules check each kind of credential, and a recovery action carries out the handover on one account implementation.
 
-The full technical design is in [`docs/contracts.md`](docs/contracts.md).
+The full technical design is in [`docs/contracts.md`](docs/contracts.md). [`docs/scenarios.md`](docs/scenarios.md) walks through what users do with the kit, step by step, and names the tests that check each scenario.
 
 ## Layout
 
