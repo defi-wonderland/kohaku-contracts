@@ -1,0 +1,74 @@
+PolicyManagerCommitSetupTest
+├── When the nonce is not the current one plus one
+│   └── It should revert with PolicyManager_WrongSetupNonce carrying the supplied and the expected nonce, including for a nonce another write already moved past.
+├── When the commitment is zero
+│   └── It should revert with PolicyManager_InvalidCommitment carrying the zero commitment.
+├── When the commitment is the commitment of an empty body at the nonce the write will hold
+│   └── It should revert with PolicyManager_InvalidCommitment carrying that commitment.
+├── When the nonce is wrong and the commitment is invalid
+│   └── It should revert with either PolicyManager_WrongSetupNonce or PolicyManager_InvalidCommitment.
+├── When no setup exists
+│   ├── It should store the commitment under nonce one.
+│   ├── It should write the current block as setupCommittedAtBlock.
+│   ├── It should leave the next attempt id at one.
+│   └── It should emit SetupCommitted alone with both metadata fields.
+├── When a setup exists
+│   ├── It should replace the commitment and move the nonce by exactly one.
+│   ├── It should write the block of the new write.
+│   └── It should emit SetupCommitted alone.
+├── When the setup was cleared
+│   └── It should continue the nonce from the clear rather than rewind it.
+├── When two writes land in one block
+│   └── It should move the nonce once per write and emit one event per write.
+├── When the action is any address that serves the account
+│   ├── It should store the commitment under that action.
+│   └── It should emit SetupCommitted alone for that action.
+├── When the action serves the account
+│   ├── It should ask the action supportsAccount for the caller, by a static call and nothing else.
+│   ├── It should store the commitment.
+│   └── It should emit SetupCommitted alone.
+├── When the action reads the manager while answering
+│   └── It should ask before the attempt is cancelled and before the setup is written.
+├── When the action has no code
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the actions supportsAccount reverts
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action answers false
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action returns no data
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action returns less than one word
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action returns more than one word
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action returns a word other than one
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action returns two words whose first is one
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action returns one word with its only set byte other than the last
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action returns a word whose low byte is one but is not one
+│   └── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+├── When the action writes state while answering
+│   ├── It should revert with PolicyManager_ActionDoesNotServeAccount carrying the caller and the action, and change nothing.
+│   └── It should leave the action's storage unwritten.
+├── When the stored nonce is the largest uint64
+│   └── It should revert with the arithmetic overflow panic and change nothing.
+├── When the block number is the largest uint48
+│   ├── It should store the commitment under nonce one.
+│   └── It should store the largest uint48 as setupCommittedAtBlock.
+├── When the block number is past the width of the block field
+│   ├── It should revert with SafeCastOverflowedUintDowncast carrying the width and the block number.
+│   └── It should change nothing.
+├── When an attempt is waiting
+│   ├── It should set the attempt to Cancelled and keep the rest of its record.
+│   ├── It should emit AttemptCancelled with a zero canceller before SetupCommitted.
+│   ├── It should leave the attempt counter where it was.
+│   └── It should reach no method and no pause read, only the action's own supportsAccount.
+├── When the last attempt is no longer waiting
+│   └── It should emit SetupCommitted alone and leave the record untouched.
+├── When an attempt waits under another action
+│   └── It should leave that attempt waiting.
+└── When an address other than the account calls
+    ├── It should write only that address's own setup.
+    └── It should leave the account's setup and waiting attempt untouched.

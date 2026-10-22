@@ -1,0 +1,14 @@
+DeployPinsForTest
+├── when the chain is mainnet
+│   └── it should pin the AmbireAccount implementation and its codehash
+├── when the chain is sepolia
+│   └── it should pin the AmbireAccount implementation and its codehash
+├── when the chain is not supported
+│   ├── it should revert
+│   └── it should name the chain in the unsupported chain error
+├── when the chain id neighbours sepolia
+│   ├── it should revert
+│   └── it should name the chain in the unsupported chain error
+└── when the chain id neighbours mainnet
+    ├── it should revert
+    └── it should name the chain in the unsupported chain error

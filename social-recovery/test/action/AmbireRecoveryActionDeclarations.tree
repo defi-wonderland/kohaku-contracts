@@ -1,0 +1,23 @@
+AmbireRecoveryActionDeclarationsTest
+├── when asked for the policy action interface
+│   └── it should return true
+├── when asked for the recovery action interface
+│   └── it should return true
+├── when asked for the ambire recovery action interface
+│   └── it should return true
+├── when the recovery action interface id is computed
+│   └── it should equal 0x4ca82439
+├── when the ambire recovery action interface id is computed
+│   └── it should equal 0xdb7b0011
+├── when asked for erc165
+│   └── it should return true
+├── when asked for the invalid interface id
+│   └── it should return false
+├── when asked for any other interface
+│   └── it should return false
+├── when asked for the interface ids from before the split
+│   └── it should return false
+├── when the name is read
+│   └── it should answer AmbireRecoveryAction
+└── when the version is read
+    └── it should answer 1.0.0

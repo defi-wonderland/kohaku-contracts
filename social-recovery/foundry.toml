@@ -1,0 +1,103 @@
+# Build configuration every check reads. Two files state the compiler version:
+# change solc_version below and the compiler-version rule in .solhint.json
+# together, or the linter starts judging contracts against a compiler nothing
+# builds them with.
+#
+# The profiles quick, standard and deep are the named fuzz budgets. The fixed
+# seed keeps probabilistic checks deterministic, which separates a flake from a
+# regression.
+
+[profile.default]
+src = "contracts"
+test = "test"
+out = "out"
+libs = ["lib"]
+# Imports name a root, never a relative path: `contracts/`, `interfaces/`, `libraries/`, `script/`
+# and `test/` for this project's own code, `forge-std/` and `@openzeppelin/` for the dependencies.
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "forge-std/=lib/forge-std/src/",
+  "interfaces/=contracts/interfaces/",
+  "libraries/=contracts/libraries/",
+  "test/=test/",
+]
+solc_version = "0.8.30"
+# Osaka carries the P256VERIFY precompile at 0x100 the passkey method calls.
+evm_version = "osaka"
+# Tests read the frozen vectors under test/fixtures/kats; declaring fs_permissions
+# replaces forge's default, so the read grant on out is restated. The deployment
+# script writes the addresses it deployed to script/deployments, one file per
+# chain, for the SDK and the screens to read.
+fs_permissions = [
+  { access = "read", path = "./test/fixtures/kats" },
+  { access = "read", path = "./out" },
+  { access = "read-write", path = "./script/deployments" },
+]
+optimizer = true
+optimizer_runs = 200
+# Write each source unit's AST into its artifact, so tests can check file-level
+# declarations (errors, structs, events) and their NatSpec, which the ABI omits.
+ast = true
+
+# Stateless fuzz runs never drop below 1000, the Wonderland handbook's floor: a
+# fuzz test too slow at 1000 runs points at a design fault, not at the budget.
+# The named profiles inherit this section, so quick and standard fuzz at 1000
+# too, and only deep raises it.
+[profile.default.fuzz]
+runs = 1000
+seed = "0x57"
+
+# The default invariant budget is the quick one on purpose: a bare `forge
+# test` is the inner verification loop, run after every edit, while the
+# named budgets belong to CI and to deep runs. Without this section forge
+# falls back to its own invariant defaults (depth 500), which makes each
+# local run take minutes. No invariant profile sets a timeout, since forge
+# ignores `runs` once a timeout is set and would run until the timeout.
+[profile.default.invariant]
+runs = 256
+depth = 64
+# corpus_dir persists every call sequence that found new coverage AND turns on
+# coverage guidance (handbook: it MUST always be set). Runs replay the corpus
+# before exploring. cache/ is gitignored and no CI step caches it, so every CI
+# run starts from an empty corpus and its time does not depend on earlier runs.
+# Locally cache/ persists, so a local run replays what earlier local runs found;
+# delete cache/ before timing a run.
+corpus_dir = 'cache/corpus'
+# On a failure, print the sequence as solidity, copy-pasteable as a
+# reproducing regression test.
+show_solidity = true
+show_metrics = true
+# fail_on_revert = true   # enable when handlers expect no reverts (handbook)
+
+[profile.quick.invariant]
+runs = 256
+depth = 64
+
+# The standard budget runs on every PR. forge runs one campaign per invariant
+# function, so the job's time grows with runs x depth x the number of invariant
+# functions, and the policy manager's handlers are costly per call. At 1024 x 128
+# the policy manager's suite (21 invariants) took 33 minutes on CI. 128 x 128 keeps the
+# depth of 128 calls per sequence, which quick does not reach, and brings that
+# suite to an estimated 4 minutes of fuzzing. Breadth is the deep budget's job.
+[profile.standard.invariant]
+runs = 128
+depth = 128
+
+# The deep budget is a fixed number of runs, so it is reproducible and its
+# cost grows with the suite in a known way. forge ignores `runs` when a
+# timeout is set, which is why none of the invariant profiles sets one.
+[profile.deep.invariant]
+runs = 10000
+depth = 256
+
+# The deep budget covers stateless fuzz too, since a deep run is
+# the whole suite rather than the invariant tests alone. The seed stays the
+# default one.
+[profile.deep.fuzz]
+runs = 100000
+
+[fmt]
+line_length = 120
+tab_width = 2
+quote_style = "single"
+number_underscore = "thousands"

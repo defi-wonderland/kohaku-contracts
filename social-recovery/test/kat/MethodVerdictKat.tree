@@ -1,0 +1,9 @@
+MethodVerdictKatTest
+├── when replaying the verdict vector against the interface
+│   ├── it should match the selector of verify in the interface.
+│   ├── it should be the hash prefix of the signature string.
+│   └── it should left-align the selector in the ABI word.
+├── when replaying the verdict vector against accepted proofs
+│   └── it should return exactly the magic word.
+└── when replaying the verdict vector against refused proofs
+    └── it should return one word other than the magic word.

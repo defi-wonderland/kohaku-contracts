@@ -1,0 +1,9 @@
+BindingDigestKatTest
+├── when replaying the approval digest vectors
+│   └── it should reproduce every expected digest.
+├── when replaying the cancellation digest vectors
+│   └── it should reproduce every expected digest.
+├── when replaying the setup commitment vectors
+│   └── it should reproduce every expected commitment.
+└── when replaying the credential commitment vectors
+    └── it should reproduce every expected commitment.

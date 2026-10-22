@@ -1,0 +1,32 @@
+DeployIdentityDeployForkTest
+├── when sepolias table is deployed
+│   └── it should create exactly the two returned methods
+├── when mainnets table is deployed
+│   ├── it should create only the zkPassport method
+│   └── it should return no Aadhaar method
+├── when the deployed zkPassport method is read
+│   ├── it should declare its own safe in both roles with no handover open
+│   └── it should declare the eight words in order
+├── when the deployed Aadhaar method is read
+│   ├── it should declare its own safe in both roles with no handover open
+│   ├── it should declare UIDAI's key alone
+│   └── it should call the pinned verifier
+├── when the checks deploy makes are recorded
+│   ├── it should read both methods' trusted parties
+│   ├── it should ask both methods for each of the three interface ids
+│   └── it should read the Aadhaar method's verifier
+├── when the deployed methods are rebuilt in place
+│   ├── it should hold the kit's zkPassport method
+│   └── it should hold the kit's Aadhaar method built with the pinned verifier
+├── when a role input differs from the live role
+│   ├── it should revert
+│   ├── it should carry the input and the live role
+│   └── it should create no contract
+├── when a component pin differs from the live route
+│   ├── it should revert
+│   ├── it should carry the pin and the live component
+│   └── it should create no contract
+└── when the Aadhaar key is the published test key
+    ├── it should revert
+    ├── it should carry the key in the error
+    └── it should create no contract

@@ -1,0 +1,24 @@
+ZkPassportMethodKatTest
+├── when replaying the config vector encodings
+│   ├── it should read a file in the four field layout
+│   └── it should reproduce every frozen config encoding
+├── when replaying the config vectors through verify
+│   └── it should call the root verifier with each rows fields and the accepted version, and accept the proof
+├── when replaying the config vectors with another returned identifier
+│   └── it should refuse the proof
+├── when replaying the proof vector encodings
+│   └── it should reproduce every frozen proof encoding
+├── when replaying the proof vector renderings
+│   └── it should render every frozen digest as the required custom data
+├── when replaying the proof vectors through verify
+│   └── it should pass the decoded fields to the root verifier and accept the proof
+├── when replaying the proof vectors with uppercase custom data
+│   └── it should refuse the proof
+├── when replaying the proof vectors with unprefixed custom data
+│   └── it should refuse the proof
+├── when replaying the proof vectors with the nullifier input changed
+│   └── it should refuse the proof
+├── when replaying the proof vectors with another input changed
+│   └── it should accept the proof
+└── when replaying the proof vectors under another digest
+    └── it should refuse the proof

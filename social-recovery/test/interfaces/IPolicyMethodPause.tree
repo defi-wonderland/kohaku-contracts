@@ -1,0 +1,19 @@
+IPolicyMethodPauseTest
+├── when the selectors are derived
+│   └── it should match each function's canonical signature
+├── when Paused is emitted
+│   └── it should index and order its fields as specified
+├── when Unpaused is emitted
+│   └── it should index and order its fields as specified
+├── when the compiled abi is read
+│   └── it should list exactly the specified functions events and errors
+├── when pause is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when unpause is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when paused is read from the abi
+│   └── it should declare the specified parameters returns and mutability
+├── when the event Paused is read from the abi
+│   └── it should declare the specified parameters
+└── when the event Unpaused is read from the abi
+    └── it should declare the specified parameters

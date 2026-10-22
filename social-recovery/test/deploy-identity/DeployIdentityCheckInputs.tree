@@ -1,0 +1,21 @@
+DeployIdentityCheckInputsTest
+├── when both safes are nonzero
+│   └── it should pass
+├── when both methods share one safe
+│   └── it should pass
+├── when the zkPassport method safe is zero
+│   ├── it should revert
+│   └── it should raise the zero safe error naming ZKPASSPORT_METHOD_SAFE
+├── when the Aadhaar method safe is zero on a chain that ships Aadhaar
+│   ├── it should revert
+│   └── it should raise the zero safe error naming AADHAAR_METHOD_SAFE
+├── when both safes are zero
+│   ├── it should revert
+│   └── it should raise the zero safe error naming ZKPASSPORT_METHOD_SAFE
+├── when the chain ships no Aadhaar and its safe is zero
+│   └── it should pass
+├── when the chain ships no Aadhaar and its safe is nonzero
+│   └── it should pass
+└── when the chain ships no Aadhaar and the zkPassport method safe is zero
+    ├── it should revert
+    └── it should raise the zero safe error naming ZKPASSPORT_METHOD_SAFE

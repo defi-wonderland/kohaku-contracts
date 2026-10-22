@@ -1,0 +1,26 @@
+SetupBodyRuleSatisfiedClausesTest
+├── when there are no clauses
+│   └── it should return false naming clause zero
+├── when every clause has a threshold of zero
+│   └── it should return false naming clause zero even with places filled
+├── when a zero clause sits beside a positive clause
+│   ├── when the positive clause meets its threshold
+│   │   └── it should return true
+│   └── when only the zero clause's places are filled
+│       └── it should return false naming the positive clause
+├── when the filled count equals the threshold
+│   └── it should return true
+├── when the filled count is one below the threshold
+│   └── it should return false naming that clause
+├── when a clause's threshold exceeds its credential count
+│   └── it should return false naming that clause even with every place filled
+├── when several clauses miss their thresholds
+│   └── it should name the first failing clause in order
+├── when one credential repeats at two places
+│   └── it should count both places
+├── when a place lies past the last credential
+│   └── it should count it for no clause
+├── when a place repeats the previous place
+│   └── it should revert with PolicyManager_PlacesNotStrictlyIncreasing naming the repeated place
+└── when a place is below the previous place
+    └── it should revert with PolicyManager_PlacesNotStrictlyIncreasing naming the lower place

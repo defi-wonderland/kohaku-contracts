@@ -1,0 +1,5 @@
+RecoveryActionErrorsTest
+├── when the error selectors are derived
+│   └── it should match each error's canonical signature
+└── when the errors are read from the abi
+    └── it should declare each with the specified parameters

@@ -1,0 +1,79 @@
+AmbireRecoveryActionExecuteHandoverTest
+├── when the account is a proxy over another implementation
+│   ├── it should revert
+│   └── it should leave every privilege and the attempt as they were
+├── when the account accepts any call and returns nothing
+│   ├── it should revert
+│   └── it should read no attempt and call no account
+├── when the account delegates to the served implementation
+│   ├── it should revert
+│   └── it should leave every privilege and the attempt as they were
+├── when the account has no code
+│   ├── it should revert
+│   └── it should read no attempt and call no account
+├── when no attempt was ever recorded
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash before any account call
+├── when the attempt was cancelled
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash before any account call
+├── when the attempt was consumed
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash before any account call
+├── when the payload hashes to another commitment
+│   ├── it should revert
+│   └── it should carry the attempt's state, clock and hash before any account call
+├── when the attempt is read
+│   └── it should read stateOf for the account and this action
+├── when the new key is zero
+│   ├── it should revert
+│   └── it should carry the payload
+├── when the removed key is zero
+│   ├── it should revert
+│   └── it should carry the payload
+├── when an address word carries high bits
+│   ├── it should revert
+│   └── it should carry the payload
+├── when the payload carries a trailing byte
+│   ├── it should hand the account the batch the decoded addresses give
+│   └── it should be refused by the account's check at index 1
+├── when the order has no amount
+│   └── it should hand the account consume, grant and revoke under the kit signature
+├── when the wait ends this second
+│   └── it should hand the account the batch
+├── when the order pays a token
+│   └── it should add a raw token transfer to the payee
+├── when the order names a token but no amount
+│   └── it should hand the account consume, grant and revoke only
+├── when the order pays the native asset
+│   └── it should add a value call to the payee with no data
+├── when the account refuses the batch
+│   └── it should revert
+├── when the live account runs the approved batch
+│   └── it should consume the attempt, install the new key at 1 and zero the removed key
+├── when the live order pays a token
+│   └── it should pay the payee the amount in the token
+├── when the live order pays the native asset
+│   └── it should pay the payee the amount in the native asset
+├── when the live open order pays the caller
+│   └── it should pay the caller
+├── when the live token answers false
+│   └── it should complete the handover and pay nobody
+├── when the live order token has no code
+│   └── it should complete the handover and move no balance
+├── when the live order token returns no data
+│   └── it should complete the handover and move no balance
+├── when the live payee refuses the payment
+│   ├── it should revert
+│   └── it should undo the whole batch and leave the attempt waiting
+├── when a live payee calls the account again with the same batch
+│   └── it should refuse the nested run and complete the outer one once
+├── when the same live handover runs a second time
+│   ├── it should revert
+│   └── it should refuse it as a consumed attempt
+├── when the live new key already holds a privilege
+│   ├── it should revert
+│   └── it should undo the whole batch with AlreadyPrivileged
+└── when the live removed key holds no key value
+    ├── it should revert
+    └── it should undo the whole batch with NotAKey

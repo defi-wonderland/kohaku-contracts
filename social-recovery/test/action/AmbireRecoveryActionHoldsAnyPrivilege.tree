@@ -1,0 +1,9 @@
+AmbireRecoveryActionHoldsAnyPrivilegeTest
+├── when the entry is zero
+│   └── it should return false
+├── when the entry is nonzero
+│   └── it should return true
+├── when the account has no code
+│   └── it should revert
+└── when the account returns nothing
+    └── it should revert

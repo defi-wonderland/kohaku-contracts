@@ -1,0 +1,104 @@
+ZkPassportMethodVerifyTest
+├── when all six checks pass
+│   └── it should return the verify selector
+├── when the proof reaches the root verifier
+│   └── it should call it once with the accepted version and a service config ending in false
+├── when the proof reaches the verifier helper
+│   └── it should pass the proofs committed inputs to get bound data
+├── when the configured identifier is zero
+│   ├── it should refuse the proof
+│   └── it should call no verifier
+├── when the root accepts the proof only as a development proof
+│   └── it should refuse the proof
+├── when the root answers valid false
+│   ├── it should refuse the proof
+│   └── it should not call the verifier helper
+├── when the root verifier fails
+│   └── it should refuse the proof
+├── when the root verifier returns nothing
+│   └── it should refuse the proof
+├── when the root verifier returns one word
+│   └── it should refuse the proof
+├── when the root verifier returns oversized garbage
+│   └── it should refuse the proof
+├── when the root verifier word holds no code
+│   └── it should refuse the proof
+├── when the returned identifier is zero
+│   ├── it should refuse the proof
+│   └── it should not call the verifier helper
+├── when the returned identifier differs from the config
+│   ├── it should refuse the proof
+│   └── it should not call the verifier helper
+├── when the returned identifier differs only in its high bits
+│   └── it should refuse the proof
+├── when the returned verifier helper is not the stored verifier helper
+│   ├── it should refuse the proof
+│   └── it should not call the returned verifier helper
+├── when the returned verifier helper is the zero address
+│   └── it should refuse the proof
+├── when the nullifier type input is not zero
+│   ├── it should refuse the proof
+│   ├── it should call the root verifier once
+│   └── it should not call the verifier helper
+├── when the nullifier type is none and the identifier matches
+│   └── it should refuse the proof
+├── when the nullifier type input is nonzero only in its high bits
+│   └── it should refuse the proof
+├── when only another input is zero
+│   └── it should refuse the proof
+├── when there are exactly three public inputs and the first is zero
+│   └── it should accept the proof
+├── when there are two public inputs
+│   ├── it should refuse the proof
+│   └── it should not call the verifier helper
+├── when custom data is the uppercase rendering
+│   └── it should refuse the proof
+├── when custom data is the unprefixed rendering
+│   └── it should refuse the proof
+├── when custom data carries an uppercase x in the prefix
+│   └── it should refuse the proof
+├── when custom data carries a trailing character
+│   └── it should refuse the proof
+├── when custom data is empty
+│   └── it should refuse the proof
+├── when custom data is the raw digest bytes
+│   └── it should refuse the proof
+├── when the digest has leading zeros
+│   └── it should accept the full width rendering
+├── when custom data is the short rendering of a digest with leading zeros
+│   └── it should refuse the proof
+├── when the digest is zero
+│   └── it should accept the rendering with sixty four zeros
+├── when the verifier helper fails
+│   └── it should refuse the proof
+├── when the verifier helper returns nothing
+│   └── it should refuse the proof
+├── when the verifier helper returns one word
+│   └── it should refuse the proof
+├── when the verifier helper returns oversized garbage
+│   └── it should refuse the proof
+├── when the proof is empty
+│   └── it should refuse the proof
+├── when the config is empty
+│   └── it should refuse the proof
+├── when the method is stopped and lifted
+│   └── it should give the same answer before, during and after the stop
+├── when a failing proof arrives during a stop
+│   └── it should refuse the proof
+├── when the keys name a new root and verifier helper
+│   ├── it should call the new root and not the old one
+│   └── it should accept the proof
+├── when the keys name another verifier helper
+│   └── it should refuse a root answer naming the former verifier helper
+├── when the key admin moves the accepted version after a config is committed
+│   ├── it should call the root verifier once with the new accepted version
+│   └── it should accept the proof
+├── when the root accepts the proof only under the former version
+│   └── it should refuse the proof
+├── when the method accepts any version and the config holds any values
+│   ├── it should call the root verifier once with the accepted version
+│   └── it should accept the proof
+├── when a proof is verified
+│   └── it should call none of the snapshot addresses
+└── when the method is deployed with a zero guardian word
+    └── it should accept an honest proof

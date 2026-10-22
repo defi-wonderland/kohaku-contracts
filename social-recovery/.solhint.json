@@ -1,0 +1,23 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "compiler-version": ["error", "0.8.30"],
+    "private-vars-leading-underscore": ["error", { "strict": false }],
+    "ordering": "error",
+    "named-parameters-mapping": "error",
+    "explicit-types": ["error", "explicit"],
+    "gas-named-return-values": "error",
+    "state-visibility": "error",
+    "func-visibility": ["error", { "ignoreConstructors": true }],
+    "no-empty-blocks": "error",
+    "no-unused-vars": "error",
+    "max-line-length": ["error", 120],
+    "quotes": ["error", "single"],
+    "no-inline-assembly": "off",
+    "avoid-low-level-calls": "off",
+    "import-path-check": "off",
+    "use-natspec": "off",
+    "gas-small-strings": "off",
+    "gas-increment-by-one": "off"
+  }
+}

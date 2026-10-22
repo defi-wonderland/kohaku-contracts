@@ -1,0 +1,42 @@
+Anon Aadhaar real-proof fixture
+
+fixture.json in this directory holds one Groth16 proof generated for this repository. It was
+made with software and test data from Anon Aadhaar:
+
+  repository: https://github.com/anon-aadhaar/anon-aadhaar
+  commit:     4dad918761cfb1d7d5ed9918dcd796d0cb23ae82
+  inputs:     packages/circuits/assets/dataInput.json (testQRData)
+              packages/circuits/assets/testCertificate.pem
+  packages:   @anon-aadhaar/core 2.4.3 (npm)
+  artifacts:  v2.0.0 aadhaar-verifier.wasm, circuit_final.zkey and vkey.json from
+              https://anon-aadhaar-artifacts.s3.eu-central-1.amazonaws.com/v2.0.0/
+
+No upstream file is copied into this directory. The test QR data is a sample identity that
+upstream re-signed with its published test key; the proof proves that identity under that key.
+
+Anon Aadhaar is released under the MIT License:
+
+  MIT License
+
+  Copyright (c) 2022 Ethereum Foundation
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+gen.js, generate.py, fixture.json and AadhaarRealProofFixture.sol are part of this repository
+and fall under its own licence, GPL-3.0-or-later.

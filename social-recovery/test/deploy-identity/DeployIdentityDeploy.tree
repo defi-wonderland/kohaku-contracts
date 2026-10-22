@@ -1,0 +1,33 @@
+DeployIdentityDeployTest
+├── when the zkPassport method safe is zero
+│   ├── it should revert
+│   ├── it should raise the zero safe error naming ZKPASSPORT_METHOD_SAFE
+│   └── it should create no contract
+├── when the Aadhaar method safe is zero
+│   ├── it should revert
+│   ├── it should raise the zero safe error naming AADHAAR_METHOD_SAFE
+│   └── it should create no contract
+├── when a table address has no code
+│   ├── it should revert
+│   ├── it should name the address in the no code error
+│   └── it should create no contract
+├── when the Aadhaar verifier has no code
+│   ├── it should revert
+│   ├── it should name the address in the no code error
+│   └── it should create no contract
+├── when a live read disagrees
+│   ├── it should revert
+│   ├── it should name rootAdmin and carry the input and the live value
+│   └── it should create no contract
+├── when every live read agrees
+│   ├── it should create the two methods
+│   └── it should return methods the deployment check accepts
+├── when each method has its own safe
+│   ├── it should make the zkPassport method's safe its key admin and pause holder
+│   └── it should make the Aadhaar method's safe its key admin and pause holder
+├── when both methods share one safe
+│   ├── it should make the shared safe both methods' key admin and pause holder
+│   └── it should return methods the deployment check accepts
+└── when the chain ships no Aadhaar and its safe is zero
+    ├── it should create the zkPassport method alone
+    └── it should make the zkPassport method's safe its key admin and pause holder

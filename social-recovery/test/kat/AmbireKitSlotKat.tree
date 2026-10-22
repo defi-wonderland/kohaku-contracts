@@ -1,0 +1,3 @@
+AmbireKitSlotKatTest
+└── when replaying the kit slot preimages through the action
+    └── it should reproduce every expected preimage, hash, slot and binding.

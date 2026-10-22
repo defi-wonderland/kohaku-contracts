@@ -1,0 +1,6 @@
+PolicyMethodRolesEventsTest
+├── when the method is deployed
+│   └── it should emit only OwnershipTransferred, AdminTransferred and TrustedKeysUpdated, once each.
+└── when every key admin and stop function runs once
+    ├── it should emit only the six events the interfaces declare.
+    └── it should emit each of the six events from the method.

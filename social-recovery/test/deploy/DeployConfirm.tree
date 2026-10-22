@@ -1,0 +1,15 @@
+DeployConfirmTest
+├── when confirm runs on the local test chain
+│   ├── it should revert
+│   ├── it should name the chain in the unsupported chain error
+│   └── it should publish no record
+├── when confirm label runs on an unsupported chain
+│   ├── it should revert
+│   ├── it should name the chain in the unsupported chain error
+│   └── it should publish no record
+├── when the chain is unsupported and the label is invalid
+│   ├── it should revert
+│   └── it should raise the unsupported chain error first
+└── when the chain is supported and the label is invalid
+    ├── it should revert
+    └── it should raise the invalid label error before the probe

@@ -1,0 +1,80 @@
+DeployConfirmLabelForkTest
+├── when the candidate holds on chain
+│   ├── it should publish the candidate's bytes under the label
+│   ├── it should remove the candidate
+│   └── it should return the recorded deployment
+├── when no fork is active
+│   ├── it should revert
+│   ├── it should carry the probe's revert data
+│   ├── it should publish no record
+│   └── it should write no candidate
+├── when the candidate names another chain
+│   ├── it should revert
+│   ├── it should name the recorded and the current chain id
+│   └── it should publish no record
+├── when the recorded manager has no code
+│   ├── it should revert
+│   ├── it should name the address in the not deployed error
+│   └── it should publish no record
+├── when the recorded wallet method has no code
+│   ├── it should revert
+│   ├── it should name the address in the not deployed error
+│   └── it should publish no record
+├── when the recorded passkey method has no code
+│   ├── it should revert
+│   ├── it should name the address in the not deployed error
+│   └── it should publish no record
+├── when the recorded action has no code
+│   ├── it should revert
+│   ├── it should name the address in the not deployed error
+│   └── it should publish no record
+├── when the recorded manager is another manager with code
+│   ├── it should revert
+│   ├── it should name the recorded manager and the action's manager
+│   └── it should publish no record
+├── when the candidate swaps the two methods
+│   ├── it should revert
+│   ├── it should name the passkey method, the expected name and the answered name
+│   └── it should publish no record
+├── when the recorded codehash differs from the table
+│   ├── it should revert
+│   ├── it should name the table's implementation, the table's codehash and the recorded codehash
+│   └── it should publish no record
+├── when the recorded pin differs from the table
+│   ├── it should revert
+│   ├── it should name the table's implementation and the recorded one
+│   └── it should publish no record
+├── when the candidate carries an extra address key
+│   ├── it should publish no key the checks did not read
+│   └── it should publish exactly the seven record keys, each the checked value
+├── when the candidate carries an extra unrelated field
+│   ├── it should publish no key the checks did not read
+│   └── it should publish exactly the seven record keys, each the checked value
+├── when the recorded manager is a look alike
+│   ├── it should revert
+│   ├── it should name policyManager, the look-alike, the kit's code hash and the one found
+│   └── it should publish no record
+├── when the recorded action is a look alike
+│   ├── it should revert
+│   ├── it should name recoveryAction, the look-alike, the kit's code hash and the one found
+│   └── it should publish no record
+├── when the recorded manager and action are look alikes
+│   ├── it should revert
+│   ├── it should name either look-alike with the kit's code hash and the one found
+│   └── it should publish no record
+├── when the recorded wallet method is a look alike
+│   ├── it should revert
+│   ├── it should name ecdsaMethod, the look-alike, the kit's code hash and the one found
+│   └── it should publish no record
+├── when the recorded passkey method is a look alike
+│   ├── it should revert
+│   ├── it should name passkeyMethod, the look-alike, the kit's code hash and the one found
+│   └── it should publish no record
+├── when the recorded action holds the manager
+│   ├── it should revert
+│   ├── it should name recoveryAction and the recorded address in the read failure
+│   └── it should publish no record
+└── when the recorded wallet method cannot be named
+    ├── it should revert
+    ├── it should name ecdsaMethod and the recorded address in the read failure
+    └── it should publish no record

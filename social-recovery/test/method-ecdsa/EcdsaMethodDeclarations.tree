@@ -1,0 +1,17 @@
+EcdsaMethodDeclarationsTest
+├── when trusted parties are read
+│   └── it should answer the zero address for both roles and their pending holders and an empty key list
+├── when asked for the policy method interface
+│   └── it should answer true
+├── when asked for the erc165 interface
+│   └── it should answer true
+├── when asked for the invalid interface id
+│   └── it should answer false
+├── when asked for the pause or admin interface
+│   └── it should answer false
+├── when name and version are read
+│   └── it should answer the same nonempty strings every time
+├── when verify answers
+│   └── it should return exactly one abi word
+└── when any function runs
+    └── it should read and write no storage

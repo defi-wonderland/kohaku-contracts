@@ -1,0 +1,13 @@
+{
+  "name": "social-recovery",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "kats:check": "node test/fixtures/kats/reference-contract-kats.mjs --check"
+  },
+  "dependencies": {
+    "@anon-aadhaar/core": "2.4.3",
+    "ox": "1.7.5",
+    "viem": "2.56.8"
+  }
+}

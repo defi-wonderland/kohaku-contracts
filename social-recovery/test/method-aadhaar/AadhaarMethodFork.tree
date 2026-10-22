@@ -1,0 +1,19 @@
+AadhaarMethodForkTest
+├── when the live verifier checks the real proof
+│   └── it should answer true
+├── when the method with the test key checks the real proof
+│   └── it should answer the magic value
+├── when the digest differs
+│   └── it should answer zero
+├── when the method holds the production key
+│   └── it should answer zero
+├── when the config nullifier differs
+│   └── it should answer zero
+├── when the config seed differs
+│   └── it should answer zero
+├── when the timestamp input is tampered
+│   └── it should answer zero
+├── when point b is in snarkjs order
+│   └── it should answer zero
+└── when the real proof is one second past the window
+    └── it should answer zero

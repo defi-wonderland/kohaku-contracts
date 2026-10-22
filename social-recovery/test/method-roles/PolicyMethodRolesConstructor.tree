@@ -1,0 +1,18 @@
+PolicyMethodRolesConstructorTest
+├── when the initial admin is zero
+│   ├── it should revert.
+│   └── it should carry PolicyMethodRoles_AdminInvalidAdmin of zero.
+├── when the initial owner is zero
+│   ├── it should revert.
+│   └── it should carry OwnableInvalidOwner of zero.
+├── when an initial key is the marker the hook refuses
+│   ├── it should revert.
+│   └── it should carry the hook error.
+└── when every argument is valid
+    ├── it should emit AdminTransferred from zero to the initial admin, then TrustedKeysUpdated from no keys to the initial keys.
+    ├── it should make the initial owner the pause holder.
+    ├── it should make the initial admin the key admin.
+    ├── it should store the initial keys in order.
+    ├── it should leave both pending holders at zero.
+    ├── it should leave the method unpaused.
+    └── it should set the name and the version.

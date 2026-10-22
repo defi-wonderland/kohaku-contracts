@@ -1,0 +1,34 @@
+PolicyManagerCancelByOwnerTest
+├── When no setup and no attempt was ever recorded
+│   └── It should revert with PolicyManager_NoActiveAttempt carrying the caller and the action.
+├── When a setup exists but no attempt was ever recorded
+│   └── It should revert with PolicyManager_NoActiveAttempt carrying the caller and the action.
+├── When the last attempt is cancelled or consumed
+│   └── It should revert with PolicyManager_NoActiveAttempt carrying the caller and the action.
+├── When no attempt is waiting and the named id is not the last attempt's
+│   └── It should revert with PolicyManager_NoActiveAttempt rather than a wrong id.
+├── When an attempt is waiting
+│   ├── It should set the attempt to Cancelled and keep the rest of its record.
+│   ├── It should emit AttemptCancelled alone with the account as canceller and no places.
+│   ├── It should leave the setup and the attempt counter unchanged.
+│   └── It should refuse a second cancel with nothing left to cancel.
+├── When the named id is not the waiting attempt's id
+│   ├── It should revert with PolicyManager_WrongAttemptId carrying the named id and the waiting id.
+│   └── It should leave the attempt waiting and the state untouched.
+├── When the named id is an earlier attempt's id
+│   ├── It should revert with PolicyManager_WrongAttemptId carrying the earlier id and the waiting id.
+│   └── It should leave the later attempt waiting.
+├── When the action stopped serving the account
+│   ├── It should cancel the attempt.
+│   └── It should not ask the action.
+├── When the attempt's methods report a stop or revert on every call
+│   └── It should cancel without reaching any method or pause read.
+├── When the attempt carries a setup nonce other than the stored one
+│   └── It should cancel it, since the holder's cancel reads no setup nonce.
+├── When a new setup already ended the attempt
+│   └── It should revert with PolicyManager_NoActiveAttempt and leave the ended record untouched.
+├── When a clear already ended the attempt
+│   └── It should revert with PolicyManager_NoActiveAttempt and leave the ended record untouched.
+└── When an address other than the account calls
+    ├── It should revert with PolicyManager_NoActiveAttempt carrying that address and the action.
+    └── It should leave the account's attempt waiting.

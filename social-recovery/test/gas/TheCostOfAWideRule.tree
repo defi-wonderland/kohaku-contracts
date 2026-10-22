@@ -1,0 +1,13 @@
+TheCostOfAWideRuleTest
+├── when the demo rule opens at every place
+│   └── it should open for less than the demo budget
+├── when the demo rule cancels at every place
+│   └── it should cancel for less than the demo budget
+├── when the demo rule is spent
+│   └── it should hand over for less than the demo budget
+├── when a wide rule opens at every place
+│   └── it should open for less than the wide budget
+├── when a wide rule cancels at every place
+│   └── it should cancel for less than the wide budget
+└── when a wide rule is spent
+    └── it should hand over for less than the demo budget

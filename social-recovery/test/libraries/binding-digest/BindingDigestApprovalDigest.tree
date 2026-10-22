@@ -1,0 +1,7 @@
+BindingDigestApprovalDigestTest
+├── when computing an approval digest
+│   └── it should ignore the proofs.
+├── when two approvals differ in any one member
+│   └── it should produce different digests.
+└── when an approval and a cancellation share every member
+    └── it should produce different digests.
