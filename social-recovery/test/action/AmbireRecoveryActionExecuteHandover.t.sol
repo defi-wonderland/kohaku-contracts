@@ -268,6 +268,18 @@ contract AmbireRecoveryActionExecuteHandoverTest is ActionSpendTestBase {
     _expectMalformed(_dirty);
   }
 
+  /// @notice A payload whose first word is a clean address and whose second word, the removed key,
+  ///         carries bits above the twenty address bytes is no handover, so it is refused with the
+  ///         payload it carried rather than read as a truncated address. `_highSeed` picks the upper
+  ///         96 bits of that word, bounded so at least one of them is set.
+  function testFuzz_RevertWhen_TheRemovedKeyWordCarriesHighBits(uint256 _highSeed) external {
+    uint256 _high = bound(_highSeed, 1, type(uint96).max);
+    bytes memory _dirty = abi.encodePacked(uint256(uint160(_newKey)), (_high << 160) | uint256(uint160(_removedKey)));
+    // it should revert
+    // it should carry the payload
+    _expectMalformed(_dirty);
+  }
+
   /// @notice A payload with a byte trailing the two addresses decodes cleanly, so it is not
   ///         malformed. The action hands the account the batch the two addresses give, with consume
   ///         naming the committed hash, and the account's check refuses it at the grant, since the
