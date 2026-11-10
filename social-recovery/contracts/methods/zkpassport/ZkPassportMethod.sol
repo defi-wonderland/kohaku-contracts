@@ -3,10 +3,8 @@ pragma solidity 0.8.30;
 
 import {IPolicyMethod} from 'interfaces/IPolicyMethod.sol';
 import {IZkPassportMethod} from 'contracts/methods/zkpassport/IZkPassportMethod.sol';
-import {
-  IZkPassportRootVerifier,
-  IZkPassportVerifierHelper
-} from 'contracts/methods/zkpassport/IZkPassportRootVerifier.sol';
+import {IZkPassportRootVerifier} from 'contracts/methods/zkpassport/IZkPassportRootVerifier.sol';
+import {IZkPassportVerifierHelper} from 'contracts/methods/zkpassport/IZkPassportVerifierHelper.sol';
 import {PolicyMethodRoles} from 'contracts/methods/roles/PolicyMethodRoles.sol';
 
 /// @title ZkPassportMethod

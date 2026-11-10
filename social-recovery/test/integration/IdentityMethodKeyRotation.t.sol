@@ -6,10 +6,8 @@ import {IPolicyManager} from 'interfaces/IPolicyManager.sol';
 import {IDeployIdentity} from 'script/IDeployIdentity.sol';
 import {PolicyMethodRoles} from 'contracts/methods/roles/PolicyMethodRoles.sol';
 
-import {
-  IZkPassportRootVerifier,
-  IZkPassportVerifierHelper
-} from 'contracts/methods/zkpassport/IZkPassportRootVerifier.sol';
+import {IZkPassportRootVerifier} from 'contracts/methods/zkpassport/IZkPassportRootVerifier.sol';
+import {IZkPassportVerifierHelper} from 'contracts/methods/zkpassport/IZkPassportVerifierHelper.sol';
 import {IZkPassportMethod} from 'contracts/methods/zkpassport/IZkPassportMethod.sol';
 
 import {IntegrationBase} from 'test/integration/base/IntegrationBase.sol';
