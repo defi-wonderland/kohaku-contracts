@@ -258,6 +258,22 @@ contract AmbireRecoveryActionExecuteHandoverTest is ActionSpendTestBase {
     _expectMalformed(_short);
   }
 
+  /// @notice A handover of two clean, distinct, nonzero keys cut to 63 bytes, one short of its second
+  ///         word, is refused for its length alone, since its first word is a clean address. A
+  ///         recovery must never act on a removed key it cannot read whole.
+  function test_RevertWhen_ThePayloadStopsOneByteShortOfTwoWords() external {
+    address _first = address(uint160(uint256(keccak256('one byte short new key'))));
+    address _second = address(uint160(uint256(keccak256('one byte short removed key'))));
+    bytes memory _full = _payload(_first, _second);
+    bytes memory _cut = new bytes(63);
+    for (uint256 _i; _i < 63; ++_i) {
+      _cut[_i] = _full[_i];
+    }
+    // it should revert
+    // it should carry the payload
+    _expectMalformed(_cut);
+  }
+
   /// @notice A payload whose address word carries bits above the twenty address bytes is no
   ///         handover, so it is refused with the payload it carried and nothing reaches the account.
   function test_RevertWhen_AnAddressWordCarriesHighBits() external {
